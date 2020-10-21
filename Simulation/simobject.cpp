@@ -3,7 +3,7 @@
 // Overhaul pipeline stages for assignment 3
 
 // Fetching the instruction and putting it in the Pipeline class. Also printing it out.
-void CPU::Fetch::fetchInstruction(size_t PC) { // Retrives the instruction from the instruction queue at the current program counter. Needs restructuring once Instructions class is implemented
+void CPU::Fetch::fetchInstruction() { // Retrives the instruction from the instruction queue at the current program counter. Needs restructuring once Instructions class is implemented
 }
 
 // Prints the decode stage
@@ -22,8 +22,6 @@ void CPU::Store::storeInstruction() {
 
 // Main function for running the simulation
 void RunSim::runSimulation(){
-    // size_t loop = 0;
-    size_t PC = 0; // Program Counter
     clk = 10; // How far in advance that the event is going to be scheduled
 
     while(!(sys->getMEQ()).empty()){
@@ -43,27 +41,25 @@ void RunSim::runSimulation(){
             ex->executeInstruction();
             // s->setpipelineOpcode(ex->getExecuteStage().getpipelineOpcode());
             // s->setRegisters(ex->getExecuteStage().getRegisters());
-            // sys->removeEvent();
+            s->process();
 
         // Schedules and access the decode stage
     } if(!(strcmp(sys->getMEQ().front()->description(), "Decode")) && (sys->getMEQ().front()->getTime()) == currTick()){
             d->decodeInstruction();
             // ex->setpipelineOpcode(d->getDecodeStage().getpipelineOpcode());
             // ex->setRegisters(d->getDecodeStage().getRegisters());
-            // sys->removeEvent();
-            // schedule(ex, currTick() + 1);
+            ex->process();
 
         // Schedules and access the fetch stage
         } if(!(strcmp(sys->getMEQ().front()->description(), "Fetch")) && (sys->getMEQ().front()->getTime()) == currTick()){
-            f->fetchInstruction(PC);
+            f->fetchInstruction();
             // d->setpipelineOpcode(f->getFetchStage().getpipelineOpcode());
             // d->setRegisters(f->getFetchStage().getRegisters());
-            // sys->removeEvent();
 
             // Scheduling decode for next instruction
-            schedule(d, currTick() + 1);
+            d->process();
             // Scheduling fetch for next instruction
-            schedule(f, currTick() + 1);
+            f->process();
         }
 
         incTick(1); // Increments currentTick by amount (t)
