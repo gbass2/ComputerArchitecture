@@ -49,7 +49,7 @@ private:
     // Port2 holds the data memory
     class Port2 : public Event{
     private:
-        RAM dataMemory[0x1000]; // Memory for loactions 0x200 - 0x1000
+        RAM dataMemory[0x1000]; // Memory for loactions 0x200 - 0x1000. Holds locations 0 - 0x200 due to the design but will not be used
         Memory *mem;
         friend class CPU; // Allows Store class to access these private variables
 
@@ -65,6 +65,7 @@ private:
     Port1 *p1;
     Port2 *p2;
     Tick clk;
+    size_t PC; // Program Counter
 
 public:
     Memory(System *s) : SimObject(s), p1(new Port1(this)), p2(new Port2(this)){}
@@ -85,9 +86,13 @@ private:
 
     public:
         Fetch(CPU *c) : Event(), cpu(c) {}
-        virtual void process() override {cpu->process();}
+        virtual void process() override {
+        std::cout << "processing on Tick " << cpu->currTick() << std::endl;
+        cpu->sys->removeEvent(); // removing event that was just executed
+        cpu->schedule(cpu->f, cpu->currTick() + cpu->clk); // Scheduling new event
+        }
         virtual const char* description() override {return "Fetch";}
-        void fetchInstruction(size_t PC); // Gets the instruction from the instruction memory
+        void fetchInstruction(); // Gets the instruction from the instruction memory
     };
 
     class Decode : public Event{
@@ -97,7 +102,10 @@ private:
 
     public:
         Decode(CPU *c) : Event(), cpu(c) {}
-        virtual void process() override {cpu->process();}
+        virtual void process() override {
+        std::cout << "processing on Tick " << cpu->currTick() << std::endl;
+        cpu->schedule(cpu->d, cpu->currTick() + cpu->clk); // Scheduling new event
+        }
         virtual const char* description() override {return "Decode";}
         void decodeInstruction(); // Prints out the decode stage *****
     };
@@ -108,7 +116,11 @@ private:
         CPU *cpu;
     public:
         Execute(CPU *c) : Event(), cpu(c) {}
-        virtual void process() override {cpu->process();}
+        virtual void process() override {
+        std::cout << "processing on Tick " << cpu->currTick() << std::endl;
+        cpu->sys->removeEvent(); // removing event that was just executed
+        cpu->schedule(cpu->ex, cpu->currTick() + cpu->clk); // Scheduling new event
+        }
         virtual const char* description() override {return "Execute";}
         void executeInstruction(); // Prints execute stage *****
     };
@@ -119,7 +131,10 @@ private:
         CPU *cpu;
     public:
         Store(CPU *c) : Event(), cpu(c) {}
-        virtual void process() override { cpu->process(); }
+        virtual void process() override {
+        std::cout << "processing on Tick " << cpu->currTick() << std::endl;
+        cpu->schedule(cpu->ex, cpu->currTick() + cpu->clk);
+        }
         virtual const char* description() override {return "Store";}
         void storeInstruction(); // Prints store stage *****
     };
@@ -130,7 +145,11 @@ private:
         CPU *cpu;
     public:
         Stall(CPU *c) : Event(), cpu(c) {}
-        virtual void process() override {cpu->process();}
+        virtual void process() override {
+        std::cout << "processing on Tick " << cpu->currTick() << std::endl;
+        cpu->sys->removeEvent(); // removing event that was just executed
+        cpu->schedule(cpu->s, cpu->currTick() + cpu->clk); // Scheduling new event
+        }
         virtual const char* description() override {return "Stall";}
     };
 
@@ -141,7 +160,6 @@ private:
     Store *s;
 
     Tick clk;
-    Event *e; // Used for processing a Tick Might not need for assignement 3
     friend class RunSim; // Allows RunSim class to access these private variables
 
 public:
@@ -149,12 +167,6 @@ public:
 
     virtual void initialize() override { // Initialzes MEQ with a fetch event
         schedule(f, currTick());
-    }
-
-    // Not sure if this is needed
-    void process() {
-        std::cout << "processing on Tick " << currTick() << std::endl;
-        schedule(e, currTick() + clk);
     }
 };
 
