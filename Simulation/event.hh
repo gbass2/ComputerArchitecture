@@ -23,7 +23,7 @@ public:
     }
     bool isScheduled() { return scheduled; }
     virtual void process() = 0;
-    virtual const char* description() = 0; 
+    virtual const char* description() = 0;
 
 };
 
