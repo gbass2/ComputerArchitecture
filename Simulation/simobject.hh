@@ -65,8 +65,6 @@ private:
     Port1 *p1;
     Port2 *p2;
     Tick clk;
-    size_t PC; // Program Counter
-
 public:
     Memory(System *s) : SimObject(s), p1(new Port1(this)), p2(new Port2(this)){}
 };
@@ -80,9 +78,11 @@ private:
 class CPU: public SimObject{
 private:
     // Pipeline stages
+    // Fetch Stage
     class Fetch : public Event{
     private:
         CPU *cpu;
+        size_t PC; // Program Counter
 
     public:
         Fetch(CPU *c) : Event(), cpu(c) {}
@@ -95,6 +95,7 @@ private:
         void fetchInstruction(); // Gets the instruction from the instruction memory
     };
 
+    // Decode Stage
     class Decode : public Event{
     // Finds the data from the registers and passes it to the execution stage to be executed
     private:
@@ -110,6 +111,7 @@ private:
         void decodeInstruction(); // Prints out the decode stage *****
     };
 
+    // Execute Stage
     class Execute : public Event{
     // Passes the incoming registers or memory location to the ALU to be operated
     private:
@@ -125,6 +127,7 @@ private:
         void executeInstruction(); // Prints execute stage *****
     };
 
+    // Store Stage
     class Store : public Event{
     // Store back in memory if needed
     private:
@@ -133,12 +136,14 @@ private:
         Store(CPU *c) : Event(), cpu(c) {}
         virtual void process() override {
         std::cout << "processing on Tick " << cpu->currTick() << std::endl;
-        cpu->schedule(cpu->ex, cpu->currTick() + cpu->clk);
+        cpu->sys->removeEvent(); // removing event that was just executed
+        cpu->schedule(cpu->s, cpu->currTick() + cpu->clk);
         }
         virtual const char* description() override {return "Store";}
         void storeInstruction(); // Prints store stage *****
     };
 
+    // Stalls the pipeline
     class Stall : public Event{
         // Store back in memory if needed
     private:
@@ -153,17 +158,33 @@ private:
         virtual const char* description() override {return "Stall";}
     };
 
+    // ALU for executing the instructions
+    class ALU : public Event{
+    private:
+        CPU *cpu;
+    public:
+        ALU(CPU *c) : Event(), cpu(c) {}
+        virtual void process() override {
+        std::cout << "processing on Tick " << cpu->currTick() << std::endl;
+        cpu->sys->removeEvent(); // removing event that was just executed
+        cpu->schedule(cpu->s, cpu->currTick() + cpu->clk); // Scheduling new event
+        }
+        virtual const char* description() override {return "Stall";}
+
+    };
+
     // Instances of the pipeline stages
     Fetch *f;
     Decode *d;
     Execute *ex;
     Store *s;
+    ALU *a;
 
     Tick clk;
     friend class RunSim; // Allows RunSim class to access these private variables
 
 public:
-    CPU(System *s) : SimObject(s), f(new Fetch(this)), d(new Decode(this)), ex(new Execute(this)), s(new Store(this)) {}
+    CPU(System *s) : SimObject(s), f(new Fetch(this)), d(new Decode(this)), ex(new Execute(this)), s(new Store(this)), a(new ALU(this)) {}
 
     virtual void initialize() override { // Initialzes MEQ with a fetch event
         schedule(f, currTick());
@@ -175,6 +196,7 @@ class RunSim : public CPU{
 public:
     RunSim(System *s) : CPU(s) {} // Calls the CPU constructor so that it will have the same values as the one in main
     void runSimulation(); // Runs the simulation
+    // Have a process function to create an event for parsing the file
 };
 
 #endif //SIMOBJECT_H
