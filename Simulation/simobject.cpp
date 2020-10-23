@@ -1,4 +1,5 @@
 #include "simobject.hh"
+#include <fstream>
 
 // Overhaul pipeline stages for assignment 3
 
@@ -63,6 +64,15 @@ void RunSim::runSimulation(){
         }
 
         incTick(1); // Increments currentTick by amount (t)
+    }
+}
 
+void RunSim::setupSimulator(){
+    std::ifstream inFile("textInput.txt"); //open the file set label as "inFile"
+    std::vector<std::vector<std::string>>  wordIn; // multi dementional vector to hold the file's content
+
+    if(!inFile){ //check the file is opened correctly
+        std::cout << "Unable to open the file: " << std::endl;
+        exit(1);
     }
 }

@@ -27,7 +27,7 @@ public:
 };
 
 // Memory SimObject. It holds the instruction memory and the data memory
-class Memory : public SimObject, public RAM, public Instruction{
+class Memory : public SimObject, public DataMemory, public Instruction{
 private:
     // Port1 holds the instruction memory
     class Port1 : public Event{
@@ -49,7 +49,7 @@ private:
     // Port2 holds the data memory
     class Port2 : public Event{
     private:
-        RAM dataMemory[0x1000]; // Memory for loactions 0x200 - 0x1000. Holds locations 0 - 0x200 due to the design but will not be used
+        DataMemory dataMemory[0x1000]; // Memory for loactions 0x200 - 0x1000. Holds locations 0 - 0x200 due to the design but will not be used
         Memory *mem;
         friend class CPU; // Allows Store class to access these private variables
 
@@ -73,6 +73,7 @@ class RegisterBank :  public Register{
 private:
     Register intRegisters[32]; // Bank of 32 integer registers
     Register fpRegisters[32]; // Bank of 32 floating point registers
+    // Add a process function to schedule access for the registers
 };
 
 class CPU: public SimObject{
@@ -192,11 +193,21 @@ public:
 };
 
 // Runs the simulatiom
-class RunSim : public CPU{
+class RunSim : public Event, public CPU{
 public:
-    RunSim(System *s) : CPU(s) {} // Calls the CPU constructor so that it will have the same values as the one in main
+    RunSim(System *s) :  Event(), CPU(s) {} // Calls the CPU constructor so that it will have the same values as the one in main
     void runSimulation(); // Runs the simulation
-    // Have a process function to create an event for parsing the file
+    void setupSimulator(); // Reads the instructions in from an assembly file, converts them to binary and places it in memory
+    
+    virtual void process() override{
+        std::cout << "processing on Tick " << currTick() << std::endl;
+        sys->schedule(this, 0); // Scheduling new event
+
+    }
+    virtual const char* description() override {return "Setup Simulation";}
+    virtual void initialize() override { // Initialzes MEQ with a fetch event
+        process();
+    }
 };
 
 #endif //SIMOBJECT_H

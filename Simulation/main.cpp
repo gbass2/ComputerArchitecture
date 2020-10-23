@@ -6,8 +6,9 @@ int main(){
     System *sys = new System();
     CPU *cpu = new CPU(sys);
     RunSim *sim = new RunSim(sys);
-    cpu->initialize();
-    sim->runSimulation(); // Remove the the end time for assignment 3 bc its not needed
+    cpu->initialize(); // Sets up the first event. Which is a fetch event
+    sim->setupSimulator(); // Reading the contents of the file and filling the memory
+    sim->runSimulation();
 
     return 0;
 }

@@ -1,2 +1,2 @@
 # ComputerArchitecture
-Simulating a Risc V architecture in C++
+Simulating a RISC-V architecture in C++
