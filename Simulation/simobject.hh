@@ -34,6 +34,7 @@ private:
     private:
         Instruction instructionMem[0x093]; // Instruction memory 0 - 0x093
         Memory *mem;
+        // std::deque<int> branchLocation;
         friend class Fetch; // Allows Store class to access these private variables
 
     public:
@@ -49,7 +50,7 @@ private:
     // Port2 holds the data memory
     class Port2 : public Event{
     private:
-        DataMemory dataMemory[0x1000]; // Memory for loactions 0x200 - 0x1000. Holds locations 0 - 0x200 due to the design but will not be used
+        DataMemory dataMemory[0xfff]; // Memory for loactions 0x200 - 0x1000. Holds locations 0 - 0x200 due to the design but will not be used
         Memory *mem;
         friend class CPU; // Allows Store class to access these private variables
 
@@ -83,7 +84,6 @@ private:
     class Fetch : public Event{
     private:
         CPU *cpu;
-        size_t PC; // Program Counter
 
     public:
         Fetch(CPU *c) : Event(), cpu(c) {}
@@ -181,6 +181,7 @@ private:
     Store *s;
     ALU *a;
 
+    size_t PC; // Program Counter
     Tick clk;
     friend class RunSim; // Allows RunSim class to access these private variables
 
@@ -198,7 +199,7 @@ public:
     RunSim(System *s) :  Event(), CPU(s) {} // Calls the CPU constructor so that it will have the same values as the one in main
     void runSimulation(); // Runs the simulation
     void setupSimulator(); // Reads the instructions in from an assembly file, converts them to binary and places it in memory
-    
+
     virtual void process() override{
         std::cout << "processing on Tick " << currTick() << std::endl;
         sys->schedule(this, 0); // Scheduling new event
