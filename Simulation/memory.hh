@@ -6,7 +6,6 @@
 #include <deque>
 #include <tuple>
 
-
 // Class for each Ram locoation created
 class DataMemory{
 protected:

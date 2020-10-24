@@ -1,5 +1,6 @@
 #include "simobject.hh"
-#include <fstream>
+
+using namespace std;
 
 // Overhaul pipeline stages for assignment 3
 
@@ -28,39 +29,45 @@ void RunSim::runSimulation(){
     while(!(sys->getMEQ()).empty()){
         printMEQ();
         if ((sys->getMEQ().front()->getTime()) < currTick()){
-            std::cout << "Error: Event was scheduled prior to the current time" << std::endl;
+            cout << "Error: Event was scheduled prior to the current time" << endl;
             assert(0);
         }
 
         // Schedules accesses the store stage
         if(!(strcmp(sys->getMEQ().front()->description(), "Store")) && (sys->getMEQ().front()->getTime()) == currTick()){
-            s->storeInstruction();
-            sys->removeEvent();
+            // s->storeInstruction();
+            // sys->removeEvent();
 
         // Schedules and accesses the execute stage
         } if(!(strcmp(sys->getMEQ().front()->description(), "Execute")) && (sys->getMEQ().front()->getTime()) == currTick()){
-            ex->executeInstruction();
+            // ex->executeInstruction();
             // s->setpipelineOpcode(ex->getExecuteStage().getpipelineOpcode());
             // s->setRegisters(ex->getExecuteStage().getRegisters());
-            s->process();
+            // s->process();
 
         // Schedules and access the decode stage
-    } if(!(strcmp(sys->getMEQ().front()->description(), "Decode")) && (sys->getMEQ().front()->getTime()) == currTick()){
-            d->decodeInstruction();
+        } if(!(strcmp(sys->getMEQ().front()->description(), "Decode")) && (sys->getMEQ().front()->getTime()) == currTick()){
+            // d->decodeInstruction();
             // ex->setpipelineOpcode(d->getDecodeStage().getpipelineOpcode());
             // ex->setRegisters(d->getDecodeStage().getRegisters());
-            ex->process();
+            // ex->process();
 
         // Schedules and access the fetch stage
         } if(!(strcmp(sys->getMEQ().front()->description(), "Fetch")) && (sys->getMEQ().front()->getTime()) == currTick()){
-            f->fetchInstruction();
+            // f->fetchInstruction();
             // d->setpipelineOpcode(f->getFetchStage().getpipelineOpcode());
             // d->setRegisters(f->getFetchStage().getRegisters());
 
             // Scheduling decode for next instruction
-            d->process();
+            // d->process();
             // Scheduling fetch for next instruction
-            f->process();
+            // f->process();
+
+        // Reading from file and placing the instructions in memeory
+        } if(!(strcmp(sys->getMEQ().front()->description(), "Stall")) && (sys->getMEQ().front()->getTime()) == currTick()){
+
+        } if(!(strcmp(sys->getMEQ().front()->description(), "Setup Simulation")) && (sys->getMEQ().front()->getTime()) == currTick()){
+            setupSimulator(); // load the instructions into memory
         }
 
         incTick(1); // Increments currentTick by amount (t)
@@ -68,11 +75,5 @@ void RunSim::runSimulation(){
 }
 
 void RunSim::setupSimulator(){
-    std::ifstream inFile("textInput.txt"); //open the file set label as "inFile"
-    std::vector<std::vector<std::string>>  wordIn; // multi dementional vector to hold the file's content
-
-    if(!inFile){ //check the file is opened correctly
-        std::cout << "Unable to open the file: " << std::endl;
-        exit(1);
-    }
+    // Convert the asm by hand and place them into the correct memory locations
 }

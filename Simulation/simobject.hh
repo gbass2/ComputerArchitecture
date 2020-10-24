@@ -49,7 +49,7 @@ private:
     // Port2 holds the data memory
     class Port2 : public Event{
     private:
-        DataMemory dataMemory[0x1000]; // Memory for loactions 0x200 - 0x1000. Holds locations 0 - 0x200 due to the design but will not be used
+        DataMemory dataMemory[0xfff]; // Memory for loactions 0x200 - 0x1000. Holds locations 0 - 0x200 due to the design but will not be used
         Memory *mem;
         friend class CPU; // Allows Store class to access these private variables
 
@@ -57,7 +57,7 @@ private:
         // Creates and processes a port1 event
         Port2(Memory *m) : Event(), mem(m) {}
         virtual void process() override {
-            std::cout << "processing on Tick " << mem->currTick() << std::endl;
+            std::cout << "scheduling on Tick " << mem->currTick() << std::endl;
             mem->schedule(mem->p2, mem->currTick() + mem->clk);
         }
         virtual const char* description() override {return "Data Memory Access"; }
@@ -76,6 +76,19 @@ private:
     // Add a process function to schedule access for the registers
 };
 
+// Holds the registers and instructions for each pipeline stage
+class Pipeline : public Event, public Register{
+private:
+    // // Registers for the instruction
+    // Register rs1;
+    // Register rs2;
+    // Register rd;
+    // //
+    // std::string opcode;
+    //
+    // std::vector<double> immediate; //
+};
+
 class CPU: public SimObject{
 private:
     // Pipeline stages
@@ -83,7 +96,6 @@ private:
     class Fetch : public Event{
     private:
         CPU *cpu;
-        size_t PC; // Program Counter
 
     public:
         Fetch(CPU *c) : Event(), cpu(c) {}
@@ -166,7 +178,7 @@ private:
     public:
         ALU(CPU *c) : Event(), cpu(c) {}
         virtual void process() override {
-        std::cout << "processing on Tick " << cpu->currTick() << std::endl;
+        std::cout << "scheduling on Tick " << cpu->currTick() << std::endl;
         cpu->sys->removeEvent(); // removing event that was just executed
         cpu->schedule(cpu->s, cpu->currTick() + cpu->clk); // Scheduling new event
         }
@@ -181,6 +193,7 @@ private:
     Store *s;
     ALU *a;
 
+    size_t PC; // Program Counter
     Tick clk;
     friend class RunSim; // Allows RunSim class to access these private variables
 
@@ -197,11 +210,11 @@ class RunSim : public Event, public CPU{
 public:
     RunSim(System *s) :  Event(), CPU(s) {} // Calls the CPU constructor so that it will have the same values as the one in main
     void runSimulation(); // Runs the simulation
-    void setupSimulator(); // Reads the instructions in from an assembly file, converts them to binary and places it in memory
-    
+    void setupSimulator(); // Sets up the instruction memory with the instructions from a file
+
     virtual void process() override{
-        std::cout << "processing on Tick " << currTick() << std::endl;
-        sys->schedule(this, 0); // Scheduling new event
+        std::cout << "scheduling on Tick " << currTick() << std::endl;
+        sys->schedule(this, 1); // Scheduling new event
 
     }
     virtual const char* description() override {return "Setup Simulation";}
