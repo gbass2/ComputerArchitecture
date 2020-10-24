@@ -34,7 +34,6 @@ private:
     private:
         Instruction instructionMem[0x093]; // Instruction memory 0 - 0x093
         Memory *mem;
-        // std::deque<int> branchLocation;
         friend class Fetch; // Allows Store class to access these private variables
 
     public:
@@ -58,7 +57,7 @@ private:
         // Creates and processes a port1 event
         Port2(Memory *m) : Event(), mem(m) {}
         virtual void process() override {
-            std::cout << "processing on Tick " << mem->currTick() << std::endl;
+            std::cout << "scheduling on Tick " << mem->currTick() << std::endl;
             mem->schedule(mem->p2, mem->currTick() + mem->clk);
         }
         virtual const char* description() override {return "Data Memory Access"; }
@@ -75,6 +74,19 @@ private:
     Register intRegisters[32]; // Bank of 32 integer registers
     Register fpRegisters[32]; // Bank of 32 floating point registers
     // Add a process function to schedule access for the registers
+};
+
+// Holds the registers and instructions for each pipeline stage
+class Pipeline : public Event, public Register{
+private:
+    // // Registers for the instruction
+    // Register rs1;
+    // Register rs2;
+    // Register rd;
+    // //
+    // std::string opcode;
+    //
+    // std::vector<double> immediate; //
 };
 
 class CPU: public SimObject{
@@ -166,7 +178,7 @@ private:
     public:
         ALU(CPU *c) : Event(), cpu(c) {}
         virtual void process() override {
-        std::cout << "processing on Tick " << cpu->currTick() << std::endl;
+        std::cout << "scheduling on Tick " << cpu->currTick() << std::endl;
         cpu->sys->removeEvent(); // removing event that was just executed
         cpu->schedule(cpu->s, cpu->currTick() + cpu->clk); // Scheduling new event
         }
@@ -198,11 +210,11 @@ class RunSim : public Event, public CPU{
 public:
     RunSim(System *s) :  Event(), CPU(s) {} // Calls the CPU constructor so that it will have the same values as the one in main
     void runSimulation(); // Runs the simulation
-    void setupSimulator(); // Reads the instructions in from an assembly file, converts them to binary and places it in memory
+    void setupSimulator(); // Sets up the instruction memory with the instructions from a file
 
     virtual void process() override{
-        std::cout << "processing on Tick " << currTick() << std::endl;
-        sys->schedule(this, 0); // Scheduling new event
+        std::cout << "scheduling on Tick " << currTick() << std::endl;
+        sys->schedule(this, 1); // Scheduling new event
 
     }
     virtual const char* description() override {return "Setup Simulation";}
