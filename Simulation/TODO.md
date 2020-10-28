@@ -1,9 +1,9 @@
 # Assignment 3
 
 # Memory: 
+- Almost finished. Just a few errors.
 - Implement i port and D port.
 - Everything needs events
-- Read from the file
 - Implement what each register, data memory, and instruction memory holds
 
 A tab in the s file signifies an immediate value instruction
