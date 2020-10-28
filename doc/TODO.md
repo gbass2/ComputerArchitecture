@@ -34,3 +34,5 @@ Don’t have to convert the asm to binary in the code but can do it by hand and 
     - Receive is triggered by the cpu when a stage needs to be run. This already done. Done on odd cycles
     - Send is created when the stage is completed and needs to pass its data. To the next stage This is done on an even cycle
 - Stalls need to be implemented
+
+![Alt text](relative/path/to/img.jpg?raw=true "uml")
