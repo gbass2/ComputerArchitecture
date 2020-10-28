@@ -49,9 +49,9 @@ private:
     // Port2 holds the data memory
     class Port2 : public Event{
     private:
-        DataMemory dataMemory[0xfff]; // Memory for loactions 0x200 - 0x1000. Holds locations 0 - 0x200 due to the design but will not be used
+        DataMemory dataMemory[0xfff]; // Memory for loactions 0x200 - 0xfff. Holds locations 0 - 0x200 due to the design but will not be used
         Memory *mem;
-        friend class CPU; // Allows Store class to access these private variables
+        friend class Execute; // Allows Store class to access these private variables
 
     public:
         // Creates and processes a port1 event
@@ -65,6 +65,7 @@ private:
     Port1 *p1;
     Port2 *p2;
     Tick clk;
+    friend class CPU; // Allows Store class to access these private variables
 public:
     Memory(System *s) : SimObject(s), p1(new Port1(this)), p2(new Port2(this)){}
 };
@@ -113,6 +114,7 @@ private:
     // Finds the data from the registers and passes it to the execution stage to be executed
     private:
         CPU *cpu;
+        Instruction currentInstruction;
 
     public:
         Decode(CPU *c) : Event(), cpu(c) {}
@@ -129,6 +131,8 @@ private:
     // Passes the incoming registers or memory location to the ALU to be operated
     private:
         CPU *cpu;
+        Memory::Port2 mem();
+
     public:
         Execute(CPU *c) : Event(), cpu(c) {}
         virtual void process() override {
@@ -192,13 +196,14 @@ private:
     Execute *ex;
     Store *s;
     ALU *a;
+    Memory *mem;
 
     size_t PC; // Program Counter
     Tick clk;
     friend class RunSim; // Allows RunSim class to access these private variables
 
 public:
-    CPU(System *s) : SimObject(s), f(new Fetch(this)), d(new Decode(this)), ex(new Execute(this)), s(new Store(this)), a(new ALU(this)) {}
+    CPU(System *s) : SimObject(s), mem(new Memory(s)), f(new Fetch(this)), d(new Decode(this)), ex(new Execute(this)), s(new Store(this)), a(new ALU(this)) {}
 
     virtual void initialize() override { // Initialzes MEQ with a fetch event
         schedule(f, currTick());
