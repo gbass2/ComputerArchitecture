@@ -1,9 +1,0 @@
-During Assignment 3
- - Change process function to to be different for each class and hold what is in the if statements in runSimulation
- - The instruction memory will be a vector of Instructions - see assignment 3
- - The ram will be a vector of RAM. It will have multiple arrays
- - Registers might need to be a separate sim object. It is a vector of Registers.
-
- - Need to remove most of what is in the existing classes and functions and redo them
-
- - Implement stalls and no-ops
