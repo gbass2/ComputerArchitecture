@@ -1,6 +1,6 @@
 # Assignment 3
 
-Memory: 
+# Memory: 
 - Implement i port and D port.
 - Everything needs events
 - Read from the file
@@ -24,6 +24,7 @@ Low referes to the bottom 12 bits of memeory address
 
 Don’t have to convert the asm to binary in the code but can do it by hand and insert into memory locations.
 
+# Flow
 - Convert the instructions into binary and place them into instruction memory. This is done in the setup simulation function.
 - Add registers and other variable to hold an instruction in pipeline.
     - Store stage only needs the destination register.
