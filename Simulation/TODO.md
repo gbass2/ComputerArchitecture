@@ -1,4 +1,4 @@
-#Compared assignment 3
+# Assignment 3
 
 Memory: 
 - Implement i port and D port.
@@ -22,7 +22,7 @@ Dynamic cast will allow an event to be casted back to its original class from a 
 Hi  referes to the top 20 bits of memory address
 Low referes to the bottom 12 bits of memeory address
 
-Don’t have to convert the asm to binary in the code but can do it by hand
+Don’t have to convert the asm to binary in the code but can do it by hand and insert into memory locations.
 
 - Convert the instructions into binary and place them into instruction memory. This is done in the setup simulation function.
 - Add registers and other variable to hold an instruction in pipeline.
