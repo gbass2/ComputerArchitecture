@@ -66,8 +66,10 @@ private:
     Port2 *p2;
     Tick clk;
     friend class CPU; // Allows Store class to access these private variables
+
 public:
     Memory(System *s) : SimObject(s), p1(new Port1(this)), p2(new Port2(this)){}
+    virtual void initialize() override;
 };
 
 class RegisterBank :  public Register{
@@ -123,7 +125,7 @@ private:
         cpu->schedule(cpu->d, cpu->currTick() + cpu->clk); // Scheduling new event
         }
         virtual const char* description() override {return "Decode";}
-        void decodeInstruction(); // Prints out the decode stage *****
+        void decodeInstruction();
     };
 
     // Execute Stage
@@ -141,7 +143,7 @@ private:
         cpu->schedule(cpu->ex, cpu->currTick() + cpu->clk); // Scheduling new event
         }
         virtual const char* description() override {return "Execute";}
-        void executeInstruction(); // Prints execute stage *****
+        void executeInstruction();
     };
 
     // Store Stage
@@ -157,7 +159,7 @@ private:
         cpu->schedule(cpu->s, cpu->currTick() + cpu->clk);
         }
         virtual const char* description() override {return "Store";}
-        void storeInstruction(); // Prints store stage *****
+        void storeInstruction();
     };
 
     // Stalls the pipeline
@@ -203,7 +205,7 @@ private:
     friend class RunSim; // Allows RunSim class to access these private variables
 
 public:
-    CPU(System *s) : SimObject(s), mem(new Memory(s)), f(new Fetch(this)), d(new Decode(this)), ex(new Execute(this)), s(new Store(this)), a(new ALU(this)) {}
+    CPU(System *s) : SimObject(s), f(new Fetch(this)), d(new Decode(this)), ex(new Execute(this)), s(new Store(this)), a(new ALU(this)), mem(new Memory(s)) {}
 
     virtual void initialize() override { // Initialzes MEQ with a fetch event
         schedule(f, currTick());
