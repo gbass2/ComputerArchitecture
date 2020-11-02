@@ -1,5 +1,4 @@
 #include "simobject.hh"
-#include <cassert>
 
 using namespace std;
 
