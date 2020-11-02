@@ -49,7 +49,7 @@ private:
     // Port2 holds the data memory
     class Port2 : public Event{
     private:
-        DataMemory dataMemory[0xfff]; // Memory for loactions 0x200 - 0xfff. Holds locations 0 - 0x200 due to the design but will not be used
+        DataMemory dataMemory[0x1000]; // Memory for loactions 0x200 - 0xfff. Holds locations 0 - 0x200 due to the design but will not be used
         Memory *mem;
         friend class Execute; // Allows Store class to access these private variables
 
