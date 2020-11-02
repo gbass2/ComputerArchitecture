@@ -28,7 +28,7 @@ void System::schedule(Event *e, Tick t){ // Schedules an event into MEQ
         assert(0);
     }
 }
-//asdfasdfas
+
 void System::reschedule(Event *e, Tick t){ // Reschedules an event in MEQ
     assert(t >= currentTick);
     if(e->isScheduled()){
