@@ -119,7 +119,7 @@ private:
         Instruction currentInstruction;
 
     public:
-        Decode(CPU *c) : Event(), cpu(c) {}
+        Decode(CPU *c) : Event(), cpu(c){}
         virtual void process() override {
         std::cout << "processing on Tick " << cpu->currTick() << std::endl;
         cpu->schedule(cpu->d, cpu->currTick() + cpu->clk); // Scheduling new event
@@ -133,7 +133,6 @@ private:
     // Passes the incoming registers or memory location to the ALU to be operated
     private:
         CPU *cpu;
-        Memory::Port2 mem();
 
     public:
         Execute(CPU *c) : Event(), cpu(c) {}
@@ -198,14 +197,15 @@ private:
     Execute *ex;
     Store *s;
     ALU *a;
-    Memory *mem;
+    Memory *Iport;
+    Memory *Dport;
 
     size_t PC; // Program Counter
     Tick clk;
     friend class RunSim; // Allows RunSim class to access these private variables
 
 public:
-    CPU(System *s) : SimObject(s), f(new Fetch(this)), d(new Decode(this)), ex(new Execute(this)), s(new Store(this)), a(new ALU(this)), mem(new Memory(s)) {}
+    CPU(System *s) : SimObject(s), f(new Fetch(this)), d(new Decode(this)), ex(new Execute(this)), s(new Store(this)), a(new ALU(this)), Iport(new Memory(s)), Dport(new Memory(s)) {}
 
     virtual void initialize() override { // Initialzes MEQ with a fetch event
         schedule(f, currTick());
