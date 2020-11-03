@@ -2,13 +2,11 @@
 
 using namespace std;
 
-// Overhaul pipeline stages for assignment 3
-
-// Fetching the instruction and putting it in the Pipeline class. Also printing it out.
-void CPU::Fetch::fetchInstruction() { // Retrives the instruction from the instruction queue at the current program counter. Needs restructuring once Instructions class is implemented
+// Fetches the instruction from memory
+void CPU::Fetch::fetchInstruction() {
 }
 
-// Prints the decode stage
+// Deodes the instructions into registers, immediates, etc.
 void CPU::Decode::decodeInstruction() {
 }
 
@@ -34,7 +32,7 @@ void RunSim::runSimulation(){
             assert(0);
         }
 
-        // These stages run on odd ticks and every 5 ticks. The data is sent to the next stage on even ticks every 5 ticks.
+        // These stages run on odd ticks and every 10 ticks. The data is sent to the next stage on even ticks every 10 ticks.
         // Schedules accesses the store stage
         if((!(strcmp(sys->getMEQ().front()->description(), "Store")) && (sys->getMEQ().front()->getTime()) == currTick()) && (currTick() == 1 + (cycle)*10)){
             // s->storeInstruction();
@@ -69,11 +67,12 @@ void RunSim::runSimulation(){
             // Check to see if each stage is done processing and if ready to send data to the next stage
         }
 
-        incTick(1); // Increments currentTick by amount (t)
-
         if(currTick() % 10 == 0)
             cycle++;
+        if(currTick() < 1) // Removing the setup simulation event
+            sys->removeEvent();
 
+        incTick(1); // Increments currentTick by amount (t)
     }
 }
 

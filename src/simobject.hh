@@ -211,7 +211,7 @@ public:
     }
 };
 
-// Runs the simulatiom
+// Runs the simulation
 class RunSim : public Event, public CPU{
 private:
     size_t PC; // Program Counter
@@ -223,7 +223,7 @@ public:
 
     virtual void process() override{
         std::cout << "scheduling on Tick " << currTick() << std::endl;
-        sys->schedule(this, 1); // Scheduling new event
+        sys->schedule(this, 0); // Scheduling new event
 
     }
     virtual const char* description() override {return "Setup Simulation";}
