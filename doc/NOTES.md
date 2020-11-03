@@ -31,4 +31,15 @@
 - Low referes to the bottom 12 bits of memeory address.
 - Don’t have to convert the asm to binary in the code but can do it by hand and insert into memory locations.
 - Adding pthread should allow us to multithread some operations. Not sure if we are allowed to use this since it taps into the cpus threads.
+
+# Example:
+Ticks:
+0 - setup simulation
+1  - run first fetch stage
+6 - send data to decode stage from fetch
+11 - run decode and next fetch stage
+16 -  pass decode to execute and fetch to decode
+21 - run execute, decode, fetch.
+26  - If execute is done, then pass to store, pass decode to execute, and fetch to decode.
+
 ![](uml.jpg)
