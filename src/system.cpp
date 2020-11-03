@@ -1,5 +1,6 @@
 #include "system.hh"
 #include <iostream>
+#include <cassert>
 
 std::deque<Event *>::iterator System::findEvent(Event *e){ // Finds an event in the MEQ
     auto it = MEQ.begin();
