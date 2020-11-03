@@ -86,7 +86,7 @@ private:
     // Register rs1;
     // Register rs2;
     // Register rd;
-    // //
+    //
     // std::string opcode;
     //
     // std::vector<double> immediate; //
