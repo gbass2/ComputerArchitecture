@@ -38,8 +38,15 @@ Ticks:
 1  - run first fetch stage
 6 - send data to decode stage from fetch
 11 - run decode and next fetch stage
+12 - access the registers and place into decode
 16 -  pass decode to execute and fetch to decode
 21 - run execute, decode, fetch.
 26  - If execute is done, then pass to store, pass decode to execute, and fetch to decode.
+
+# Nov. 4th
+- Add an event for send data.
+- Finish implementing the pipeline variables and the flow
+- Look at the alu functions and start implementing
+
 
 ![](uml.jpg)

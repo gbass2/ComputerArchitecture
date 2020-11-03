@@ -59,13 +59,20 @@ void RunSim::runSimulation(){
             // // Scheduling fetch for next instruction
             // f->process();
 
-        } if(!(strcmp(sys->getMEQ().front()->description(), "Stall")) && (sys->getMEQ().front()->getTime()) == currTick()){
+        } if((!(strcmp(sys->getMEQ().front()->description(), "Register Access")) && (sys->getMEQ().front()->getTime()) == currTick()) && (currTick() == 6 + (cycle)*5)){
+            // Access the registers associated with the instruction and place into decode stage
+            sys->removeEvent();
+
+        } if((!(strcmp(sys->getMEQ().front()->description(), "Send Data")) && (sys->getMEQ().front()->getTime()) == currTick()) && (currTick() == 6 + (cycle)*5)){
+            // Check to see if each stage is done processing and if ready to send data to the next stage
+            // Clear the variables in the decode stage after sending the data
+            sys->removeEvent();
 
         } if(!(strcmp(sys->getMEQ().front()->description(), "Setup Simulation")) && (sys->getMEQ().front()->getTime()) == currTick()){
             setupSimulator(); // load the instructions into memory
 
-        } if((!(strcmp(sys->getMEQ().front()->description(), "Send Data")) && (sys->getMEQ().front()->getTime()) == currTick()) && (currTick() == 6 + (cycle)*5)){
-            // Check to see if each stage is done processing and if ready to send data to the next stage
+        } if(!(strcmp(sys->getMEQ().front()->description(), "Stall")) && (sys->getMEQ().front()->getTime()) == currTick()){
+            // Stall the processor
         }
 
         if(currTick() % 10 == 0)

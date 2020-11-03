@@ -15,6 +15,7 @@
 class SimObject {
 protected:
     System *sys;
+    Tick clkTick;
 
 public:
     Tick currTick() { return sys->currTick(); } // Gets the current system time
@@ -34,7 +35,6 @@ private:
     private:
         Instruction instructionMem[0x093]; // Instruction memory 0 - 0x093
         Memory *mem;
-        friend class Fetch; // Allows Store class to access these private variables
 
     public:
         // Creates and processes a port1 event
@@ -51,7 +51,6 @@ private:
     private:
         DataMemory dataMemory[0x1000]; // Memory for loactions 0x200 - 0xfff. Holds locations 0 - 0x200 due to the design but will not be used
         Memory *mem;
-        friend class Execute; // Allows Store class to access these private variables
 
     public:
         // Creates and processes a port1 event
@@ -64,7 +63,6 @@ private:
     };
     Port1 *p1;
     Port2 *p2;
-    Tick clkTick;
     friend class CPU; // Allows Store class to access these private variables
 
 public:
@@ -72,11 +70,22 @@ public:
     virtual void initialize() override{ std::cout << "Memory initialization" << std::endl; }
 };
 
-class RegisterBank :  public Register{
+class RegisterBank : public SimObject, public Register, public Event{
 private:
     Register intRegisters[32]; // Bank of 32 integer registers
     Register fpRegisters[32]; // Bank of 32 floating point registers
-    // Add a process function to schedule access for the registers
+
+public:
+    // Scheduling the register event
+    virtual void process() override{
+        std::cout << "scheduling on Tick " << currTick() << std::endl;
+        sys->schedule(this, currTick() + 1); // Scheduling new event
+
+    }
+    virtual const char* description() override {return "Register Access";}
+    virtual void initialize() override { // Initialzes MEQ with a fetch event
+        std::cout << "Register Access" << std::endl;
+    }
 };
 
 // Holds the registers and instructions for each pipeline stage
@@ -89,7 +98,7 @@ private:
     //
     // std::string opcode;
     //
-    // std::vector<double> immediate; //
+    // std::vector<double> immediate;
 };
 
 class CPU: public SimObject{
@@ -117,6 +126,10 @@ private:
     private:
         CPU *cpu;
         Instruction currentInstruction;
+        uint32_t rs1, rs2, rs3, rd;
+        uint8_t fucnt2, funct3, funct5, funct7;
+        uint32_t imm[32];
+
 
     public:
         Decode(CPU *c) : Event(), cpu(c){}
@@ -133,6 +146,10 @@ private:
     // Passes the incoming registers or memory location to the ALU to be operated
     private:
         CPU *cpu;
+        Instruction currentInstruction;
+        uint32_t rs1, rs2, rs3, rd;
+        uint8_t fucnt2, funct3, funct5, funct7;
+        uint32_t imm[32];
 
     public:
         Execute(CPU *c) : Event(), cpu(c) {}
@@ -150,6 +167,7 @@ private:
     // Store back in memory if needed
     private:
         CPU *cpu;
+        uint32_t destination;
     public:
         Store(CPU *c) : Event(), cpu(c) {}
         virtual void process() override {
@@ -200,7 +218,6 @@ private:
     Memory *Iport;
     Memory *Dport;
 
-    Tick clkTick;
     friend class RunSim; // Allows RunSim class to access these private variables
 
 public:

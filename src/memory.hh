@@ -33,16 +33,16 @@ public:
 // Class for each Instruction in the instruction memory
 class Instruction{
 protected:
-    uint32_t binary; // Holds the 32 bit instruction for the memory loaction
+    uint8_t binary; // Holds the 8 bit instruction for the memory loaction. 4 memory locations equal 32 bits.
     std::string instructionType;
     // Register *operand; // May not need this
 
 public:
     Instruction(uint32_t b) : binary(b) {}
-    Instruction() { binary = 00000000000000000000000000000000; instructionType = ""; }
+    Instruction() { binary = 00000000; instructionType = ""; }
 
     uint32_t getBinary() { return binary;}
-    void setBinary(uint32_t binary) { this->binary = binary; }
+    void setBinary(uint8_t binary) { this->binary = binary; }
     std::string getInstType() { return instructionType;}
     void setInstType(std::string instructionType) { this->instructionType = instructionType; }
 };
