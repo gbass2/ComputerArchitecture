@@ -24,13 +24,12 @@ class Instruction{
 protected:
     std::string binary; // Holds the 32 bit instruction for the memory loaction
     std::string instructionType;
-    Register *operand; // May not need this
+    // Register *operand; // May not need this
 
 public:
     Instruction(std::string b) : binary(b) {}
     Instruction();
 
 };
-
 
 #endif // MEMORY_H
