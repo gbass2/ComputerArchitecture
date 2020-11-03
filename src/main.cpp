@@ -7,8 +7,8 @@ int main(){
     CPU *cpu = new CPU(sys);
     RunSim *sim = new RunSim(sys);
     sim->initialize(); // Reading the contents of the file and filling the memory
+    sim->runSimulation();
     cpu->initialize(); // Sets up the first event. Which is a fetch event
-
     sim->runSimulation();
 
     return 0;

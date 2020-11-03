@@ -1,14 +1,15 @@
 #include "system.hh"
 #include <iostream>
-#include <cassert>
 
 std::deque<Event *>::iterator System::findEvent(Event *e){ // Finds an event in the MEQ
-    for(auto it = MEQ.begin(); it != MEQ.end(); it++){
+    auto it = MEQ.begin();
+    for(it; it != MEQ.end(); it++){
         if(e == *it){
             std::cout << "Event Found" << std::endl;
             return it;
         }
     }
+    return it;
 }
 
 void System::schedule(Event *e, Tick t){ // Schedules an event into MEQ
