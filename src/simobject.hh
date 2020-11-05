@@ -108,6 +108,7 @@ private:
     class Fetch : public Event{
     private:
         CPU *cpu;
+        Instruction currentInstruction;
 
     public:
         Fetch(CPU *c) : Event(), cpu(c) {}
@@ -125,7 +126,6 @@ private:
     // Finds the data from the registers and passes it to the execution stage to be executed
     private:
         CPU *cpu;
-        Instruction currentInstruction;
         uint32_t rs1, rs2, rs3, rd;
         uint8_t fucnt2, funct3, funct5, funct7;
         uint32_t imm[32];

@@ -1,9 +1,7 @@
 # Assignment 3
 
 # Memory:
-- Almost finished. The program does not like the Instruction class and gives a linker error.
-- Implement i port and D port.
-- Everything needs events.
+- Almost finished.
 - Implement what each register, data memory, and instruction memory holds.
 - Registers need to be setup with their proper functions. For example X0 is the zero register and always contains zero.
 
