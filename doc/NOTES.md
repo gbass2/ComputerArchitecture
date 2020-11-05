@@ -41,10 +41,13 @@ Ticks:
 21 - run execute, decode, fetch.
 26  - If execute is done, then pass to store, pass decode to execute, and fetch to decode.
 
-# Nov. 4th
+# Nov. 5th
 - Add an event for send data.
 - Finish implementing the pipeline variables and the flow
 - Look at the alu functions and start implementing
+- Convert asm instructions to binary and place in memory.
+- Create the registers in RegisterBank.
+
 
 
 ![](uml.jpg)

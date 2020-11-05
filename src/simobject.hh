@@ -7,6 +7,7 @@
 #include <iostream>
 #include <tuple>
 #include <string>
+#include <unordered_map>
 #include "event.hh"
 #include "system.hh"
 #include "memory.hh"
@@ -71,33 +72,56 @@ public:
 
 class RegisterBank : public SimObject, public Register, public Event{
 private:
-    Register intRegisters[32]; // Bank of 32 integer registers
-    Register fpRegisters[32]; // Bank of 32 floating point registers
+    std::unordered_map<uint8_t, Register> intRegisters; // Example: <0101,"Temporary/alternate link register">
+    // Register intRegisters[32];  // Bank of 32 integer registers
+    // Register fpRegisters[32];   // Bank of 32 floating point registers
 
 public:
+    RegisterBank(System *s): SimObject(s){
+        // intRegisters.insert(std::pair<uint8_t,Register>(0000, Register()));
+        // intRegisters.insert(std::pair<uint8_t,Register>(0001, Register()));
+        // intRegisters.insert(std::pair<uint8_t,Register>(0010, Register()));
+        // intRegisters.insert(std::pair<uint8_t,Register>(0011, Register()));
+        // intRegisters.insert(std::pair<uint8_t,Register>(0100, Register()));
+        // intRegisters.insert(std::pair<uint8_t,Register>(0101, Register()));
+        // intRegisters.insert(std::pair<uint8_t,Register>(0110, Register()));
+        // intRegisters.insert(std::pair<uint8_t,Register>(0111, Register()));
+        // intRegisters.insert(std::pair<uint8_t,Register>(1000, Register()));
+        // intRegisters.insert(std::pair<uint8_t,Register>(1001, Register()));
+        // intRegisters.insert(std::pair<uint8_t,Register>(1010, Register()));
+        // intRegisters.insert(std::pair<uint8_t,Register>(1011, Register()));
+        // intRegisters.insert(std::pair<uint8_t,Register>(1100, Register()));
+        // intRegisters.insert(std::pair<uint8_t,Register>(1101, Register()));
+        // intRegisters.insert(std::pair<uint8_t,Register>(1110, Register()));
+        // intRegisters.insert(std::pair<uint8_t,Register>(0000, Register()));
+        // intRegisters.insert(std::pair<uint8_t,Register>(0000, Register()));
+        // intRegisters.insert(std::pair<uint8_t,Register>(0000, Register()));
+        // intRegisters.insert(std::pair<uint8_t,Register>(0000, Register()));
+        // intRegisters.insert(std::pair<uint8_t,Register>(0000, Register()));
+        // intRegisters.insert(std::pair<uint8_t,Register>(0000, Register()));
+        // intRegisters.insert(std::pair<uint8_t,Register>(0000, Register()));
+        // intRegisters.insert(std::pair<uint8_t,Register>(0000, Register()));
+        // intRegisters.insert(std::pair<uint8_t,Register>(0000, Register()));
+        // intRegisters.insert(std::pair<uint8_t,Register>(0000, Register()));
+        // intRegisters.insert(std::pair<uint8_t,Register>(0000, Register()));
+        // intRegisters.insert(std::pair<uint8_t,Register>(0000, Register()));
+        // intRegisters.insert(std::pair<uint8_t,Register>(0000, Register()));
+        // intRegisters.insert(std::pair<uint8_t,Register>(0000, Register()));
+        // intRegisters.insert(std::pair<uint8_t,Register>(0000, Register()));
+        // intRegisters.insert(std::pair<uint8_t,Register>(0000, Register()));
+        // intRegisters.insert(std::pair<uint8_t,Register>(0000, Register()));
+    }
+
     // Scheduling the register event
     virtual void process() override{
         std::cout << "scheduling on Tick " << currTick() << std::endl;
         sys->schedule(this, currTick() + 1); // Scheduling new event
-
     }
+
     virtual const char* description() override {return "Register Access";}
     virtual void initialize() override { // Initialzes MEQ with a fetch event
         std::cout << "Register Access" << std::endl;
     }
-};
-
-// Holds the registers and instructions for each pipeline stage
-class Pipeline : public Event, public Register{
-private:
-    // // Registers for the instruction
-    // Register rs1;
-    // Register rs2;
-    // Register rd;
-    //
-    // std::string opcode;
-    //
-    // std::vector<double> immediate;
 };
 
 class CPU: public SimObject{

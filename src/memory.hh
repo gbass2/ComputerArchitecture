@@ -23,6 +23,9 @@ protected:
     char regType;
 
 public:
+    Register(uint32_t data, char regType) : data{data}, regType{regType} {}
+    Register() : data{00000000000000000000000000000000}, regType{'x'} {}
+
     uint32_t getData() { return data;}
     void setData(uint32_t data) { this->data = data; }
     char getRegType() { return regType;}

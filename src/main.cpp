@@ -10,6 +10,6 @@ int main(){
     sim->runSimulation();
     cpu->initialize(); // Sets up the first event. Which is a fetch event
     sim->runSimulation();
-
+    
     return 0;
 }
