@@ -1,6 +1,5 @@
 #ifndef SIMOBJECT_H
 #define SIMOBJECT_H
-
 #define Tick uint64_t
 
 #include <vector>
@@ -43,7 +42,7 @@ private:
             std::cout << "processing on Tick " << mem->currTick() << std::endl;
             mem->schedule(mem->p1, mem->currTick() + mem->clkTick);
         }
-        virtual const char* description() override {return "Instruction Memory Access"; }
+        virtual const char* description() override { return "Instruction Memory Access"; }
     };
 
     // Port2 holds the data memory
@@ -231,7 +230,7 @@ public:
 // Runs the simulation
 class RunSim : public Event, public CPU{
 private:
-    size_t PC; // Program Counter
+    size_t PC = 0; // Program Counter
 
 public:
     RunSim(System *s) :  Event(), CPU(s) {} // Calls the CPU constructor so that it will have the same values as the one in main

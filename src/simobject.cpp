@@ -1,5 +1,6 @@
 #include "simobject.hh"
 #include <cassert>
+#include <cstring>
 
 using namespace std;
 
