@@ -26,7 +26,7 @@
 - If execute is still processing reshcedule release event for a future data and process stall.
 - Dynamic cast will allow an event to be casted back to its original class from a base event. Example: Event back to Fetch.
 - Hi  referes to the top 20 bits of memory address.
-- Low referes to the bottom 12 bits of memeory address.
+- Low referes to the bottom 12 bits of memory address.
 - Don’t have to convert the asm to binary in the code but can do it by hand and insert into memory locations.
 - Adding pthread should allow us to multithread some operations. Not sure if we are allowed to use this since it taps into the cpus threads.
 
@@ -41,13 +41,16 @@ Ticks:
 21 - run execute, decode, fetch.
 26  - If execute is done, then pass to store, pass decode to execute, and fetch to decode.
 
+# Questions
+- Review Jump in binary
+- Review Branch in binary
+
 # Nov. 5th
 - Add an event for send data.
 - Finish implementing the pipeline variables and the flow
 - Look at the alu functions and start implementing
 - Convert asm instructions to binary and place in memory.
 - Create the registers in RegisterBank.
-
 
 
 ![](uml.jpg)

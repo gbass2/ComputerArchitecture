@@ -35,6 +35,7 @@ private:
     private:
         Instruction instructionMem[0x093]; // Instruction memory 0 - 0x093
         Memory *mem;
+        friend class CPU; // Allows class to access these private variables
 
     public:
         // Creates and processes a port1 event
@@ -51,6 +52,7 @@ private:
     private:
         DataMemory dataMemory[0x1000]; // Memory for loactions 0x200 - 0xfff. Holds locations 0 - 0x200 due to the design but will not be used
         Memory *mem;
+        friend class CPU; // Allows class to access these private variables
 
     public:
         // Creates and processes a port1 event
@@ -63,7 +65,7 @@ private:
     };
     Port1 *p1;
     Port2 *p2;
-    friend class CPU; // Allows Store class to access these private variables
+    friend class CPU; // Allows class to access these private variables
 
 public:
     Memory(System *s) : SimObject(s), p1(new Port1(this)), p2(new Port2(this)){}
@@ -73,43 +75,74 @@ public:
 class RegisterBank : public SimObject, public Register, public Event{
 private:
     std::unordered_map<uint8_t, Register> intRegisters; // Example: <0101,"Temporary/alternate link register">
-    // Register intRegisters[32];  // Bank of 32 integer registers
-    // Register fpRegisters[32];   // Bank of 32 floating point registers
+    std::unordered_map<uint8_t, Register> fpRegisters; // Example: <0101,"Temporary/alternate link register">
 
 public:
     RegisterBank(System *s): SimObject(s){
-        // intRegisters.insert(std::pair<uint8_t,Register>(0000, Register()));
-        // intRegisters.insert(std::pair<uint8_t,Register>(0001, Register()));
-        // intRegisters.insert(std::pair<uint8_t,Register>(0010, Register()));
-        // intRegisters.insert(std::pair<uint8_t,Register>(0011, Register()));
-        // intRegisters.insert(std::pair<uint8_t,Register>(0100, Register()));
-        // intRegisters.insert(std::pair<uint8_t,Register>(0101, Register()));
-        // intRegisters.insert(std::pair<uint8_t,Register>(0110, Register()));
-        // intRegisters.insert(std::pair<uint8_t,Register>(0111, Register()));
-        // intRegisters.insert(std::pair<uint8_t,Register>(1000, Register()));
-        // intRegisters.insert(std::pair<uint8_t,Register>(1001, Register()));
-        // intRegisters.insert(std::pair<uint8_t,Register>(1010, Register()));
-        // intRegisters.insert(std::pair<uint8_t,Register>(1011, Register()));
-        // intRegisters.insert(std::pair<uint8_t,Register>(1100, Register()));
-        // intRegisters.insert(std::pair<uint8_t,Register>(1101, Register()));
-        // intRegisters.insert(std::pair<uint8_t,Register>(1110, Register()));
-        // intRegisters.insert(std::pair<uint8_t,Register>(0000, Register()));
-        // intRegisters.insert(std::pair<uint8_t,Register>(0000, Register()));
-        // intRegisters.insert(std::pair<uint8_t,Register>(0000, Register()));
-        // intRegisters.insert(std::pair<uint8_t,Register>(0000, Register()));
-        // intRegisters.insert(std::pair<uint8_t,Register>(0000, Register()));
-        // intRegisters.insert(std::pair<uint8_t,Register>(0000, Register()));
-        // intRegisters.insert(std::pair<uint8_t,Register>(0000, Register()));
-        // intRegisters.insert(std::pair<uint8_t,Register>(0000, Register()));
-        // intRegisters.insert(std::pair<uint8_t,Register>(0000, Register()));
-        // intRegisters.insert(std::pair<uint8_t,Register>(0000, Register()));
-        // intRegisters.insert(std::pair<uint8_t,Register>(0000, Register()));
-        // intRegisters.insert(std::pair<uint8_t,Register>(0000, Register()));
-        // intRegisters.insert(std::pair<uint8_t,Register>(0000, Register()));
-        // intRegisters.insert(std::pair<uint8_t,Register>(0000, Register()));
-        // intRegisters.insert(std::pair<uint8_t,Register>(0000, Register()));
-        // intRegisters.insert(std::pair<uint8_t,Register>(0000, Register()));
-        // intRegisters.insert(std::pair<uint8_t,Register>(0000, Register()));
+        intRegisters.insert(std::pair<uint8_t,Register>(00000, Register()));    // x0 zero Hard-Wired Zero
+        intRegisters.insert(std::pair<uint8_t,Register>(00001, Register()));    // x1 ra Return Address
+        intRegisters.insert(std::pair<uint8_t,Register>(00010, Register()));    // x2 sp Stack Pointer
+        intRegisters.insert(std::pair<uint8_t,Register>(00011, Register()));    // x3 gp Global Pointer
+        intRegisters.insert(std::pair<uint8_t,Register>(00100, Register()));    // x4 tp Thread Pointer
+        intRegisters.insert(std::pair<uint8_t,Register>(00101, Register()));    // x5 t0 Temporary/alternate Link Register
+        intRegisters.insert(std::pair<uint8_t,Register>(00110, Register()));    // x6 t1 Temporaries
+        intRegisters.insert(std::pair<uint8_t,Register>(00111, Register()));    // x7 t2 Temporaries
+        intRegisters.insert(std::pair<uint8_t,Register>(01000, Register()));    // x8 s0/fp Saved Register/Frame Pointer
+        intRegisters.insert(std::pair<uint8_t,Register>(01001, Register()));    // x9 s1 Saved Register
+        intRegisters.insert(std::pair<uint8_t,Register>(01010, Register()));    // x10 a0 Function Arguments/Return Values
+        intRegisters.insert(std::pair<uint8_t,Register>(01011, Register()));    // x11 a1 Function Arguments/Return Values
+        intRegisters.insert(std::pair<uint8_t,Register>(01100, Register()));    // x12 a2 Function Arguments
+        intRegisters.insert(std::pair<uint8_t,Register>(01101, Register()));    // x13 a3 Function Arguments
+        intRegisters.insert(std::pair<uint8_t,Register>(01110, Register()));    // x14 a4 Function Arguments
+        intRegisters.insert(std::pair<uint8_t,Register>(01111, Register()));    // x15 a5 Function Arguments
+        intRegisters.insert(std::pair<uint8_t,Register>(10000, Register()));    // x16 a6 Function Arguments
+        intRegisters.insert(std::pair<uint8_t,Register>(10001, Register()));    // x17 a7 Function Arguments
+        intRegisters.insert(std::pair<uint8_t,Register>(10010, Register()));    // x18 s2 Saved Register
+        intRegisters.insert(std::pair<uint8_t,Register>(10011, Register()));    // x19 s3 Saved Register
+        intRegisters.insert(std::pair<uint8_t,Register>(10100, Register()));    // x20 s4 Saved Register
+        intRegisters.insert(std::pair<uint8_t,Register>(10101, Register()));    // x21 s5 Saved Register
+        intRegisters.insert(std::pair<uint8_t,Register>(10110, Register()));    // x22 s6 Saved Register
+        intRegisters.insert(std::pair<uint8_t,Register>(10111, Register()));    // x23 s7 Saved Register
+        intRegisters.insert(std::pair<uint8_t,Register>(11000, Register()));    // x24 s8 Saved Register
+        intRegisters.insert(std::pair<uint8_t,Register>(11001, Register()));    // x25 s9 Saved Register
+        intRegisters.insert(std::pair<uint8_t,Register>(11010, Register()));    // x26 s10 Saved Register
+        intRegisters.insert(std::pair<uint8_t,Register>(11011, Register()));    // x27 s11 Saved Register
+        intRegisters.insert(std::pair<uint8_t,Register>(11100, Register()));    // x28 t3 Temporaries
+        intRegisters.insert(std::pair<uint8_t,Register>(11101, Register()));    // x29 t4 Temporaries
+        intRegisters.insert(std::pair<uint8_t,Register>(11110, Register()));    // x30 t5 Temporaries
+        intRegisters.insert(std::pair<uint8_t,Register>(11111, Register()));    // x31 t6 Temporaries
+
+        fpRegisters.insert(std::pair<uint8_t,Register>(00000, Register()));    // f0 ft0 Temporary
+        fpRegisters.insert(std::pair<uint8_t,Register>(00010, Register()));    // f2 ft2 Temporary
+        fpRegisters.insert(std::pair<uint8_t,Register>(00011, Register()));    // f3 ft3 Temporary
+        fpRegisters.insert(std::pair<uint8_t,Register>(00100, Register()));    // f4 ft4 Temporary
+        fpRegisters.insert(std::pair<uint8_t,Register>(00101, Register()));    // f5 ft5 Temporary
+        fpRegisters.insert(std::pair<uint8_t,Register>(00110, Register()));    // f6 ft6 Temporary
+        fpRegisters.insert(std::pair<uint8_t,Register>(00111, Register()));    // f7 ft7 Temporary
+        fpRegisters.insert(std::pair<uint8_t,Register>(01000, Register()));    // f8 fs0 Saved Register
+        fpRegisters.insert(std::pair<uint8_t,Register>(01001, Register()));    // f9 fs1 Saved Register
+        fpRegisters.insert(std::pair<uint8_t,Register>(01010, Register()));    // f10 fa0 FP arguments/return values
+        fpRegisters.insert(std::pair<uint8_t,Register>(01011, Register()));    // f11 fa1 FP arguments/return values
+        fpRegisters.insert(std::pair<uint8_t,Register>(01100, Register()));    // f12 fa2 FP arguments
+        fpRegisters.insert(std::pair<uint8_t,Register>(01101, Register()));    // f13 fa3 FP arguments
+        fpRegisters.insert(std::pair<uint8_t,Register>(01110, Register()));    // f14 fa4 FP arguments
+        fpRegisters.insert(std::pair<uint8_t,Register>(01111, Register()));    // f15 fa5 FP arguments
+        fpRegisters.insert(std::pair<uint8_t,Register>(10000, Register()));    // f16 fa6 FP arguments
+        fpRegisters.insert(std::pair<uint8_t,Register>(10001, Register()));    // f17 fa7 FP arguments
+        fpRegisters.insert(std::pair<uint8_t,Register>(10010, Register()));    // f18 fs2 FP saved registers
+        fpRegisters.insert(std::pair<uint8_t,Register>(10011, Register()));    // f19 fs3 FP saved registers
+        fpRegisters.insert(std::pair<uint8_t,Register>(10100, Register()));    // f20 fs4 FP saved registers
+        fpRegisters.insert(std::pair<uint8_t,Register>(10101, Register()));    // f21 fs5 FP saved registers
+        fpRegisters.insert(std::pair<uint8_t,Register>(10110, Register()));    // f22 fs6 FP saved registers
+        fpRegisters.insert(std::pair<uint8_t,Register>(10111, Register()));    // f23 fs7 FP saved registers
+        fpRegisters.insert(std::pair<uint8_t,Register>(11000, Register()));    // f24 fs8 FP saved registers
+        fpRegisters.insert(std::pair<uint8_t,Register>(11001, Register()));    // f25 fs9 FP saved registers
+        fpRegisters.insert(std::pair<uint8_t,Register>(11010, Register()));    // f26 fs10 FP saved registers
+        fpRegisters.insert(std::pair<uint8_t,Register>(11011, Register()));    // f27 fs11 FP saved registers
+        fpRegisters.insert(std::pair<uint8_t,Register>(11100, Register()));    // f28 ft8 FP temporaries
+        fpRegisters.insert(std::pair<uint8_t,Register>(11101, Register()));    // f29 ft9 FP temporaries
+        fpRegisters.insert(std::pair<uint8_t,Register>(11110, Register()));    // f30 ft10 FP temporaries
+        fpRegisters.insert(std::pair<uint8_t,Register>(11111, Register()));    // f31 ft11 FP temporaries
     }
 
     // Scheduling the register event
@@ -131,7 +164,13 @@ private:
     class Fetch : public Event{
     private:
         CPU *cpu;
-        Instruction currentInstruction;
+        // Since a 4th of the instruction is held in one memory location, we need to pull 4 memory locations for one instruction
+        Instruction currentInstruction1;
+        Instruction currentInstruction2;
+        Instruction currentInstruction3;
+        Instruction currentInstruction4;
+        Instruction currentInstruction; // The 32bits of data from the 4 memory locations will be concatinated into one 32 bit long instruction and then sent to the decode stage
+        friend class RunSim; // Allows RunSim class to access these private variables
 
     public:
         Fetch(CPU *c) : Event(), cpu(c) {}
@@ -149,10 +188,11 @@ private:
     // Finds the data from the registers and passes it to the execution stage to be executed
     private:
         CPU *cpu;
-        uint32_t rs1, rs2, rs3, rd;
-        uint8_t fucnt2, funct3, funct5, funct7;
-        uint32_t imm[32];
-
+        Instruction currentInstruction;
+        uint8_t rs1, rs2, rs3, rd;
+        uint8_t funct2, funct3, funct5, funct7, opcode;
+        uint32_t imm;
+        friend class RunSim; // Allows RunSim class to access these private variables
 
     public:
         Decode(CPU *c) : Event(), cpu(c){}
@@ -169,10 +209,11 @@ private:
     // Passes the incoming registers or memory location to the ALU to be operated
     private:
         CPU *cpu;
-        Instruction currentInstruction;
-        uint32_t rs1, rs2, rs3, rd;
-        uint8_t fucnt2, funct3, funct5, funct7;
-        uint32_t imm[32];
+        uint8_t rs1, rs2, rs3, rd;
+        uint8_t funct2, funct3, funct5, funct7, opcode;
+        uint32_t imm, immDestination;
+        friend class RunSim; // Allows RunSim class to access these private variables
+
 
     public:
         Execute(CPU *c) : Event(), cpu(c) {}
@@ -190,7 +231,9 @@ private:
     // Store back in memory if needed
     private:
         CPU *cpu;
-        uint32_t destination;
+        uint8_t rd;
+        uint32_t immDestination;
+        friend class RunSim; // Allows RunSim class to access these private variables
     public:
         Store(CPU *c) : Event(), cpu(c) {}
         virtual void process() override {
@@ -232,6 +275,12 @@ private:
 
     };
 
+    // For creating a send data event to pass data through the pipeline
+    class Send : public Event{
+    public:
+        virtual const char* description() override {return "Send Data";}
+    };
+
     // Instances of the pipeline stages
     Fetch *f;
     Decode *d;
@@ -241,6 +290,7 @@ private:
     Memory *Iport;
     Memory *Dport;
 
+    size_t PC = 0; // Program Counter
     friend class RunSim; // Allows RunSim class to access these private variables
 
 public:
@@ -253,9 +303,6 @@ public:
 
 // Runs the simulation
 class RunSim : public Event, public CPU{
-private:
-    size_t PC = 0; // Program Counter
-
 public:
     RunSim(System *s) :  Event(), CPU(s) {} // Calls the CPU constructor so that it will have the same values as the one in main
     void runSimulation(); // Runs the simulation
