@@ -19,13 +19,17 @@ void System::schedule(Event *e, Tick t){ // Schedules an event into MEQ
     if(!(e->isScheduled())){
         e->schedule(t);
 
-        for(auto it = MEQ.begin(); it != MEQ.end(); it++){
-            if(e->getTime() < (*it)->getTime()){
-                MEQ.insert(it, e);
-                return;
+        if(!(strcmp(e->description(), "Stall"))) {
+            MEQ.push_front(e);
+        } else{
+            for(auto it = MEQ.begin(); it != MEQ.end(); it++){
+                if(e->getTime() < (*it)->getTime()){
+                    MEQ.insert(it, e);
+                    return;
+                }
             }
+            MEQ.push_back(e);
         }
-        MEQ.push_back(e);
     } else {
         assert(0);
     }
@@ -34,13 +38,16 @@ void System::schedule(Event *e, Tick t){ // Schedules an event into MEQ
 void System::reschedule(Event *e, Tick t){ // Reschedules an event in MEQ
     assert(t >= currentTick);
     if(e->isScheduled()){
+
         MEQ.erase(findEvent(e));
+
         e->schedule(t);
 
         for(auto it = MEQ.begin(); it != MEQ.end(); it++){
             MEQ.insert(it, e);
             return;
         }
+        MEQ.push_back(e);
     }
 }
 

@@ -186,6 +186,7 @@ private:
     private:
         CPU *cpu;
         size_t stallAmount;
+        bool isStalled = false;
         friend class CPU; // Allows CPU class to access these private variables
     public:
         Stall(CPU *c) : Event(), cpu(c) {}
@@ -196,6 +197,8 @@ private:
         virtual const char* description() override { return "Stall"; }
         void stallCPU();
         void setAmount(size_t amount) { stallAmount = amount; }
+        bool getIsStalled(){ return isStalled; }
+        void setIsStalled(bool isStalled){ this->isStalled = isStalled; }
     };
 
     // ALU for executing the instructions
