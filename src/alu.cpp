@@ -1,2 +1,6 @@
 #include "simobject.hh"
-// Alu operations go here
+
+// Determines what alu operation needs to be done
+void CPU::ALU::aluOperation(){
+
+}
