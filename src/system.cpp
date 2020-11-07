@@ -13,7 +13,8 @@ std::deque<Event *>::iterator System::findEvent(Event *e){ // Finds an event in 
 }
 
 void System::schedule(Event *e, Tick t){ // Schedules an event into MEQ
-    assert(t <= currTick());
+    // assert(t <= currTick());
+
     // Adding the event to MEQ
     if(!(e->isScheduled())){
         e->schedule(t);
