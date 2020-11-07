@@ -149,7 +149,11 @@ void CPU::Store::storeInstruction() {
 }
 
 void CPU::Stall::stallCPU() {
-
+    // Rescheduling the events for a specified time in the future. 1 stall = 10 ticks, 2 stalls = 20 ticks, etc.
+    cout << "hello" << endl;
+    for(size_t i = 0; i < (cpu->sys->getMEQ()).size(); i++){
+        cpu->reschedule((cpu->sys->getMEQ()).at(i), cpu->currTick() + stallAmount);
+    }
 }
 
 void CPU::Send::sendData() {
@@ -184,7 +188,6 @@ void RunSim::runSimulation(){
             cout << "Error: Event was scheduled prior to the current time" << endl;
             assert(0);
         }
-
         // These stages run on odd ticks and every 10 ticks. The data is sent to the next stage on even ticks every 10 ticks.
         // Schedules accesses the store stage
         if((!(strcmp(sys->getMEQ().front()->description(), "Store")) && (sys->getMEQ().front()->getTime()) == currTick()) && (currTick() == 1 + (cycle)*10)){
@@ -230,17 +233,19 @@ void RunSim::runSimulation(){
 
         } if(!(strcmp(sys->getMEQ().front()->description(), "Setup Simulation")) && (sys->getMEQ().front()->getTime()) == currTick()){
             setupSimulator(); // load the instructions into memory
+            sys->removeEvent();
+            stall->setAmount(10);
+            stall->process();
+
 
         } if(!(strcmp(sys->getMEQ().front()->description(), "Stall")) && (sys->getMEQ().front()->getTime()) == currTick()){
             // Stall the processor
             stall->stallCPU();
-            stall->process();
+            sys->removeEvent();
         }
 
         if(currTick() % 10 == 0)
             cycle++;
-        if(currTick() < 1) // Removing the setup simulation event
-            sys->removeEvent();
 
         incTick(1); // Increments currentTick by amount (t)
     }

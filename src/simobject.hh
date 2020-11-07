@@ -191,10 +191,11 @@ private:
         Stall(CPU *c) : Event(), cpu(c) {}
         virtual void process() override {
         std::cout << "processing on Tick " << cpu->currTick() << std::endl;
-        cpu->sys->removeEvent(); // removing event that was just executed
+        cpu->schedule(cpu->stall, cpu->currTick()); // Scheduling new event
         }
         virtual const char* description() override { return "Stall"; }
         void stallCPU();
+        void setAmount(size_t amount) { stallAmount = amount; }
     };
 
     // ALU for executing the instructions
