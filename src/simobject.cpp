@@ -192,29 +192,32 @@ void RunSim::runSimulation(){
         // Schedules accesses the store stage
         if((!(strcmp(sys->getMEQ().front()->description(), "Store")) && (sys->getMEQ().front()->getTime()) == currTick()) && (currTick() == 1 + (cycle)*10)){
             // s->storeInstruction();
-            // sys->removeEvent();
+            if(stall->getIsStalled() == false)
+                sys->removeEvent();
 
         // Schedules and accesses the execute stage
         } if((!(strcmp(sys->getMEQ().front()->description(), "Execute")) && (sys->getMEQ().front()->getTime()) == currTick()) && (currTick() == 1 + (cycle)*10)){
             // ex->executeInstruction();
-            // s->process();
+            if(stall->getIsStalled() == false)
+                s->process();
 
         // Schedules and access the decode stage
         } if((!(strcmp(sys->getMEQ().front()->description(), "Decode")) && (sys->getMEQ().front()->getTime()) == currTick()) && (currTick() == 1 + (cycle)*10)){
             // d->decodeInstruction();
-            // ex->process();
-            // cout << "odd: " << currTick() << endl;
+            if(stall->getIsStalled() == false)
+                ex->process();
 
         // Schedules and access the fetch stage
         } if((!(strcmp(sys->getMEQ().front()->description(), "Fetch")) && (sys->getMEQ().front()->getTime()) == currTick()) && (currTick() == 1 + (cycle)*10)){
-
             // f->fetchInstruction();
 
 
             // // Scheduling decode for next instruction
-            // d->process();
+            if(stall->getIsStalled() == false)
+                d->process();
             // // Scheduling fetch for next instruction
-            // f->process();
+            if(stall->getIsStalled() == false)
+                f->process();
 
         } if((!(strcmp(sys->getMEQ().front()->description(), "Register Access")) && (sys->getMEQ().front()->getTime()) == currTick())){
             // Access the registers associated with the instruction and place into decode stage
@@ -234,14 +237,15 @@ void RunSim::runSimulation(){
         } if(!(strcmp(sys->getMEQ().front()->description(), "Setup Simulation")) && (sys->getMEQ().front()->getTime()) == currTick()){
             setupSimulator(); // load the instructions into memory
             sys->removeEvent();
-            stall->setAmount(10);
-            stall->process();
-
+            // stall->setAmount(10);
+            // stall->process();
 
         } if(!(strcmp(sys->getMEQ().front()->description(), "Stall")) && (sys->getMEQ().front()->getTime()) == currTick()){
             // Stall the processor
-            stall->stallCPU();
             sys->removeEvent();
+            stall->stallCPU();
+            stall->setIsStalled(1);
+            // Set isStalled to 0 where ever the stall event was created the stall event
         }
 
         if(currTick() % 10 == 0)
