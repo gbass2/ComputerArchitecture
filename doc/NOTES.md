@@ -23,12 +23,13 @@
 - Cpu triggers the pipeline on an odd clock cycle and on an event.
 - And on an even cycle the release event is called and passes the data to the next stage.
 - Rising edge is odd cycle and even is falling edge. Implement this for all events.
-- If execute is still processing reshcedule release event for a future data and process stall.
+- If execute is still processing reschedule release event for a future data and process stall.
 - Dynamic cast will allow an event to be casted back to its original class from a base event. Example: Event back to Fetch.
 - Hi  referes to the top 20 bits of memory address.
 - Low referes to the bottom 12 bits of memory address.
 - Don’t have to convert the asm to binary in the code but can do it by hand and insert into memory locations.
 - Adding pthread should allow us to multithread some operations. Not sure if we are allowed to use this since it taps into the cpus threads.
+- NOPs may be required while waiting for data to load from RAM, stalls may be required while waiting for data to store in RAM) [15]
 
 # Example:
 Ticks:
@@ -42,8 +43,11 @@ Ticks:
 26  - If execute is done, then pass to store, pass decode to execute, and fetch to decode.
 
 # Questions
-- Review Jump in binary
-- Review Branch in binary
+- Figure out Stalls
+- Need to figure out how we are going to deal with memory access.
+    - When in fetch stage We are accessing memory but without creating an instruction memory access event.
+        - create an event and put it at the top of meq. we return from the fetchInstruction function run the instruction access event and then go back to fetch. Figure out how to do the efficiently.
+        - Do we do this 4 times. Each for the 4 different memory locations that the instruction is stored in or do we do this once for all 4 locations.
 
 # Nov. 5th
 - Add an event for send data.
@@ -52,5 +56,5 @@ Ticks:
 - Convert asm instructions to binary and place in memory.
 - Create the registers in RegisterBank.
 
-
+![](DataHazard.png)
 ![](uml.jpg)
