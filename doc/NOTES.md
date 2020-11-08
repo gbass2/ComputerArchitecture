@@ -30,6 +30,7 @@
 - Don’t have to convert the asm to binary in the code but can do it by hand and insert into memory locations.
 - Adding pthread should allow us to multithread some operations. Not sure if we are allowed to use this since it taps into the cpus threads.
 - NOPs may be required while waiting for data to load from RAM, stalls may be required while waiting for data to store in RAM) [15]
+- For rounding mode for fadd.s we chose 111 (dynamic rounding mode (see page 48 of riscv spec))
 
 # Example:
 Ticks:
@@ -49,12 +50,19 @@ Ticks:
         - create an event and put it at the top of meq. we return from the fetchInstruction function run the instruction access event and then go back to fetch. Figure out how to do the efficiently.
         - Do we do this 4 times. Each for the 4 different memory locations that the instruction is stored in or do we do this once for all 4 locations.
 
-# Nov. 5th
-- Add an event for send data.
-- Finish implementing the pipeline variables and the flow
-- Look at the alu functions and start implementing
-- Convert asm instructions to binary and place in memory.
-- Create the registers in RegisterBank.
+# Still need
+- Part 1
+    - Add the instructions to the instruction memory.
+    - Finish the pipeline data flow
+        - Figure out how to handle the Memory Access events
+        - Implement stalls and nops to handle hazards and latencies
+        - Implement the alu operations
+    - Convert to C
+
+- Part 2
+    - Implement Membus
+
+
 
 ![](DataHazard.png)
 ![](uml.jpg)
