@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -I. --std=c++17
+CFLAGS = -I. --std=c++17 -g
 OBJS = main.o system.o simobject.o
 HEADERS = event.hh system.hh simobject.hh memory.hh
 TARGET = simulation

@@ -74,63 +74,70 @@ RegisterBank::RegisterBank(System *s): SimObject(s) {
 
 // Fetches the instruction from memory
 void CPU::Fetch::fetchInstruction() {
-    Memory::Port1 *p1 = cpu->Iport->p1;
     string binary;
 
     // Since a 4th of the instruction is held in one memory location, we need to pull 4 memory locations for one instruction
-    currentInstruction1 = p1->getMemory(cpu->PC);
-    currentInstruction2 = p1->getMemory(cpu->PC + 1);
-    currentInstruction3 = p1->getMemory(cpu->PC + 2);
-    currentInstruction4 = p1->getMemory(cpu->PC + 3);
+    if(isMemAccess){
+         cpu->Iport->p1->process();
+         cpu->stall->isStalled = true;
+         return;
+    }
+    // currentInstruction1 = p1->getMemory(cpu->PC);
+    // currentInstruction2 = p1->getMemory(cpu->PC + 1);
+    // currentInstruction3 = p1->getMemory(cpu->PC + 2);
+    // currentInstruction4 = p1->getMemory(cpu->PC + 3);
 
     // The 32bits of data from the 4 memory locations will be concatinated into one 32 bit long instruction and then sent to the decode stage
-    binary = to_string(currentInstruction1.getBinary() + currentInstruction2.getBinary() + currentInstruction3.getBinary() + currentInstruction4.getBinary());
-    currentInstruction.setBinary(stoi(binary));
+    currentInstruction.setBinary(currentInstruction1.getBinary() + currentInstruction2.getBinary() + currentInstruction3.getBinary() + currentInstruction4.getBinary());
+    currentInstruction.setInstType(currentInstruction1.getInstType());
+
+    cout << "instruction Bianry: "  << currentInstruction.getBinary() << endl;
+    cout << "instruction Type: "  << currentInstruction.getInstType() << endl;
 
     cpu->PC += 4;
 }
 
 // Deodes the instructions into registers, immediates, etc.
 void CPU::Decode::decodeInstruction() {
-    string instruction = to_string(currentInstruction.getBinary());
+    string instruction = currentInstruction.getBinary();
     if(currentInstruction.getInstType() == "R"){
-        opcode = stoi(instruction.substr(0,6));
-        rd = stoi(instruction.substr(7,5));
-        funct3 = stoi(instruction.substr(12,3));
-        rs1 = stoi(instruction.substr(15,5));
-        rs2 = stoi(instruction.substr(20,5));
-        funct7 = stoi(instruction.substr(25,7));
+        opcode = (instruction.substr(0,6));
+        rd = (instruction.substr(7,5));
+        funct3 = (instruction.substr(12,3));
+        rs1 = (instruction.substr(15,5));
+        rs2 = (instruction.substr(20,5));
+        funct7 = (instruction.substr(25,7));
 
     } else if(currentInstruction.getInstType() == "I"){
-        opcode = stoi(instruction.substr(0,6));
-        rd = stoi(instruction.substr(7,5));
-        funct3 = stoi(instruction.substr(12,3));
-        rs1 = stoi(instruction.substr(15,5));
-        imm = stoi(instruction.substr(20,12));
+        opcode = (instruction.substr(0,6));
+        rd = (instruction.substr(7,5));
+        funct3 = (instruction.substr(12,3));
+        rs1 = (instruction.substr(15,5));
+        imm = (instruction.substr(20,12));
 
     } else if(currentInstruction.getInstType() == "S"){
-        opcode = stoi(instruction.substr(0,6));
-        imm = stoi(instruction.substr(7,5) + instruction.substr(25,7));
-        funct3 = stoi(instruction.substr(12,3));
-        rs1 = stoi(instruction.substr(15,5));
-        rs2 = stoi(instruction.substr(20,5));
+        opcode = (instruction.substr(0,6));
+        imm = (instruction.substr(7,5) + instruction.substr(25,7));
+        funct3 = (instruction.substr(12,3));
+        rs1 = (instruction.substr(15,5));
+        rs2 = (instruction.substr(20,5));
 
     } else if(currentInstruction.getInstType() == "U"){
-        opcode = stoi(instruction.substr(0,6));
-        rd = stoi(instruction.substr(7,5));
-        imm = stoi(instruction.substr(12,19));
+        opcode = (instruction.substr(0,6));
+        rd = (instruction.substr(7,5));
+        imm = (instruction.substr(12,19));
 
     } else if(currentInstruction.getInstType() == "B"){
-        opcode = stoi(instruction.substr(0,6));
-        imm = stoi(instruction.substr(8,4) + instruction.substr(25,7) + instruction.substr(7,1) + instruction.substr(31,1));
-        funct3 = stoi(instruction.substr(12,3));
-        rs1 = stoi(instruction.substr(15,5));
-        rs2 = stoi(instruction.substr(20,5));
+        opcode = (instruction.substr(0,6));
+        imm = (instruction.substr(8,4) + instruction.substr(25,7) + instruction.substr(7,1) + instruction.substr(31,1));
+        funct3 = (instruction.substr(12,3));
+        rs1 = (instruction.substr(15,5));
+        rs2 = (instruction.substr(20,5));
 
     } else if(currentInstruction.getInstType() == "J"){
-        opcode = stoi(instruction.substr(0,6));
-        rd = stoi(instruction.substr(15,5));
-        imm = stoi(instruction.substr(21,10) + instruction.substr(20,1) + instruction.substr(12,8) + instruction.substr(31,1));
+        opcode = (instruction.substr(0,6));
+        rd = (instruction.substr(15,5));
+        imm = (instruction.substr(21,10) + instruction.substr(20,1) + instruction.substr(12,8) + instruction.substr(31,1));
     }
 
     // determine if the decoded instruction reads from a register that the instruction currently in the execution stage writes to
@@ -149,7 +156,6 @@ void CPU::Store::storeInstruction() {
 
 void CPU::Stall::stallCPU() {
     // Rescheduling the events for a specified time in the future. 1 stall = 10 ticks, 2 stalls = 20 ticks, etc.
-    cout << "hello" << endl;
     for(size_t i = 0; i < (cpu->sys->getMEQ()).size(); i++){
         cpu->reschedule((cpu->sys->getMEQ()).at(i), cpu->currTick() + stallAmount);
     }
@@ -191,38 +197,49 @@ void RunSim::runSimulation(){
         // Schedules accesses the store stage
         if((!(strcmp(sys->getMEQ().front()->description(), "Store")) && (sys->getMEQ().front()->getTime()) == currTick()) && (currTick() == 1 + (cycle)*10)){
             // s->storeInstruction();
-            if(stall->getIsStalled() == false)
-                sys->removeEvent();
+            // if(stall->getIsStalled() == false)
+            //     sys->removeEvent();
 
         // Schedules and accesses the execute stage
         } if((!(strcmp(sys->getMEQ().front()->description(), "Execute")) && (sys->getMEQ().front()->getTime()) == currTick()) && (currTick() == 1 + (cycle)*10)){
             // ex->executeInstruction();
-            if(stall->getIsStalled() == false)
-                s->process();
+            // if(stall->getIsStalled() == false)
+            //     s->process();
 
         // Schedules and access the decode stage
         } if((!(strcmp(sys->getMEQ().front()->description(), "Decode")) && (sys->getMEQ().front()->getTime()) == currTick()) && (currTick() == 1 + (cycle)*10)){
             // d->decodeInstruction();
-            if(stall->getIsStalled() == false)
-                ex->process();
+            // if(stall->getIsStalled() == false)
+            //     ex->process();
 
         // Schedules and access the fetch stage
         } if((!(strcmp(sys->getMEQ().front()->description(), "Fetch")) && (sys->getMEQ().front()->getTime()) == currTick()) && (currTick() == 1 + (cycle)*10)){
-            // f->fetchInstruction();
+            f->fetchInstruction();
 
             // // Scheduling decode for next instruction
-            if(stall->getIsStalled() == false)
-                d->process();
+            // if(stall->getIsStalled() == false)
+            //     d->process();
             // // Scheduling fetch for next instruction
-            if(stall->getIsStalled() == false)
+            if(stall->getIsStalled() == false){
                 f->process();
+
+            f->setIsMemAccess(true);
+            }
 
         } if((!(strcmp(sys->getMEQ().front()->description(), "Register Access")) && (sys->getMEQ().front()->getTime()) == currTick())){
             // Access the registers associated with the instruction and place into decode stage
             sys->removeEvent();
 
         } if((!(strcmp(sys->getMEQ().front()->description(), "Instruction Memory Access")) && (sys->getMEQ().front()->getTime()) == currTick())){
+            f->setCurrentInstruction1(Iport->p1->getMemory(PC));
+            f->setCurrentInstruction2(Iport->p1->getMemory(PC + 1));
+            f->setCurrentInstruction3(Iport->p1->getMemory(PC + 2));
+            f->setCurrentInstruction4(Iport->p1->getMemory(PC + 3));
+
             sys->removeEvent();
+            f->setIsMemAccess(false);
+            stall->process();
+            stall->setAmount(20);
 
         } if((!(strcmp(sys->getMEQ().front()->description(), "Data Memory Access")) && (sys->getMEQ().front()->getTime()) == currTick())){
             // Stall the processor for a memory access
@@ -235,10 +252,8 @@ void RunSim::runSimulation(){
         } if(!(strcmp(sys->getMEQ().front()->description(), "Setup Simulation")) && (sys->getMEQ().front()->getTime()) == currTick()){
             setupSimulator(); // load the instructions into memory
             sys->removeEvent();
-            // stall->setAmount(10);
-            // stall->process();
 
-        } if(!(strcmp(sys->getMEQ().front()->description(), "Stall")) && (sys->getMEQ().front()->getTime()) == currTick()){
+        } if(!sys->getMEQ().empty() && (!(strcmp(sys->getMEQ().front()->description(), "Stall")) && (sys->getMEQ().front()->getTime()) == currTick())){
             // Stall the processor
             sys->removeEvent();
             stall->stallCPU();
@@ -255,152 +270,153 @@ void RunSim::runSimulation(){
 
 void RunSim::setupSimulator(){
     // Convert the asm by hand and place them into the correct memory locations
-    Iport->p1->setMemory(0, 11001000); // 2
-    Iport->p1->setMemory(1, 10000000);
-    Iport->p1->setMemory(2, 10000000);
-    Iport->p1->setMemory(3, 11111111);
-    Iport->p1->setMemory(4, 11000100); // 3
-    Iport->p1->setMemory(5, 01100100);
-    Iport->p1->setMemory(6, 10001000);
-    Iport->p1->setMemory(7, 00000000);
-    Iport->p1->setMemory(8, 11000100); // 4
-    Iport->p1->setMemory(9, 00100100);
-    Iport->p1->setMemory(10, 10000001);
-    Iport->p1->setMemory(11, 00001000);
-    Iport->p1->setMemory(12, 11001000); // 5
-    Iport->p1->setMemory(13, 00100000);
-    Iport->p1->setMemory(14, 10000000);
-    Iport->p1->setMemory(15, 10000000);
-    Iport->p1->setMemory(16, 11001000); // 6
-    Iport->p1->setMemory(17, 10100000);
-    Iport->p1->setMemory(18, 00000000);
-    Iport->p1->setMemory(19, 00000000);
-    Iport->p1->setMemory(20, 11000100); // 7
-    Iport->p1->setMemory(21, 01010100);
-    Iport->p1->setMemory(22, 00100101);
-    Iport->p1->setMemory(23, 01111111);
-    Iport->p1->setMemory(24, 11000100); // 8
-    Iport->p1->setMemory(25, 00010100);
-    Iport->p1->setMemory(26, 00100101);
-    Iport->p1->setMemory(27, 01111111);
-    Iport->p1->setMemory(28, 11110110); // 9
-    Iport->p1->setMemory(29, 00000000);
-    Iport->p1->setMemory(30, 00000000);
-    Iport->p1->setMemory(31, 01000000);
-    Iport->p1->setMemory(32, 11000000); // 11
-    Iport->p1->setMemory(33, 10100100);
-    Iport->p1->setMemory(34, 00100000);
-    Iport->p1->setMemory(35, 11111111);
-    Iport->p1->setMemory(36, 11001001); // 12
-    Iport->p1->setMemory(37, 10100000);
-    Iport->p1->setMemory(38, 00001111);
-    Iport->p1->setMemory(39, 11110000);
-    Iport->p1->setMemory(40, 11000110); // 13
-    Iport->p1->setMemory(41, 00000011);
-    Iport->p1->setMemory(42, 10100101);
-    Iport->p1->setMemory(43, 00010000);
-    Iport->p1->setMemory(44, 11110110); // 14
-    Iport->p1->setMemory(45, 00000000);
-    Iport->p1->setMemory(46, 00000000);
-    Iport->p1->setMemory(47, 01100000);
-    Iport->p1->setMemory(48, 11101100); // 16
-    Iport->p1->setMemory(49, 10100000);
-    Iport->p1->setMemory(50, 00000000);
-    Iport->p1->setMemory(51, 00000000);
-    Iport->p1->setMemory(52, 11001000); // 17
-    Iport->p1->setMemory(53, 10100000);
-    Iport->p1->setMemory(54, 10100000);
-    Iport->p1->setMemory(55, 11000000);
-    Iport->p1->setMemory(56, 11000001); // 18
-    Iport->p1->setMemory(57, 10100100);
-    Iport->p1->setMemory(58, 00100000);
-    Iport->p1->setMemory(59, 11111111);
-    Iport->p1->setMemory(60, 11001001); // 19
-    Iport->p1->setMemory(61, 10101001);
-    Iport->p1->setMemory(62, 10100100);
-    Iport->p1->setMemory(63, 00000000);
-    Iport->p1->setMemory(64, 11001100); // 20
-    Iport->p1->setMemory(65, 10100000);
-    Iport->p1->setMemory(66, 10101101);
-    Iport->p1->setMemory(67, 00000000);
-    Iport->p1->setMemory(68, 11100000); // 21
-    Iport->p1->setMemory(69, 00000100);
-    Iport->p1->setMemory(70, 10100000);
-    Iport->p1->setMemory(71, 00000000);
-    Iport->p1->setMemory(72, 11101100); // 22
-    Iport->p1->setMemory(73, 10100000);
-    Iport->p1->setMemory(74, 00000000);
-    Iport->p1->setMemory(75, 00000000);
-    Iport->p1->setMemory(76, 11001000); // 23
-    Iport->p1->setMemory(77, 10100000);
-    Iport->p1->setMemory(78, 10100000);
-    Iport->p1->setMemory(79, 00000001);
-    Iport->p1->setMemory(80, 11001100); // 24
-    Iport->p1->setMemory(81, 10100000);
-    Iport->p1->setMemory(82, 10101101);
-    Iport->p1->setMemory(83, 00000000);
-    Iport->p1->setMemory(84, 11100001); // 25
-    Iport->p1->setMemory(85, 00000100);
-    Iport->p1->setMemory(86, 10100000);
-    Iport->p1->setMemory(87, 00000000);
-    Iport->p1->setMemory(88, 11001010); // 26
-    Iport->p1->setMemory(89, 00001110);
-    Iport->p1->setMemory(90, 00001000);
-    Iport->p1->setMemory(91, 00000000);
-    Iport->p1->setMemory(92, 11101100); // 27
-    Iport->p1->setMemory(93, 10100000);
-    Iport->p1->setMemory(94, 00000000);
-    Iport->p1->setMemory(95, 00000000);
-    Iport->p1->setMemory(96, 11001000); // 28
-    Iport->p1->setMemory(97, 10100000);
-    Iport->p1->setMemory(98, 10100000);
-    Iport->p1->setMemory(99, 00000011);
-    Iport->p1->setMemory(100, 11001100); // 29
-    Iport->p1->setMemory(101, 10100000);
-    Iport->p1->setMemory(102, 10101101);
-    Iport->p1->setMemory(103, 00000000);
-    Iport->p1->setMemory(104, 11001010); // 30
-    Iport->p1->setMemory(105, 00000100);
-    Iport->p1->setMemory(106, 10100000);
-    Iport->p1->setMemory(107, 00000000);
-    Iport->p1->setMemory(108, 11110110); // 31
-    Iport->p1->setMemory(109, 00000000);
-    Iport->p1->setMemory(110, 00000000);
-    Iport->p1->setMemory(111, 01110000);
-    Iport->p1->setMemory(112, 11000000); // 33
-    Iport->p1->setMemory(113, 10100100);
-    Iport->p1->setMemory(114, 00100000);
-    Iport->p1->setMemory(115, 11111111);
-    Iport->p1->setMemory(116, 11001000); // 34
-    Iport->p1->setMemory(117, 10100000);
-    Iport->p1->setMemory(118, 10101000);
-    Iport->p1->setMemory(119, 00000000);
-    Iport->p1->setMemory(120, 11000100); // 35
-    Iport->p1->setMemory(121, 00001000);
-    Iport->p1->setMemory(122, 01001010);
-    Iport->p1->setMemory(123, 11111111);
-    Iport->p1->setMemory(124, 11110110); // 36
-    Iport->p1->setMemory(125, 00000000);
-    Iport->p1->setMemory(126, 00000000);
-    Iport->p1->setMemory(127, 01000000);
-    Iport->p1->setMemory(128, 11000000); // 38
-    Iport->p1->setMemory(129, 10100100);
-    Iport->p1->setMemory(130, 00100010);
-    Iport->p1->setMemory(131, 11111111);
-    Iport->p1->setMemory(132, 11000000); // 39
-    Iport->p1->setMemory(133, 00100100);
-    Iport->p1->setMemory(134, 10000001);
-    Iport->p1->setMemory(135, 00000000);
-    Iport->p1->setMemory(136, 11000001); // 40
-    Iport->p1->setMemory(137, 00000100);
-    Iport->p1->setMemory(138, 10000011);
-    Iport->p1->setMemory(139, 00000000);
-    Iport->p1->setMemory(140, 11001000); // 41
-    Iport->p1->setMemory(141, 10000000);
-    Iport->p1->setMemory(142, 10000000);
-    Iport->p1->setMemory(143, 10000000);
-    Iport->p1->setMemory(144, 11100110); // 42
-    Iport->p1->setMemory(145, 00000001);
-    Iport->p1->setMemory(146, 00000000;
-    Iport->p1->setMemory(147, 00000000);
+    // Need to set the instruction type for each instruction.
+    Iport->p1->setMemory(0, "11001000", "I"); // 2
+    Iport->p1->setMemory(1, "10000000", "I");
+    Iport->p1->setMemory(2, "10000000", "I");
+    Iport->p1->setMemory(3, "11111111", "I");
+    Iport->p1->setMemory(4, "11000100", "S"); // 3
+    Iport->p1->setMemory(5, "01100100", "S");
+    Iport->p1->setMemory(6, "10001000", "S");
+    Iport->p1->setMemory(7, "00000000", "S");
+    Iport->p1->setMemory(8, "11000100", "S"); // 4
+    Iport->p1->setMemory(9, "00100100", "S");
+    Iport->p1->setMemory(10, "10000001", "S");
+    Iport->p1->setMemory(11, "00001000", "S");
+    Iport->p1->setMemory(12, "11001000", "I"); // 5
+    Iport->p1->setMemory(13, "00100000", "I");
+    Iport->p1->setMemory(14, "10000000", "I");
+    Iport->p1->setMemory(15, "10000000", "I");
+    Iport->p1->setMemory(16, "11001000", "I"); // 6
+    Iport->p1->setMemory(17, "10100000", "I");
+    Iport->p1->setMemory(18, "00000000", "I");
+    Iport->p1->setMemory(19, "00000000", "I");
+    Iport->p1->setMemory(20, "11000100", "S"); // 7
+    Iport->p1->setMemory(21, "01010100", "S");
+    Iport->p1->setMemory(22, "00100101", "S");
+    Iport->p1->setMemory(23, "01111111", "S");
+    Iport->p1->setMemory(24, "11000100", "S"); // 8
+    Iport->p1->setMemory(25, "00010100", "S");
+    Iport->p1->setMemory(26, "00100101", "S");
+    Iport->p1->setMemory(27, "01111111", "S");
+    Iport->p1->setMemory(28, "11110110", "J"); // 9
+    Iport->p1->setMemory(29, "00000000", "J");
+    Iport->p1->setMemory(30, "00000000", "J");
+    Iport->p1->setMemory(31, "01000000", "J");
+    Iport->p1->setMemory(32, "11000000", "I"); // 11
+    Iport->p1->setMemory(33, "10100100", "I");
+    Iport->p1->setMemory(34, "00100000", "I");
+    Iport->p1->setMemory(35, "11111111", "I");
+    Iport->p1->setMemory(36, "11001001", "I"); // 12
+    Iport->p1->setMemory(37, "10100000", "I");
+    Iport->p1->setMemory(38, "00001111", "I");
+    Iport->p1->setMemory(39, "11110000", "I");
+    Iport->p1->setMemory(40, "11000110", "B"); // 13
+    Iport->p1->setMemory(41, "00000011", "B");
+    Iport->p1->setMemory(42, "10100101", "B");
+    Iport->p1->setMemory(43, "00010000", "B");
+    Iport->p1->setMemory(44, "11110110", "J"); // 14
+    Iport->p1->setMemory(45, "00000000", "J");
+    Iport->p1->setMemory(46, "00000000", "J");
+    Iport->p1->setMemory(47, "01100000", "J");
+    Iport->p1->setMemory(48, "11101100", "U"); // 16
+    Iport->p1->setMemory(49, "10100000", "U");
+    Iport->p1->setMemory(50, "00000000", "U");
+    Iport->p1->setMemory(51, "00000000", "U");
+    Iport->p1->setMemory(52, "11001000", "I"); // 17
+    Iport->p1->setMemory(53, "10100000", "I");
+    Iport->p1->setMemory(54, "10100000", "I");
+    Iport->p1->setMemory(55, "11000000", "I");
+    Iport->p1->setMemory(56, "11000001", "I"); // 18
+    Iport->p1->setMemory(57, "10100100", "I");
+    Iport->p1->setMemory(58, "00100000", "I");
+    Iport->p1->setMemory(59, "11111111", "I");
+    Iport->p1->setMemory(60, "11001001", "R"); // 19
+    Iport->p1->setMemory(61, "10101001", "R");
+    Iport->p1->setMemory(62, "10100100", "R");
+    Iport->p1->setMemory(63, "00000000", "R");
+    Iport->p1->setMemory(64, "11001100", "R"); // 20
+    Iport->p1->setMemory(65, "10100000", "R");
+    Iport->p1->setMemory(66, "10101101", "R");
+    Iport->p1->setMemory(67, "00000000", "R");
+    Iport->p1->setMemory(68, "11100000", "I"); // 21
+    Iport->p1->setMemory(69, "00000100", "I");
+    Iport->p1->setMemory(70, "10100000", "I");
+    Iport->p1->setMemory(71, "00000000", "I");
+    Iport->p1->setMemory(72, "11101100", "U"); // 22
+    Iport->p1->setMemory(73, "10100000", "U");
+    Iport->p1->setMemory(74, "00000000", "U");
+    Iport->p1->setMemory(75, "00000000", "U");
+    Iport->p1->setMemory(76, "11001000", "I"); // 23
+    Iport->p1->setMemory(77, "10100000", "I");
+    Iport->p1->setMemory(78, "10100000", "I");
+    Iport->p1->setMemory(79, "00000001", "I");
+    Iport->p1->setMemory(80, "11001100", "R"); // 24
+    Iport->p1->setMemory(81, "10100000", "R");
+    Iport->p1->setMemory(82, "10101101", "R");
+    Iport->p1->setMemory(83, "00000000", "R");
+    Iport->p1->setMemory(84, "11100001", "I"); // 25
+    Iport->p1->setMemory(85, "00000100", "I");
+    Iport->p1->setMemory(86, "10100000", "I");
+    Iport->p1->setMemory(87, "00000000", "I");
+    Iport->p1->setMemory(88, "11001010", "R"); // 26
+    Iport->p1->setMemory(89, "00001110", "R");
+    Iport->p1->setMemory(90, "00001000", "R");
+    Iport->p1->setMemory(91, "00000000", "R");
+    Iport->p1->setMemory(92, "11101100", "U"); // 27
+    Iport->p1->setMemory(93, "10100000", "U");
+    Iport->p1->setMemory(94, "00000000", "U");
+    Iport->p1->setMemory(95, "00000000", "U");
+    Iport->p1->setMemory(96, "11001000", "I"); // 28
+    Iport->p1->setMemory(97, "10100000", "I");
+    Iport->p1->setMemory(98, "10100000", "I");
+    Iport->p1->setMemory(99, "00000011", "I");
+    Iport->p1->setMemory(100, "11001100", "R"); // 29
+    Iport->p1->setMemory(101, "10100000", "R");
+    Iport->p1->setMemory(102, "10101101", "R");
+    Iport->p1->setMemory(103, "00000000", "R");
+    Iport->p1->setMemory(104, "11001010", "S"); // 30
+    Iport->p1->setMemory(105, "00000100", "S");
+    Iport->p1->setMemory(106, "10100000", "S");
+    Iport->p1->setMemory(107, "00000000", "S");
+    Iport->p1->setMemory(108, "11110110", "J"); // 31
+    Iport->p1->setMemory(109, "00000000", "J");
+    Iport->p1->setMemory(110, "00000000", "J");
+    Iport->p1->setMemory(111, "01110000", "J");
+    Iport->p1->setMemory(112, "11000000", "I"); // 33
+    Iport->p1->setMemory(113, "10100100", "I");
+    Iport->p1->setMemory(114, "00100000", "I");
+    Iport->p1->setMemory(115, "11111111", "I");
+    Iport->p1->setMemory(116, "11001000", "I"); // 34
+    Iport->p1->setMemory(117, "10100000", "I");
+    Iport->p1->setMemory(118, "10101000", "I");
+    Iport->p1->setMemory(119, "00000000", "I");
+    Iport->p1->setMemory(120, "11000100", "S"); // 35
+    Iport->p1->setMemory(121, "00001000", "S");
+    Iport->p1->setMemory(122, "01001010", "S");
+    Iport->p1->setMemory(123, "11111111", "S");
+    Iport->p1->setMemory(124, "11110110", "J"); // 36
+    Iport->p1->setMemory(125, "00000000", "J");
+    Iport->p1->setMemory(126, "00000000", "J");
+    Iport->p1->setMemory(127, "01000000", "J");
+    Iport->p1->setMemory(128, "11000000", "I"); // 38
+    Iport->p1->setMemory(129, "10100100", "I");
+    Iport->p1->setMemory(130, "00100010", "I");
+    Iport->p1->setMemory(131, "11111111", "I");
+    Iport->p1->setMemory(132, "11000000", "I"); // 39
+    Iport->p1->setMemory(133, "00100100", "I");
+    Iport->p1->setMemory(134, "10000001", "I");
+    Iport->p1->setMemory(135, "00000000", "I");
+    Iport->p1->setMemory(136, "11000001", "I"); // 40
+    Iport->p1->setMemory(137, "00000100", "I");
+    Iport->p1->setMemory(138, "10000011", "I");
+    Iport->p1->setMemory(139, "00000000", "I");
+    Iport->p1->setMemory(140, "11001000", "I"); // 41
+    Iport->p1->setMemory(141, "10000000", "I");
+    Iport->p1->setMemory(142, "10000000", "I");
+    Iport->p1->setMemory(143, "10000000", "I");
+    Iport->p1->setMemory(144, "11100110", "I"); // 42
+    Iport->p1->setMemory(145, "00000001", "I");
+    Iport->p1->setMemory(146, "00000000", "I");
+    Iport->p1->setMemory(147, "00000000", "I");
 }
