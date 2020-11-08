@@ -45,6 +45,7 @@ private:
         }
         virtual const char* description() override { return "Instruction Memory Access"; }
         Instruction getMemory(size_t PC) { return instructionMem[PC]; }
+        void setMemory(size_t location, uint32_t binary) { (instructionMem[location]).setBinary(binary); }
     };
 
     // Port2 holds the data memory
@@ -63,11 +64,12 @@ private:
         }
         virtual const char* description() override {return "Data Memory Access"; }
         DataMemory getMemory(size_t PC) { return dataMemory[PC]; }
-        void setMemory(size_t location, uint8_t data) { (dataMemory[location]).setData(data); }
+        void setMemory(size_t location, uint32_t data) { (dataMemory[location]).setData(data); }
     };
     Port1 *p1;
     Port2 *p2;
     friend class CPU; // Allows Send class to access these private variables
+    friend class RunSim; // Allows Send class to access these private variables
 
 public:
     Memory(System *s) : SimObject(s), p1(new Port1(this)), p2(new Port2(this)){}
