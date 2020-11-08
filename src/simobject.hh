@@ -40,12 +40,12 @@ private:
         // Creates and processes a port1 event
         Port1(Memory *m) : Event(), mem(m) {}
         virtual void process() override {
-            std::cout << "processing on Tick " << mem->currTick() << std::endl;
-            mem->schedule(mem->p1, mem->currTick() + mem->clkTick);
+            std::cout << "scheduling on Tick " << mem->currTick() << std::endl;
+            mem->schedule(mem->p1, mem->currTick());
         }
         virtual const char* description() override { return "Instruction Memory Access"; }
         Instruction getMemory(size_t PC) { return instructionMem[PC]; }
-        void setMemory(size_t location, uint32_t binary) { (instructionMem[location]).setBinary(binary); }
+        void setMemory(size_t location, std::string binary, std::string type) { (instructionMem[location]).setBinary(binary);  (instructionMem[location]).setInstType(type);}
     };
 
     // Port2 holds the data memory
@@ -60,11 +60,11 @@ private:
         Port2(Memory *m) : Event(), mem(m) {}
         virtual void process() override {
             std::cout << "scheduling on Tick " << mem->currTick() << std::endl;
-            mem->schedule(mem->p2, mem->currTick() + mem->clkTick);
+            mem->schedule(mem->p2, mem->currTick());
         }
         virtual const char* description() override {return "Data Memory Access"; }
         DataMemory getMemory(size_t PC) { return dataMemory[PC]; }
-        void setMemory(size_t location, uint32_t data) { (dataMemory[location]).setData(data); }
+        void setMemory(size_t location, std::string data) { (dataMemory[location]).setData(data); }
     };
     Port1 *p1;
     Port2 *p2;
@@ -109,6 +109,7 @@ private:
         Instruction currentInstruction3;
         Instruction currentInstruction4;
         Instruction currentInstruction; // The 32bits of data from the 4 memory locations will be concatinated into one 32 bit long instruction and then sent to the decode stage
+        bool isMemAccess = true;
         friend class CPU; // Allows CPU class to access these private variables
 
     public:
@@ -120,6 +121,11 @@ private:
         }
         virtual const char* description() override {return "Fetch";}
         void fetchInstruction(); // Gets the instruction from the instruction memory
+        void setCurrentInstruction1(Instruction currentInstruction){ this->currentInstruction1 = currentInstruction; }
+        void setCurrentInstruction2(Instruction currentInstruction){ this->currentInstruction2 = currentInstruction; }
+        void setCurrentInstruction3(Instruction currentInstruction){ this->currentInstruction3 = currentInstruction; }
+        void setCurrentInstruction4(Instruction currentInstruction){ this->currentInstruction4 = currentInstruction; }
+        void setIsMemAccess(bool isMemAccess){ this->isMemAccess = isMemAccess; }
     };
 
     // Decode Stage
@@ -128,9 +134,9 @@ private:
     private:
         CPU *cpu;
         Instruction currentInstruction;
-        uint8_t rs1, rs2, rs3, rd;
-        uint8_t funct2, funct3, funct5, funct7, opcode;
-        uint32_t imm;
+        std::string rs1, rs2, rs3, rd;
+        std::string funct2, funct3, funct5, funct7, opcode;
+        std::string imm;
         friend class CPU; // Allows Send class to access these private variables
 
     public:
@@ -148,9 +154,9 @@ private:
     // Passes the incoming registers or memory location to the ALU to be operated
     private:
         CPU *cpu;
-        uint8_t rs1, rs2, rs3, rd;
-        uint8_t funct2, funct3, funct5, funct7, opcode;
-        uint32_t imm, immDestination;
+        std::string rs1, rs2, rs3, rd;
+        std::string funct2, funct3, funct5, funct7, opcode;
+        std::string imm, immDestination;
         friend class CPU; // Allows CPU class to access these private variables
 
     public:
@@ -169,8 +175,8 @@ private:
     // Store back in memory if needed
     private:
         CPU *cpu;
-        uint8_t rd;
-        uint32_t immDestination;
+        std::string rd;
+        std::string immDestination;
         friend class CPU; // Allows CPU class to access these private variables
     public:
         Store(CPU *c) : Event(), cpu(c) {}

@@ -18,7 +18,6 @@ void System::schedule(Event *e, Tick t){ // Schedules an event into MEQ
     // Adding the event to MEQ
     if(!(e->isScheduled())){
         e->schedule(t);
-
         if(!(strcmp(e->description(), "Stall"))) {
             MEQ.push_front(e);
         } else{
@@ -57,7 +56,7 @@ void System::printMEQ(){
     for(size_t i = 0; i < MEQ.size(); i++){
         std::cout << (MEQ.at(i))->getTime() << ":" << (MEQ.at(i))->description() << std::endl;
     }
-        std::cout << "MEQ end" << std::endl << std::endl;
+    std::cout << "MEQ end" << std::endl << std::endl;
 }
 
 // Removes an Event from MEQ
