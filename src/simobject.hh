@@ -14,17 +14,17 @@
 
 class SimObject {
 protected:
-    System *sys;
+    std::shared_ptr<System> sysMain;
     Tick clkTick;
 
 public:
-    Tick currTick() { return sys->currTick(); } // Gets the current system time
-    void incTick(Tick t) { sys->incTick(t); } // Increments the system time
-    void schedule(Event *e, Tick t) { sys->schedule(e,t); } // Schedules an event
-    void reschedule(Event *e, Tick t) { sys->reschedule(e,t); } // Reschedules an event
-    void printMEQ() { sys->printMEQ(); }
+    Tick currTick() { return sysMain->currTick(); } // Gets the current sysMaintem time
+    void incTick(Tick t) { sysMain->incTick(t); } // Increments the sysMaintem time
+    void schedule(Event *e, Tick t) { sysMain->schedule(e,t); } // Schedules an event
+    void reschedule(Event *e, Tick t) { sysMain->reschedule(e,t); } // Reschedules an event
+    void printMEQ() { sysMain->printMEQ(); }
     virtual void initialize() = 0; // Creates the first event
-    SimObject(System *s) : sys(s) {}
+    SimObject(std::shared_ptr<System> s4) : sysMain(s4) {}
 };
 
 // Memory SimObject. It holds the instruction memory and the data memory
@@ -72,7 +72,7 @@ private:
     friend class RunSim; // Allows Send class to access these private variables
 
 public:
-    Memory(System *s) : SimObject(s), p1(new Port1(this)), p2(new Port2(this)){}
+    Memory(std::shared_ptr<System> s3) : SimObject(s3), p1(new Port1(this)), p2(new Port2(this)){}
     virtual void initialize() override{ std::cout << "Memory initialization" << std::endl; }
 };
 
@@ -82,12 +82,12 @@ private:
     std::unordered_map<uint8_t, Register> fpRegisters; // Example: <0101,"Temporary/alternate link register">
 
 public:
-    RegisterBank(System *s);
+    RegisterBank(std::shared_ptr<System> s2);
 
     // Scheduling the register event
     virtual void process() override{
         std::cout << "scheduling on Tick " << currTick() << std::endl;
-        sys->schedule(this, currTick() + 1); // Scheduling new event
+        sysMain->schedule(this, currTick() + 1); // Scheduling new event
     }
 
     virtual const char* description() override {return "Register Access";}
@@ -116,7 +116,7 @@ private:
         Fetch(CPU *c) : Event(), cpu(c) {}
         virtual void process() override {
         std::cout << "processing on Tick " << cpu->currTick() << std::endl;
-        cpu->sys->removeEvent(); // removing event that was just executed
+        cpu->sysMain->removeEvent(); // removing event that was just executed
         cpu->schedule(cpu->f, cpu->currTick() + cpu->clkTick); // Scheduling new event
         }
         virtual const char* description() override {return "Fetch";}
@@ -163,7 +163,7 @@ private:
         Execute(CPU *c) : Event(), cpu(c) {}
         virtual void process() override {
         std::cout << "processing on Tick " << cpu->currTick() << std::endl;
-        cpu->sys->removeEvent(); // removing event that was just executed
+        cpu->sysMain->removeEvent(); // removing event that was just executed
         cpu->schedule(cpu->ex, cpu->currTick() + cpu->clkTick); // Scheduling new event
         }
         virtual const char* description() override {return "Execute";}
@@ -182,7 +182,7 @@ private:
         Store(CPU *c) : Event(), cpu(c) {}
         virtual void process() override {
         std::cout << "processing on Tick " << cpu->currTick() << std::endl;
-        cpu->sys->removeEvent(); // removing event that was just executed
+        cpu->sysMain->removeEvent(); // removing event that was just executed
         cpu->schedule(cpu->s, cpu->currTick() + cpu->clkTick);
         }
         virtual const char* description() override {return "Store";}
@@ -217,7 +217,7 @@ private:
         ALU(CPU *c) : Event(), cpu(c) {}
         virtual void process() override {
         std::cout << "scheduling on Tick " << cpu->currTick() << std::endl;
-        cpu->sys->removeEvent(); // removing event that was just executed
+        cpu->sysMain->removeEvent(); // removing event that was just executed
         cpu->schedule(cpu->s, cpu->currTick() + cpu->clkTick); // Scheduling new event
         }
         virtual const char* description() override { return "ALU"; }
@@ -251,7 +251,7 @@ private:
     friend class RunSim; // Allows RunSim class to access these private variables
 
 public:
-    CPU(System *s) : SimObject(s), f(new Fetch(this)), d(new Decode(this)), ex(new Execute(this)), s(new Store(this)), stall(new Stall(this)), a(new ALU(this)), send(new Send(this)), Iport(new Memory(s)), Dport(new Memory(s)) {}
+    CPU(std::shared_ptr<System> s1) : SimObject(s1), f(new Fetch(this)), d(new Decode(this)), ex(new Execute(this)), s(new Store(this)), stall(new Stall(this)), a(new ALU(this)), send(new Send(this)), Iport(new Memory(s1)), Dport(new Memory(s1)) {}
 
     virtual void initialize() override { // Initialzes MEQ with a fetch event
         schedule(f, currTick());
@@ -261,13 +261,13 @@ public:
 // Runs the simulation
 class RunSim : public Event, public CPU{
 public:
-    RunSim(System *s) :  Event(), CPU(s) {} // Calls the CPU constructor so that it will have the same values as the one in main
+    RunSim(std::shared_ptr<System> s) :  Event(), CPU(s) {} // Calls the CPU constructor so that it will have the same values as the one in main
     void runSimulation(); // Runs the simulation
     void setupSimulator(); // Sets up the instruction memory with the instructions from a file
 
     virtual void process() override{
         std::cout << "scheduling on Tick " << currTick() << std::endl;
-        sys->schedule(this, 0); // Scheduling new event
+        sysMain->schedule(this, 0); // Scheduling new event
 
     }
     virtual const char* description() override {return "Setup Simulation";}

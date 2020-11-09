@@ -3,7 +3,7 @@
 #include "simobject.hh"
 
 int main(){
-    System *sys = new System();
+    auto sys = std::shared_ptr<System>(new System());
     CPU *cpu = new CPU(sys);
     RunSim *sim = new RunSim(sys);
     sim->initialize(); // Filling the instruction memory locations in with the instructions from the assembly files

@@ -1,5 +1,7 @@
 #include "system.hh"
 #include <iostream>
+#include <cstring>
+#include <cassert>
 
 std::deque<Event *>::iterator System::findEvent(Event *e){ // Finds an event in the MEQ
     auto it = MEQ.begin();
@@ -14,12 +16,14 @@ std::deque<Event *>::iterator System::findEvent(Event *e){ // Finds an event in 
 
 void System::schedule(Event *e, Tick t){ // Schedules an event into MEQ
     // assert(t <= currTick());
+    std::cout << "hello3" << std::endl;
 
     // Adding the event to MEQ
     if(!(e->isScheduled())){
         e->schedule(t);
-        if(!(strcmp(e->description(), "Stall"))) {
+        if(!(strcmp(e->description(), "Stall"))|| !(strcmp(e->description(), "Instruction Memory Access"))) {
             MEQ.push_front(e);
+            return;
         } else{
             for(auto it = MEQ.begin(); it != MEQ.end(); it++){
                 if(e->getTime() < (*it)->getTime()){
