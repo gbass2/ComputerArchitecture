@@ -9,7 +9,7 @@
 // Class for each Ram locoation in data memory
 class DataMemory{
 protected:
-    std::string data; // Holds the 32 bit value for this location
+    std::string data = "00000000"; // Holds the 32 bit value for this location
 
 public:
 std::string getData() { return data;}
@@ -38,15 +38,18 @@ class Instruction{
 protected:
     std::string binary; // Holds the 8 bit instruction for the memory loaction. 4 memory locations equal 32 bits.
     std::string instructionType;
+    std::string instructionSet;
 
 public:
-    Instruction(std::string b) : binary(b) {}
-    Instruction() { binary = "00000000"; instructionType = ""; }
+    Instruction(std::string b) : binary{b} {}
+    Instruction() { binary = "00000000"; instructionType = ""; instructionSet = "";}
 
-    std::string getBinary() { return binary;}
+    std::string getBinary() { return binary; }
     void setBinary(std::string binary) { this->binary = binary; }
     std::string getInstType() { return instructionType;}
     void setInstType(std::string instructionType) { this->instructionType = instructionType; }
+    std::string getInstSet() { return instructionSet;}
+    void setInstSet(std::string instructionSet) { this->instructionSet = instructionSet; }
 };
 
 #endif // MEMORY_H

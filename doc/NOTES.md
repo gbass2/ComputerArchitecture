@@ -31,6 +31,8 @@
 - Adding pthread should allow us to multithread some operations. Not sure if we are allowed to use this since it taps into the cpus threads.
 - NOPs may be required while waiting for data to load from RAM, stalls may be required while waiting for data to store in RAM) [15]
 - For rounding mode for fadd.s we chose 111 (dynamic rounding mode (see page 48 of riscv spec))
+- JAL means Jump and Link
+    - JAL address means ra <- PC+4; PC <- Address
 
 # Example:
 Ticks:
@@ -52,10 +54,8 @@ Ticks:
 
 # Still need
 - Part 1
-    - Add the instructions to the instruction memory.
     - Finish the pipeline data flow
-        - Figure out how to handle the Memory Access events
-        - Implement stalls and nops to handle hazards and latencies
+        - Implement stalls and nops to handle hazards and latencies. Using stalls so I hope that works.
         - Implement the alu operations
     - Convert to C
 
