@@ -78,6 +78,7 @@ void CPU::Fetch::fetchInstruction() {
     string binary;
 
     if(isMemAccess){
+        cout << "Fetch Stage" << endl << endl;
         // cpu->Iport->p1->process(); // The code does not like how mem is accessing the simobject
         cpu->schedule(cpu->Iport->p1, cpu->currTick() + 1);
         cpu->stall->isStalled = true;
@@ -88,7 +89,7 @@ void CPU::Fetch::fetchInstruction() {
     currentInstruction.setBinary(currentInstruction1.getBinary() + currentInstruction2.getBinary() + currentInstruction3.getBinary() + currentInstruction4.getBinary());
     currentInstruction.setInstType(currentInstruction1.getInstType());
 
-    cout << "instruction Bianry: "  << currentInstruction.getBinary() << endl;
+    cout << "instruction fetched: "  << currentInstruction.getBinary() << endl;
     cout << "instruction Type: "  << currentInstruction.getInstType() << endl;
 
     cpu->PC += 4;
@@ -96,6 +97,7 @@ void CPU::Fetch::fetchInstruction() {
 
 // Deodes the instructions into registers, immediates, etc.
 void CPU::Decode::decodeInstruction() {
+    cout << "Decode Stage" << endl << endl;
     string instruction = currentInstruction.getBinary();
 
     if(currentInstruction.getInstType() == "R"){
@@ -239,24 +241,25 @@ void RunSim::runSimulation(){
         // Schedules and accesses the execute stage
         } if((!(strcmp(sysMain->getMEQ().front()->description(), "Execute")) && (sysMain->getMEQ().front()->getTime()) == currTick()) && (currTick() == 1 + (cycles)*10)){
             ex->executeInstruction();
-            if(stall->getIsStalled() == false){
-                // s->process();
+            // // if(stall->getIsStalled() == false){
+            //     // // s->process();
                 sysMain->removeEvent();
-
-                if(ex->getInstruction().getInstSet() == "Base"){
-                    // Creating the Instruction latency by stalling
-                    stall->setAmount(8);
-                    stall->process();
-                }
-            }
+            //     //
+            //     if(ex->getInstruction().getInstSet() == "Base"){
+            //         // Creating the Instruction latency by stalling
+            //         stall->setIsStalled(1);
+            //         stall->setAmount(8);
+            //         stall->process();
+            //     }
+            // // }
 
         // Schedules and access the decode stage
         } if((!(strcmp(sysMain->getMEQ().front()->description(), "Decode")) && (sysMain->getMEQ().front()->getTime()) == currTick()) && (currTick() == 1 + (cycles)*10)){
             d->decodeInstruction();
             sysMain->removeEvent();
 
-            if(stall->getIsStalled() == false)
-                ex->process();
+            // if(stall->getIsStalled() == false)
+            //     ex->process();
 
         // Schedules and access the fetch stage
         } if((!(strcmp(sysMain->getMEQ().front()->description(), "Fetch")) && (sysMain->getMEQ().front()->getTime()) == currTick()) && (currTick() == 1 + (cycles)*10)){

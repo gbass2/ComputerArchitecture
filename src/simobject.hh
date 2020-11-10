@@ -233,7 +233,7 @@ private:
         cpu->schedule(cpu->s, cpu->currTick() + cpu->clkTick); // Scheduling new event
         }
         virtual const char* description() override { return "ALU"; }
-        void aluOperations() {std::cout << "Here" << std::endl; }
+        void aluOperations();
         void ADDI();
         void SLLI();
         void SW();
