@@ -39,6 +39,7 @@ private:
         // Creates and processes a port1 event
         Port1(Memory *m) : Event(), mem(m) {}
         virtual void process() override {
+
             std::cout << "scheduling on Tick " << mem->currTick() << std::endl;
             mem->schedule(mem->p1, mem->currTick());
         }
@@ -726,17 +727,16 @@ int main(){
 
     CPU *cpu = new CPU(sys);
     RunSim *sim = new RunSim(sys);
-    Memory *mem = new Memory(sys);
-    // sim->initialize(); // Filling the instruction memory locations in with the instructions from the assembly files
-    // sim->runSimulation(); // Sets up the instruction memory with the instructions
-    // cpu->initialize(); // Sets up the first event. Which is a fetch event
-    // sim->runSimulation(); // Runs the instructions
+    sim->initialize(); // Filling the instruction memory locations in with the instructions from the assembly files
+    sim->runSimulation(); // Sets up the instruction memory with the instructions
+    cpu->initialize(); // Sets up the first event. Which is a fetch event
+    sim->runSimulation(); // Runs the instructions
 
-    cout <<cpu->sysMain << endl;
-    cout << sys << endl;
-    sim->print();
-    cpu->print();
-    mem->print();
+    // cout <<cpu->sysMain << endl;
+    // cout << sys << endl;
+    // sim->print();
+    // cpu->print();
+    // mem->print();
 
     // sim->print();
     // cpu->print();
