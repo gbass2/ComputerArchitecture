@@ -1,6 +1,6 @@
 CC = g++
 CFLAGS = -I. --std=c++17
-OBJS = main.o system.o simobject.o
+OBJS = main.o system.o simobject.o alu.o
 HEADERS = event.hh system.hh simobject.hh memory.hh
 TARGET = simulation
 BASEDIR = /Users/graysonbass/github/ComputerArchitecture

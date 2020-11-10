@@ -4,14 +4,14 @@
 // #include <iostream>
 // #include <math.h>
 // #include <bitset>
-//
+
 // int Binary2Decimal(std::string binary, int significantBits);
 // std::string Decimal2Binary(std::string input);
 // float GetFloat32( std::string Binary );
 // std::string GetBinary32( float value );
 //
 // // Determines what alu operation needs to be done
-// void CPU::ALU::aluOperation() {
+// void CPU::ALU::aluOperations() {
 //     if(cpu->ex->opcode == "1100100") {      // addi/mv + slli
 //         if(cpu->ex->funct3 == "000") {      // addi/mv
 //             ADDI();

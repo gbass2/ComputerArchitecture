@@ -144,7 +144,7 @@ void CPU::Decode::decodeInstruction() {
 
 // Prints the execute stage
 void CPU::Execute::executeInstruction() {
-    cpu->a->aluOperation();
+    cpu->a->process();
 }
 
 // Prints the store instruction
@@ -232,13 +232,17 @@ void RunSim::runSimulation(){
             // Stall the processor for a memory access
             sysMain->removeEvent();
 
+        } if((!(strcmp(sysMain->getMEQ().front()->description(), "ALU")) && (sysMain->getMEQ().front()->getTime()) == currTick()) && (currTick() == 6 + (cycles)*10)){
+            a->aluOperations();
+            sysMain->removeEvent();
+
         // Schedules and accesses the execute stage
         } if((!(strcmp(sysMain->getMEQ().front()->description(), "Execute")) && (sysMain->getMEQ().front()->getTime()) == currTick()) && (currTick() == 1 + (cycles)*10)){
             ex->executeInstruction();
             if(stall->getIsStalled() == false){
                 // s->process();
                 sysMain->removeEvent();
-            //
+
                 if(ex->getInstruction().getInstSet() == "Base"){
                     // Creating the Instruction latency by stalling
                     stall->setAmount(8);
@@ -292,150 +296,150 @@ void RunSim::setupSimulator(){
     Iport->p1->setMemory(1, "10000000", "I", "Base");
     Iport->p1->setMemory(2, "10000000", "I", "Base");
     Iport->p1->setMemory(3, "11111111", "I", "Base");
-    // Iport->p1->setMemory(4, "11000100", "S", "Base"); // 3
-    // Iport->p1->setMemory(5, "01100100", "S", "Base");
-    // Iport->p1->setMemory(6, "10001000", "S", "Base");
-    // Iport->p1->setMemory(7, "00000000", "S", "Base");
-    // Iport->p1->setMemory(8, "11000100", "S", "Base"); // 4
-    // Iport->p1->setMemory(9, "00100100", "S", "Base");
-    // Iport->p1->setMemory(10, "10000001", "S","Base");
-    // Iport->p1->setMemory(11, "00001000", "S", "Base");
-    // Iport->p1->setMemory(12, "11001000", "I", "Base"); // 5
-    // Iport->p1->setMemory(13, "00100000", "I", "Base");
-    // Iport->p1->setMemory(14, "10000000", "I", "Base");
-    // Iport->p1->setMemory(15, "10000000", "I", "Base");
-    // Iport->p1->setMemory(16, "11001000", "I", "Base"); // 6
-    // Iport->p1->setMemory(17, "10100000", "I", "Base");
-    // Iport->p1->setMemory(18, "00000000", "I", "Base");
-    // Iport->p1->setMemory(19, "00000000", "I", "Base");
-    // Iport->p1->setMemory(20, "11000100", "S", "Base"); // 7
-    // Iport->p1->setMemory(21, "01010100", "S", "Base");
-    // Iport->p1->setMemory(22, "00100101", "S", "Base");
-    // Iport->p1->setMemory(23, "01111111", "S", "Base");
-    // Iport->p1->setMemory(24, "11000100", "S", "Base"); // 8
-    // Iport->p1->setMemory(25, "00010100", "S", "Base");
-    // Iport->p1->setMemory(26, "00100101", "S", "Base");
-    // Iport->p1->setMemory(27, "01111111", "S", "Base");
-    // Iport->p1->setMemory(28, "11110110", "J", "Base"); // 9
-    // Iport->p1->setMemory(29, "00000000", "J", "Base");
-    // Iport->p1->setMemory(30, "00000000", "J", "Base");
-    // Iport->p1->setMemory(31, "01000000", "J", "Base");
-    // Iport->p1->setMemory(32, "11000000", "I", "Base"); // 11
-    // Iport->p1->setMemory(33, "10100100", "I", "Base");
-    // Iport->p1->setMemory(34, "00100000", "I", "Base");
-    // Iport->p1->setMemory(35, "11111111", "I", "Base");
-    // Iport->p1->setMemory(36, "11001001", "I", "Base"); // 12
-    // Iport->p1->setMemory(37, "10100000", "I", "Base");
-    // Iport->p1->setMemory(38, "00001111", "I", "Base");
-    // Iport->p1->setMemory(39, "11110000", "I", "Base");
-    // Iport->p1->setMemory(40, "11000110", "B", "Base"); // 13
-    // Iport->p1->setMemory(41, "00000011", "B", "Base");
-    // Iport->p1->setMemory(42, "10100101", "B", "Base");
-    // Iport->p1->setMemory(43, "00010000", "B", "Base");
-    // Iport->p1->setMemory(44, "11110110", "J", "Base"); // 14
-    // Iport->p1->setMemory(45, "00000000", "J", "Base");
-    // Iport->p1->setMemory(46, "00000000", "J", "Base");
-    // Iport->p1->setMemory(47, "01100000", "J", "Base");
-    // Iport->p1->setMemory(48, "11101100", "U", "Base"); // 16
-    // Iport->p1->setMemory(49, "10100000", "U", "Base");
-    // Iport->p1->setMemory(50, "00000000", "U", "Base");
-    // Iport->p1->setMemory(51, "00000000", "U", "Base");
-    // Iport->p1->setMemory(52, "11001000", "I", "Base"); // 17
-    // Iport->p1->setMemory(53, "10100000", "I", "Base");
-    // Iport->p1->setMemory(54, "10100000", "I", "Base");
-    // Iport->p1->setMemory(55, "00000010", "I", "Base");
-    // Iport->p1->setMemory(56, "11000001", "I", "Base"); // 18
-    // Iport->p1->setMemory(57, "10100100", "I", "Base");
-    // Iport->p1->setMemory(58, "00100000", "I", "Base");
-    // Iport->p1->setMemory(59, "11111111", "I", "Base");
-    // Iport->p1->setMemory(60, "11001001", "R", "Base"); // 19
-    // Iport->p1->setMemory(61, "10101001", "R", "Base");
-    // Iport->p1->setMemory(62, "10100100", "R", "Base");
-    // Iport->p1->setMemory(63, "00000000", "R", "Base");
-    // Iport->p1->setMemory(64, "11001100", "R", "Base"); // 20
-    // Iport->p1->setMemory(65, "10100000", "R", "Base");
-    // Iport->p1->setMemory(66, "10101101", "R", "Base");
-    // Iport->p1->setMemory(67, "00000000", "R", "Base");
-    // Iport->p1->setMemory(68, "11100000", "I", "Float"); // 21 ffffffffffffffffffffffffffffffffffffffffff
-    // Iport->p1->setMemory(69, "00000100", "I", "Float");
-    // Iport->p1->setMemory(70, "10100000", "I", "Float");
-    // Iport->p1->setMemory(71, "00000000", "I", "Float");
-    // Iport->p1->setMemory(72, "11101100", "U", "Base"); // 22
-    // Iport->p1->setMemory(73, "10100000", "U", "Base");
-    // Iport->p1->setMemory(74, "00000000", "U", "Base");
-    // Iport->p1->setMemory(75, "00000000", "U", "Base");
-    // Iport->p1->setMemory(76, "11001000", "I", "Base"); // 23
-    // Iport->p1->setMemory(77, "10100000", "I", "Base");
-    // Iport->p1->setMemory(78, "10100000", "I", "Base");
-    // Iport->p1->setMemory(79, "00000001", "I", "Base");
-    // Iport->p1->setMemory(80, "11001100", "R", "Base"); // 24
-    // Iport->p1->setMemory(81, "10100000", "R", "Base");
-    // Iport->p1->setMemory(82, "10101101", "R", "Base");
-    // Iport->p1->setMemory(83, "00000000", "R", "Base");
-    // Iport->p1->setMemory(84, "11100001", "I", "Float"); // 25 ffffffffffffffffffffffffffffffffffffffff
-    // Iport->p1->setMemory(85, "00000100", "I", "Float");
-    // Iport->p1->setMemory(86, "10100000", "I", "Float");
-    // Iport->p1->setMemory(87, "00000000", "I", "Float");
-    // Iport->p1->setMemory(88, "11001010", "R", "Float"); // 26 fffffffffffffffffffffffffffffffffff
-    // Iport->p1->setMemory(89, "00001110", "R", "Float");
-    // Iport->p1->setMemory(90, "00001000", "R", "Float");
-    // Iport->p1->setMemory(91, "00000000", "R", "Float");
-    // Iport->p1->setMemory(92, "11101100", "U", "Base"); // 27
-    // Iport->p1->setMemory(93, "10100000", "U", "Base");
-    // Iport->p1->setMemory(94, "00000000", "U", "Base");
-    // Iport->p1->setMemory(95, "00000000", "U", "Base");
-    // Iport->p1->setMemory(96, "11001000", "I", "Base"); // 28
-    // Iport->p1->setMemory(97, "10100000", "I", "Base");
-    // Iport->p1->setMemory(98, "10100000", "I", "Base");
-    // Iport->p1->setMemory(99, "00000011", "I", "Base");
-    // Iport->p1->setMemory(100, "11001100", "R", "Base"); // 29
-    // Iport->p1->setMemory(101, "10100000", "R", "Base");
-    // Iport->p1->setMemory(102, "10101101", "R", "Base");
-    // Iport->p1->setMemory(103, "00000000", "R", "Base");
-    // Iport->p1->setMemory(104, "11001010", "S", "Float"); // 30 ffffffffffffffffffffffffffffffffffffffffffff
-    // Iport->p1->setMemory(105, "00000100", "S", "Float");
-    // Iport->p1->setMemory(106, "10100000", "S", "Float");
-    // Iport->p1->setMemory(107, "00000000", "S", "Float");
-    // Iport->p1->setMemory(108, "11110110", "J", "Base"); // 31
-    // Iport->p1->setMemory(109, "00000000", "J", "Base");
-    // Iport->p1->setMemory(110, "00000000", "J", "Base");
-    // Iport->p1->setMemory(111, "01110000", "J", "Base");
-    // Iport->p1->setMemory(112, "11000000", "I", "Base"); // 33
-    // Iport->p1->setMemory(113, "10100100", "I", "Base");
-    // Iport->p1->setMemory(114, "00100000", "I", "Base");
-    // Iport->p1->setMemory(115, "11111111", "I", "Base");
-    // Iport->p1->setMemory(116, "11001000", "I", "Base"); // 34
-    // Iport->p1->setMemory(117, "10100000", "I", "Base");
-    // Iport->p1->setMemory(118, "10101000", "I", "Base");
-    // Iport->p1->setMemory(119, "00000000", "I", "Base");
-    // Iport->p1->setMemory(120, "11000100", "S", "Base"); // 35
-    // Iport->p1->setMemory(121, "00001000", "S", "Base");
-    // Iport->p1->setMemory(122, "01001010", "S", "Base");
-    // Iport->p1->setMemory(123, "11111111", "S", "Base");
-    // Iport->p1->setMemory(124, "11110110", "J", "Base"); // 36
-    // Iport->p1->setMemory(125, "00000000", "J", "Base");
-    // Iport->p1->setMemory(126, "00000000", "J", "Base");
-    // Iport->p1->setMemory(127, "01000000", "J", "Base");
-    // Iport->p1->setMemory(128, "11000000", "I", "Base"); // 38
-    // Iport->p1->setMemory(129, "10100100", "I", "Base");
-    // Iport->p1->setMemory(130, "00100010", "I", "Base");
-    // Iport->p1->setMemory(131, "11111111", "I", "Base");
-    // Iport->p1->setMemory(132, "11000000", "I", "Base"); // 39
-    // Iport->p1->setMemory(133, "00100100", "I", "Base");
-    // Iport->p1->setMemory(134, "10000001", "I", "Base");
-    // Iport->p1->setMemory(135, "00000000", "I", "Base");
-    // Iport->p1->setMemory(136, "11000001", "I", "Base"); // 40
-    // Iport->p1->setMemory(137, "00000100", "I", "Base");
-    // Iport->p1->setMemory(138, "10000011", "I", "Base");
-    // Iport->p1->setMemory(139, "00000000", "I", "Base");
-    // Iport->p1->setMemory(140, "11001000", "I", "Base"); // 41
-    // Iport->p1->setMemory(141, "10000000", "I", "Base");
-    // Iport->p1->setMemory(142, "10000000", "I", "Base");
-    // Iport->p1->setMemory(143, "10000000", "I", "Base");
-    // Iport->p1->setMemory(144, "11100110", "I", "Base"); // 42
-    // Iport->p1->setMemory(145, "00000001", "I", "Base");
-    // Iport->p1->setMemory(146, "00000000", "I", "Base");
-    // Iport->p1->setMemory(147, "00000000", "I", "Base");
+    Iport->p1->setMemory(4, "11000100", "S", "Base"); // 3
+    Iport->p1->setMemory(5, "01100100", "S", "Base");
+    Iport->p1->setMemory(6, "10001000", "S", "Base");
+    Iport->p1->setMemory(7, "00000000", "S", "Base");
+    Iport->p1->setMemory(8, "11000100", "S", "Base"); // 4
+    Iport->p1->setMemory(9, "00100100", "S", "Base");
+    Iport->p1->setMemory(10, "10000001", "S","Base");
+    Iport->p1->setMemory(11, "00001000", "S", "Base");
+    Iport->p1->setMemory(12, "11001000", "I", "Base"); // 5
+    Iport->p1->setMemory(13, "00100000", "I", "Base");
+    Iport->p1->setMemory(14, "10000000", "I", "Base");
+    Iport->p1->setMemory(15, "10000000", "I", "Base");
+    Iport->p1->setMemory(16, "11001000", "I", "Base"); // 6
+    Iport->p1->setMemory(17, "10100000", "I", "Base");
+    Iport->p1->setMemory(18, "00000000", "I", "Base");
+    Iport->p1->setMemory(19, "00000000", "I", "Base");
+    Iport->p1->setMemory(20, "11000100", "S", "Base"); // 7
+    Iport->p1->setMemory(21, "01010100", "S", "Base");
+    Iport->p1->setMemory(22, "00100101", "S", "Base");
+    Iport->p1->setMemory(23, "01111111", "S", "Base");
+    Iport->p1->setMemory(24, "11000100", "S", "Base"); // 8
+    Iport->p1->setMemory(25, "00010100", "S", "Base");
+    Iport->p1->setMemory(26, "00100101", "S", "Base");
+    Iport->p1->setMemory(27, "01111111", "S", "Base");
+    Iport->p1->setMemory(28, "11110110", "J", "Base"); // 9
+    Iport->p1->setMemory(29, "00000000", "J", "Base");
+    Iport->p1->setMemory(30, "00000000", "J", "Base");
+    Iport->p1->setMemory(31, "01000000", "J", "Base");
+    Iport->p1->setMemory(32, "11000000", "I", "Base"); // 11
+    Iport->p1->setMemory(33, "10100100", "I", "Base");
+    Iport->p1->setMemory(34, "00100000", "I", "Base");
+    Iport->p1->setMemory(35, "11111111", "I", "Base");
+    Iport->p1->setMemory(36, "11001001", "I", "Base"); // 12
+    Iport->p1->setMemory(37, "10100000", "I", "Base");
+    Iport->p1->setMemory(38, "00001111", "I", "Base");
+    Iport->p1->setMemory(39, "11110000", "I", "Base");
+    Iport->p1->setMemory(40, "11000110", "B", "Base"); // 13
+    Iport->p1->setMemory(41, "00000011", "B", "Base");
+    Iport->p1->setMemory(42, "10100101", "B", "Base");
+    Iport->p1->setMemory(43, "00010000", "B", "Base");
+    Iport->p1->setMemory(44, "11110110", "J", "Base"); // 14
+    Iport->p1->setMemory(45, "00000000", "J", "Base");
+    Iport->p1->setMemory(46, "00000000", "J", "Base");
+    Iport->p1->setMemory(47, "01100000", "J", "Base");
+    Iport->p1->setMemory(48, "11101100", "U", "Base"); // 16
+    Iport->p1->setMemory(49, "10100000", "U", "Base");
+    Iport->p1->setMemory(50, "00000000", "U", "Base");
+    Iport->p1->setMemory(51, "00000000", "U", "Base");
+    Iport->p1->setMemory(52, "11001000", "I", "Base"); // 17
+    Iport->p1->setMemory(53, "10100000", "I", "Base");
+    Iport->p1->setMemory(54, "10100000", "I", "Base");
+    Iport->p1->setMemory(55, "00000010", "I", "Base");
+    Iport->p1->setMemory(56, "11000001", "I", "Base"); // 18
+    Iport->p1->setMemory(57, "10100100", "I", "Base");
+    Iport->p1->setMemory(58, "00100000", "I", "Base");
+    Iport->p1->setMemory(59, "11111111", "I", "Base");
+    Iport->p1->setMemory(60, "11001001", "R", "Base"); // 19
+    Iport->p1->setMemory(61, "10101001", "R", "Base");
+    Iport->p1->setMemory(62, "10100100", "R", "Base");
+    Iport->p1->setMemory(63, "00000000", "R", "Base");
+    Iport->p1->setMemory(64, "11001100", "R", "Base"); // 20
+    Iport->p1->setMemory(65, "10100000", "R", "Base");
+    Iport->p1->setMemory(66, "10101101", "R", "Base");
+    Iport->p1->setMemory(67, "00000000", "R", "Base");
+    Iport->p1->setMemory(68, "11100000", "I", "Float"); // 21 ffffffffffffffffffffffffffffffffffffffffff
+    Iport->p1->setMemory(69, "00000100", "I", "Float");
+    Iport->p1->setMemory(70, "10100000", "I", "Float");
+    Iport->p1->setMemory(71, "00000000", "I", "Float");
+    Iport->p1->setMemory(72, "11101100", "U", "Base"); // 22
+    Iport->p1->setMemory(73, "10100000", "U", "Base");
+    Iport->p1->setMemory(74, "00000000", "U", "Base");
+    Iport->p1->setMemory(75, "00000000", "U", "Base");
+    Iport->p1->setMemory(76, "11001000", "I", "Base"); // 23
+    Iport->p1->setMemory(77, "10100000", "I", "Base");
+    Iport->p1->setMemory(78, "10100000", "I", "Base");
+    Iport->p1->setMemory(79, "00000001", "I", "Base");
+    Iport->p1->setMemory(80, "11001100", "R", "Base"); // 24
+    Iport->p1->setMemory(81, "10100000", "R", "Base");
+    Iport->p1->setMemory(82, "10101101", "R", "Base");
+    Iport->p1->setMemory(83, "00000000", "R", "Base");
+    Iport->p1->setMemory(84, "11100001", "I", "Float"); // 25 ffffffffffffffffffffffffffffffffffffffff
+    Iport->p1->setMemory(85, "00000100", "I", "Float");
+    Iport->p1->setMemory(86, "10100000", "I", "Float");
+    Iport->p1->setMemory(87, "00000000", "I", "Float");
+    Iport->p1->setMemory(88, "11001010", "R", "Float"); // 26 fffffffffffffffffffffffffffffffffff
+    Iport->p1->setMemory(89, "00001110", "R", "Float");
+    Iport->p1->setMemory(90, "00001000", "R", "Float");
+    Iport->p1->setMemory(91, "00000000", "R", "Float");
+    Iport->p1->setMemory(92, "11101100", "U", "Base"); // 27
+    Iport->p1->setMemory(93, "10100000", "U", "Base");
+    Iport->p1->setMemory(94, "00000000", "U", "Base");
+    Iport->p1->setMemory(95, "00000000", "U", "Base");
+    Iport->p1->setMemory(96, "11001000", "I", "Base"); // 28
+    Iport->p1->setMemory(97, "10100000", "I", "Base");
+    Iport->p1->setMemory(98, "10100000", "I", "Base");
+    Iport->p1->setMemory(99, "00000011", "I", "Base");
+    Iport->p1->setMemory(100, "11001100", "R", "Base"); // 29
+    Iport->p1->setMemory(101, "10100000", "R", "Base");
+    Iport->p1->setMemory(102, "10101101", "R", "Base");
+    Iport->p1->setMemory(103, "00000000", "R", "Base");
+    Iport->p1->setMemory(104, "11001010", "S", "Float"); // 30 ffffffffffffffffffffffffffffffffffffffffffff
+    Iport->p1->setMemory(105, "00000100", "S", "Float");
+    Iport->p1->setMemory(106, "10100000", "S", "Float");
+    Iport->p1->setMemory(107, "00000000", "S", "Float");
+    Iport->p1->setMemory(108, "11110110", "J", "Base"); // 31
+    Iport->p1->setMemory(109, "00000000", "J", "Base");
+    Iport->p1->setMemory(110, "00000000", "J", "Base");
+    Iport->p1->setMemory(111, "01110000", "J", "Base");
+    Iport->p1->setMemory(112, "11000000", "I", "Base"); // 33
+    Iport->p1->setMemory(113, "10100100", "I", "Base");
+    Iport->p1->setMemory(114, "00100000", "I", "Base");
+    Iport->p1->setMemory(115, "11111111", "I", "Base");
+    Iport->p1->setMemory(116, "11001000", "I", "Base"); // 34
+    Iport->p1->setMemory(117, "10100000", "I", "Base");
+    Iport->p1->setMemory(118, "10101000", "I", "Base");
+    Iport->p1->setMemory(119, "00000000", "I", "Base");
+    Iport->p1->setMemory(120, "11000100", "S", "Base"); // 35
+    Iport->p1->setMemory(121, "00001000", "S", "Base");
+    Iport->p1->setMemory(122, "01001010", "S", "Base");
+    Iport->p1->setMemory(123, "11111111", "S", "Base");
+    Iport->p1->setMemory(124, "11110110", "J", "Base"); // 36
+    Iport->p1->setMemory(125, "00000000", "J", "Base");
+    Iport->p1->setMemory(126, "00000000", "J", "Base");
+    Iport->p1->setMemory(127, "01000000", "J", "Base");
+    Iport->p1->setMemory(128, "11000000", "I", "Base"); // 38
+    Iport->p1->setMemory(129, "10100100", "I", "Base");
+    Iport->p1->setMemory(130, "00100010", "I", "Base");
+    Iport->p1->setMemory(131, "11111111", "I", "Base");
+    Iport->p1->setMemory(132, "11000000", "I", "Base"); // 39
+    Iport->p1->setMemory(133, "00100100", "I", "Base");
+    Iport->p1->setMemory(134, "10000001", "I", "Base");
+    Iport->p1->setMemory(135, "00000000", "I", "Base");
+    Iport->p1->setMemory(136, "11000001", "I", "Base"); // 40
+    Iport->p1->setMemory(137, "00000100", "I", "Base");
+    Iport->p1->setMemory(138, "10000011", "I", "Base");
+    Iport->p1->setMemory(139, "00000000", "I", "Base");
+    Iport->p1->setMemory(140, "11001000", "I", "Base"); // 41
+    Iport->p1->setMemory(141, "10000000", "I", "Base");
+    Iport->p1->setMemory(142, "10000000", "I", "Base");
+    Iport->p1->setMemory(143, "10000000", "I", "Base");
+    Iport->p1->setMemory(144, "11100110", "I", "Base"); // 42
+    Iport->p1->setMemory(145, "00000001", "I", "Base");
+    Iport->p1->setMemory(146, "00000000", "I", "Base");
+    Iport->p1->setMemory(147, "00000000", "I", "Base");
 
     a->jump.push_back(0x20);
     a->jump.push_back(0x30);

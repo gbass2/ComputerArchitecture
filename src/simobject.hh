@@ -222,7 +222,7 @@ private:
     private:
         CPU *cpu;
         std::deque<int> jump;
-        friend class CPU; // Allows CPU class to access these private variables
+        // friend class CPU; // Allows CPU class to access these private variables
         friend class RunSim; // Allows RunSim class to access these private variables
 
     public:
@@ -233,7 +233,7 @@ private:
         cpu->schedule(cpu->s, cpu->currTick() + cpu->clkTick); // Scheduling new event
         }
         virtual const char* description() override { return "ALU"; }
-        void aluOperation();
+        void aluOperations() {std::cout << "Here" << std::endl; }
         void ADDI();
         void SLLI();
         void SW();
