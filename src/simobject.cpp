@@ -161,10 +161,12 @@ void CPU::Store::storeInstruction() {
 }
 
 void CPU::Stall::stallCPU() {
+    cout << endl << "Reshceduling Events" << endl;
     // Rescheduling the events in the MEQ for a specified time in the future. 1 stall = 10 ticks, 2 stalls = 20 ticks, etc.
     for(size_t i = 0; i < (cpu->sysMain->getMEQ()).size(); i++){
         cpu->reschedule((cpu->sysMain->getMEQ()).at(i), (cpu->sysMain->getMEQ()).at(i)->getTime() + stallAmount);
     }
+    cout << endl;
 }
 
 void CPU::Send::sendData() {
@@ -199,8 +201,12 @@ void RunSim::runSimulation(){
     double numInstructions = 37; // Remove once ret is implemented
 
     while(!(sysMain->getMEQ()).empty() && Iport->p1->getMemory(PC).getBinary().to_ulong() != 230){
+        // Counting the cycles
+        if(currTick() % 10 == 0 && currTick() > 1)
+            cycles++;
+
         printMEQ();
-        cout << "Current Cycle: " << cycles + 1 << endl;
+        cout << "Current Cycle: " << cycles  << endl;
         cout << "Current Tick: " << currTick() << endl;
 
         if ((sysMain->getMEQ().front()->getTime()) < currTick()){
@@ -212,7 +218,6 @@ void RunSim::runSimulation(){
         } if((!(strcmp(sysMain->getMEQ().front()->description(), "Send Data")) && (sysMain->getMEQ().front()->getTime()) == currTick()) && (currTick() == 6 + (cycles)*10)){
             send->sendData();
             sysMain->removeEvent();
-            cout << "here" << endl;
 
         } if(!sysMain->getMEQ().empty() && (!(strcmp(sysMain->getMEQ().front()->description(), "Stall")) && (sysMain->getMEQ().front()->getTime()) == currTick())){
             // Stall the processor
@@ -303,10 +308,6 @@ void RunSim::runSimulation(){
             setupSimulator(); // load the instructions into memory
             sysMain->removeEvent();
         }
-
-        if(currTick() % 10 == 0)
-            cycles++;
-
 
         incTick(1); // Increments currentTick by amount (t)
     }

@@ -114,13 +114,12 @@ private:
         friend class CPU; // Allows CPU class to access these private variables
 
     public:
-        Fetch(CPU *c) : Event(), cpu(c) {}
+        Fetch(CPU *c) : Event(0), cpu(c) {}
         virtual void process() override {
         std::cout << "Scheduling Fetch on Tick " << cpu->currTick() << std::endl;
         cpu->sysMain->removeEvent(); // removing event that was just executed
 
-
-        if((cpu->currTick() + 10 == 1 + (cpu->cycles)*10))
+        if((cpu->currTick() + 10 == 11 + (cpu->cycles)*10))
             cpu->schedule(cpu->f, cpu->currTick() + cpu->clkTick); // Scheduling new event
         else
             cpu->schedule(cpu->f, ((cpu->cycles + 1)*(cpu->clkTick+1))); // Scheduling new event
@@ -153,11 +152,11 @@ private:
         friend class CPU; // Allows Send class to access these private variables
 
     public:
-        Decode(CPU *c) : Event(), cpu(c){}
+        Decode(CPU *c) : Event(0), cpu(c){}
         virtual void process() override {
         std::cout << "Scheduling Decode on Tick " << cpu->currTick() << std::endl;
 
-        if((cpu->currTick() + 10 == 1 + (cpu->cycles)*10))
+        if((cpu->currTick() + 10 == 11 + (cpu->cycles)*10))
             cpu->schedule(cpu->d, cpu->currTick() + cpu->clkTick); // Scheduling new event
         else
             cpu->schedule(cpu->d, ((cpu->cycles + 1)*(cpu->clkTick+1))); // Scheduling new event
@@ -183,12 +182,12 @@ private:
         friend class CPU; // Allows CPU class to access these private variables
 
     public:
-        Execute(CPU *c) : Event(), cpu(c) {}
+        Execute(CPU *c) : Event(0), cpu(c) {}
         virtual void process() override {
         std::cout << "Scheduling Execute on Tick " << cpu->currTick() << std::endl;
         cpu->sysMain->removeEvent(); // removing event that was just executed
 
-        if((cpu->currTick() + 10 == 1 + (cpu->cycles)*10))
+        if((cpu->currTick() + 10 == 11 + (cpu->cycles)*10))
             cpu->schedule(cpu->ex, cpu->currTick() + cpu->clkTick); // Scheduling new event
         else
             cpu->schedule(cpu->ex, ((cpu->cycles + 1)*(cpu->clkTick+1))); // Scheduling new event
@@ -210,12 +209,12 @@ private:
         std::bitset<32 >immDestination;
         friend class CPU; // Allows CPU class to access these private variables
     public:
-        Store(CPU *c) : Event(), cpu(c) {}
+        Store(CPU *c) : Event(0), cpu(c) {}
         virtual void process() override {
         std::cout << "Scheduling Store on Tick " << cpu->currTick() << std::endl;
         cpu->sysMain->removeEvent(); // removing event that was just executed
 
-        if((cpu->currTick() + 10 == 1 + (cpu->cycles)*10))
+        if((cpu->currTick() + 10 == 11 + (cpu->cycles)*10))
             cpu->schedule(cpu->s, cpu->currTick() + cpu->clkTick); // Scheduling new event
         else
             cpu->schedule(cpu->s, ((cpu->cycles + 1)*(cpu->clkTick+1))); // Scheduling new event
