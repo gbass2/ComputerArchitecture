@@ -118,7 +118,12 @@ private:
         virtual void process() override {
         std::cout << "Scheduling Fetch on Tick " << cpu->currTick() << std::endl;
         cpu->sysMain->removeEvent(); // removing event that was just executed
-        cpu->schedule(cpu->f, cpu->currTick() + cpu->clkTick); // Scheduling new event
+
+
+        if((cpu->currTick() + 10 == 1 + (cpu->cycles)*10))
+            cpu->schedule(cpu->f, cpu->currTick() + cpu->clkTick); // Scheduling new event
+        else
+            cpu->schedule(cpu->f, ((cpu->cycles + 1)*(cpu->clkTick+1))); // Scheduling new event
         }
         virtual const char* description() override {return "Fetch";}
         void fetchInstruction(); // Gets the instruction from the instruction memory
@@ -151,7 +156,11 @@ private:
         Decode(CPU *c) : Event(), cpu(c){}
         virtual void process() override {
         std::cout << "Scheduling Decode on Tick " << cpu->currTick() << std::endl;
-        cpu->schedule(cpu->d, cpu->currTick() + cpu->clkTick); // Scheduling new event
+
+        if((cpu->currTick() + 10 == 1 + (cpu->cycles)*10))
+            cpu->schedule(cpu->d, cpu->currTick() + cpu->clkTick); // Scheduling new event
+        else
+            cpu->schedule(cpu->d, ((cpu->cycles + 1)*(cpu->clkTick+1))); // Scheduling new event
         }
         virtual const char* description() override {return "Decode";}
         void decodeInstruction();
@@ -178,7 +187,11 @@ private:
         virtual void process() override {
         std::cout << "Scheduling Execute on Tick " << cpu->currTick() << std::endl;
         cpu->sysMain->removeEvent(); // removing event that was just executed
-        cpu->schedule(cpu->ex, cpu->currTick() + cpu->clkTick); // Scheduling new event
+
+        if((cpu->currTick() + 10 == 1 + (cpu->cycles)*10))
+            cpu->schedule(cpu->ex, cpu->currTick() + cpu->clkTick); // Scheduling new event
+        else
+            cpu->schedule(cpu->ex, ((cpu->cycles + 1)*(cpu->clkTick+1))); // Scheduling new event
         }
         virtual const char* description() override {return "Execute";}
         void executeInstruction();
@@ -201,7 +214,11 @@ private:
         virtual void process() override {
         std::cout << "Scheduling Store on Tick " << cpu->currTick() << std::endl;
         cpu->sysMain->removeEvent(); // removing event that was just executed
-        cpu->schedule(cpu->s, cpu->currTick() + cpu->clkTick);
+
+        if((cpu->currTick() + 10 == 1 + (cpu->cycles)*10))
+            cpu->schedule(cpu->s, cpu->currTick() + cpu->clkTick); // Scheduling new event
+        else
+            cpu->schedule(cpu->s, ((cpu->cycles + 1)*(cpu->clkTick+1))); // Scheduling new event
         }
         virtual const char* description() override {return "Store";}
         void storeInstruction();
@@ -218,7 +235,7 @@ private:
         Stall(CPU *c) : Event(1), cpu(c) {}
         virtual void process() override {
         std::cout << "Scheduling stall on Tick " << cpu->currTick() << std::endl;
-        std::cout << "Stalling for " << stallAmount + 2 << " ticks\n" << std::endl;
+        std::cout << "Stalling for " << stallAmount << " ticks\n" << std::endl;
         cpu->schedule(cpu->stall, cpu->currTick() + 1); // Scheduling new event
         }
         virtual const char* description() override { return "Stall"; }
@@ -287,6 +304,7 @@ private:
     RegisterBank *reg;
 
     size_t PC = 0; // Program Counter
+    size_t cycles = 0; // Cpu cycle count
     friend class RunSim; // Allows RunSim class to access these private variables
 
 public:

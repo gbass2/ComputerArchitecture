@@ -1,9 +1,6 @@
 # Assignment 3
 
 # Memory:
-- Almost finished.
-- Implement what each register, data memory, and instruction memory holds.
-- Registers need to be setup with their proper functions. For example X0 is the zero register and always contains zero.
 
 # Flow
 - Convert the instructions into binary and place them into instruction memory. This is done in the setup simulation function.
@@ -45,12 +42,6 @@ Ticks:
 21 - run execute, decode, fetch.
 26  - If execute is done, then pass to store, pass decode to execute, and fetch to decode.
 
-# Questions
-- Figure out Stalls
-- Need to figure out how we are going to deal with memory access.
-    - When in fetch stage We are accessing memory but without creating an instruction memory access event.
-        - create an event and put it at the top of meq. we return from the fetchInstruction function run the instruction access event and then go back to fetch. Figure out how to do the efficiently.
-        - Do we do this 4 times. Each for the 4 different memory locations that the instruction is stored in or do we do this once for all 4 locations.
 
 # Still need
 - Part 1
@@ -58,6 +49,8 @@ Ticks:
         - Implement stalls and nops to handle hazards and latencies. Using stalls so I hope that works.
         - Implement the alu operations
     - Convert to C
+
+    - The register access stalls the processor and reschedules events. make sure the rescheduled events times are a multiple of 11. Fix this
 
 - Part 2
     - Implement Membus

@@ -137,11 +137,16 @@ void CPU::Decode::decodeInstruction() {
             rd =  stoi((instruction.substr(15,5)));
             imm = (instruction.substr(21,10) + instruction.substr(20,1) + instruction.substr(12,8) + instruction.substr(31,1));
         }
+
+        // hazards check goes here
+        // If so then stall, come back and access registers values
+        // See hazard table for how long to stall
+        // ---------------------------
+
         cpu->reg->process();
         cpu->stall->isStalled = true;
         return;
     }
-    // Data hazards check goes here
 }
 
 // Prints the execute stage
@@ -151,12 +156,12 @@ void CPU::Execute::executeInstruction() {
 
 // Prints the store instruction
 void CPU::Store::storeInstruction() {
-    // Create a register access events
+    // Create a register access event
     // Store back into register
 }
 
 void CPU::Stall::stallCPU() {
-    // Rescheduling the events for a specified time in the future. 1 stall = 10 ticks, 2 stalls = 20 ticks, etc.
+    // Rescheduling the events in the MEQ for a specified time in the future. 1 stall = 10 ticks, 2 stalls = 20 ticks, etc.
     for(size_t i = 0; i < (cpu->sysMain->getMEQ()).size(); i++){
         cpu->reschedule((cpu->sysMain->getMEQ()).at(i), (cpu->sysMain->getMEQ()).at(i)->getTime() + stallAmount);
     }
@@ -182,7 +187,7 @@ void CPU::Send::sendData() {
     cpu->ex->imm = cpu->d->imm;
     cpu->ex->setInstruction(cpu->d->currentInstruction1);
 
-    // Passing the rd of execute to the store stage
+    // Passing execute to store
     cpu->s->rd = cpu->ex->rd;
     cpu->s->immDestination = cpu->ex->immDestination;
 
@@ -191,7 +196,6 @@ void CPU::Send::sendData() {
 // Main function for running the simulation
 void RunSim::runSimulation(){
     clkTick = 10; // How far in advance that the event is going to be scheduled
-    size_t cycles = 0; // Cpu cycle count
     double numInstructions = 37; // Remove once ret is implemented
 
     while(!(sysMain->getMEQ()).empty() && Iport->p1->getMemory(PC).getBinary().to_ulong() != 230){
@@ -208,6 +212,7 @@ void RunSim::runSimulation(){
         } if((!(strcmp(sysMain->getMEQ().front()->description(), "Send Data")) && (sysMain->getMEQ().front()->getTime()) == currTick()) && (currTick() == 6 + (cycles)*10)){
             send->sendData();
             sysMain->removeEvent();
+            cout << "here" << endl;
 
         } if(!sysMain->getMEQ().empty() && (!(strcmp(sysMain->getMEQ().front()->description(), "Stall")) && (sysMain->getMEQ().front()->getTime()) == currTick())){
             // Stall the processor
@@ -219,10 +224,11 @@ void RunSim::runSimulation(){
         } if((!(strcmp(sysMain->getMEQ().front()->description(), "Register Access")) && (sysMain->getMEQ().front()->getTime()) == currTick())){
             // Access the registers associated with the instruction and place into decode stage
             sysMain->removeEvent();
-            // reg->setRegiserAccess(1);
+
+            // Access the registers and place them into decode stage
 
             reg->setRegiserAccess(1);
-            stall->setAmount(1);
+            stall->setAmount(3);
             stall->process();
 
         } if((!(strcmp(sysMain->getMEQ().front()->description(), "Instruction Memory Access")) && (sysMain->getMEQ().front()->getTime()) == currTick())){
@@ -244,17 +250,18 @@ void RunSim::runSimulation(){
             // Stall the processor for a memory access
             sysMain->removeEvent();
 
-        } if((!(strcmp(sysMain->getMEQ().front()->description(), "ALU")) && (sysMain->getMEQ().front()->getTime()) == currTick()) && (currTick() == 6 + (cycles)*10)){
+        } if((!(strcmp(sysMain->getMEQ().front()->description(), "ALU")) && (sysMain->getMEQ().front()->getTime()) == currTick())){
             a->aluOperations();
             sysMain->removeEvent();
 
         // Schedules and accesses the execute stage
-        } if((!(strcmp(sysMain->getMEQ().front()->description(), "Execute")) && (sysMain->getMEQ().front()->getTime()) == currTick()) && (currTick() == 1 + (cycles)*10)){
+        } if((!(strcmp(sysMain->getMEQ().front()->description(), "Execute")) && (sysMain->getMEQ().front()->getTime()) == currTick())){
             ex->executeInstruction();
             // // if(stall->getIsStalled() == false){
             //     // // s->process();
                 sysMain->removeEvent();
-            //     //
+
+            // Check the instruction set to determine latency time
             //     if(ex->getInstruction().getInstSet() == "Base"){
             //         // Creating the Instruction latency by stalling
             //         stall->setIsStalled(1);
@@ -264,19 +271,18 @@ void RunSim::runSimulation(){
             // // }
 
         // Schedules and access the decode stage
-        } if((!(strcmp(sysMain->getMEQ().front()->description(), "Decode")) && (sysMain->getMEQ().front()->getTime()) == currTick()) && (currTick() == 1 + (cycles)*10)){
+        } if((!(strcmp(sysMain->getMEQ().front()->description(), "Decode")) && (sysMain->getMEQ().front()->getTime()) == currTick())){
 
             d->decodeInstruction();
-            //
+
             if(stall->getIsStalled() == false){
                 sysMain->removeEvent();
                 reg->setRegiserAccess(0);
-            }
             //     ex->process();
-            // }
+            }
 
         // Schedules and access the fetch stage
-        } if((!(strcmp(sysMain->getMEQ().front()->description(), "Fetch")) && (sysMain->getMEQ().front()->getTime()) == currTick()) && (currTick() == 1 + (cycles)*10)){
+        } if((!(strcmp(sysMain->getMEQ().front()->description(), "Fetch")) && (sysMain->getMEQ().front()->getTime()) == currTick())){
             f->fetchInstruction();
 
             if(stall->getIsStalled() == false){
@@ -300,6 +306,7 @@ void RunSim::runSimulation(){
 
         if(currTick() % 10 == 0)
             cycles++;
+
 
         incTick(1); // Increments currentTick by amount (t)
     }
