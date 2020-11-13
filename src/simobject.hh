@@ -33,7 +33,7 @@ private:
     // Port1 holds the instruction memory
     class Port1 : public Event{
     private:
-        Instruction instructionMem[0x093]; // Instruction memory 0 - 0x093
+        Instruction instructionMem[0x094]; // Instruction memory 0 - 0x093
 
     public:
         Memory *mem;

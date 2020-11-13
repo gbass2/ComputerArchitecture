@@ -1,6 +1,7 @@
 #include "event.hh"
 #include "system.hh"
 #include "simobject.hh"
+#include <memory>
 
 int main(){
     auto sys = std::make_shared<System>();
