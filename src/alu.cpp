@@ -1,17 +1,18 @@
-// #include "simobject.hh"
+#include "simobject.hh"
 // #include <sstream>
 // #include <limits.h>
 // #include <iostream>
+// #include <bitset>
 // #include <math.h>
 // #include <bitset>
-
+//
 // int Binary2Decimal(std::string binary, int significantBits);
 // std::string Decimal2Binary(std::string input);
 // float GetFloat32( std::string Binary );
 // std::string GetBinary32( float value );
 //
 // // Determines what alu operation needs to be done
-// void CPU::ALU::aluOperations() {
+void CPU::ALU::aluOperations() {
 //     if(cpu->ex->opcode == "1100100") {      // addi/mv + slli
 //         if(cpu->ex->funct3 == "000") {      // addi/mv
 //             ADDI();
@@ -54,16 +55,17 @@
 //     }
 //     else if(cpu->ex->opcode == "1110011") { // ret/jalr
 //         JALR();
+//     std::cout << "hello" << std::endl;
 //     }
-// }
+}
 //
 // void CPU::ALU::ADDI() {
 //     // rd = rs1 + imm
 //     std::string val1, val2;
 //     int val3, val4;
 //
-//     val1 = ((cpu->reg->intRegisters)[stoi(cpu->ex->rs1)]).getData();    // rs1
-//     val2 = ((cpu->reg->intRegisters)[stoi(cpu->ex->imm)]).getData();    // imm
+//     val1 = ((cpu->reg->intRegisters)[stoi(cpu->ex->rs1)]).getData().to_string();    // rs1
+//     val2 = ((cpu->reg->intRegisters)[stoi(cpu->ex->imm)]).getData().to_string();    // imm
 //
 //     // integer values in base 10
 //     val3 = Binary2Decimal(val1, 32);
@@ -93,8 +95,8 @@
 //     std::string val1, val2;
 //     float val3, val4;
 //
-//     val1 = ((cpu->reg->intRegisters)[stoi(cpu->ex->rs1)]).getData();
-//     val1 = ((cpu->reg->intRegisters)[stoi(cpu->ex->rs2)]).getData();
+//     val1 = ((cpu->reg->intRegisters)[stoi(cpu->ex->rs1)]).getData().to_string();
+//     val1 = ((cpu->reg->intRegisters)[stoi(cpu->ex->rs2)]).getData().to_string();
 //
 //     val3 = GetFloat32(val1);
 //     val4 = GetFloat32(val2);
@@ -117,8 +119,8 @@
 //     std::string val1, val2;
 //     float val3, val4;
 //
-//     val1 = ((cpu->reg->intRegisters)[stoi(cpu->ex->rs1)]).getData();
-//     val1 = ((cpu->reg->intRegisters)[stoi(cpu->ex->rs2)]).getData();
+//     val1 = ((cpu->reg->intRegisters)[stoi(cpu->ex->rs1)]).getData().to_string();
+//     val1 = ((cpu->reg->intRegisters)[stoi(cpu->ex->rs2)]).getData().to_string();
 //
 //     // integer values in base 10
 //     val3 = Binary2Decimal(val1, 32);
@@ -140,9 +142,9 @@
 //
 // void CPU::ALU::ADD() {
 //   std::string val1, val2, val3;
-//   val1 = ((cpu->reg->intRegisters)[stoi(cpu->ex->rd)]).getData();
-//   val2 = ((cpu->reg->intRegisters)[stoi(cpu->ex->rs1)]).getData();
-//   val3 = ((cpu->reg->intRegisters)[stoi(cpu->ex->rs2)]).getData();
+//   val1 = ((cpu->reg->intRegisters)[stoi(cpu->ex->rd)]).getData().to_string();
+//   val2 = ((cpu->reg->intRegisters)[stoi(cpu->ex->rs1)]).getData().to_string();
+//   val3 = ((cpu->reg->intRegisters)[stoi(cpu->ex->rs2)]).getData().to_string();
 //
 //   int vali1, vali2;
 //   vali1 = Binary2Decimal(val1, 32);

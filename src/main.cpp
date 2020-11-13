@@ -3,11 +3,13 @@
 #include "simobject.hh"
 
 int main(){
-    auto sys = std::shared_ptr<System>(new System());
-    CPU *cpu = new CPU(sys);
-    RunSim *sim = new RunSim(sys);
+    auto sys = std::make_shared<System>();
+    auto mem = std::make_shared<Memory>(sys);
 
-    sim->initialize(); // Filling the instruction memory locations in with the instructions from the assembly files
+    CPU *cpu = new CPU(sys, mem);
+    RunSim *sim = new RunSim(sys, mem);
+
+    sim->initialize(); // Creates a Setup Simulation event
     sim->runSimulation(); // Sets up the instruction memory with the instructions
     cpu->initialize(); // Sets up the first event. Which is a fetch event
     sim->runSimulation(); // Runs the instructions
