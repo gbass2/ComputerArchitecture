@@ -44,10 +44,16 @@ void System::reschedule(Event *e, Tick t){ // Reschedules an event in MEQ
 
         MEQ.erase(findEvent(e));
 
+        // std::cout << MEQ.front()->description();
+
         e->schedule(t);
 
-        for(auto it = MEQ.begin(); it != MEQ.end(); it++){
+        for(auto it = MEQ.begin(); it != MEQ.end(); it++){  // goes through and figures out where to put it in based on the time you gave it
+            if((*it)->getTime() == e->getTime())
+                break;
+
             MEQ.insert(it, e);
+            std::cout << "here" << std::endl;
             return;
         }
         MEQ.push_back(e);
