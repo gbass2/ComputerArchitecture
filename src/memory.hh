@@ -18,14 +18,14 @@ void setData(uint32_t data) { this->data = data; }
 // Class for each register created
 class Register{
 protected:
-    std::bitset<8> data; // Holds the 32 bit value for this register
+    std::bitset<32> data; // Holds the 32 bit value for this register
     char regType;
 
 public:
     Register(uint32_t data, char regType) : data{data}, regType{regType} {}
     Register() : data{0b00000000000000000000000000000000}, regType{'\0'} {}
 
-    std::bitset<8> getData() { return data;}
+    std::bitset<32> getData() { return data;}
     void setData(uint32_t data) { this->data = data; }
     char getRegType() { return regType;}
     void setRegType(char regType) { this->regType = regType; }

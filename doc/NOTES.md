@@ -50,12 +50,17 @@ Ticks:
         - Implement the alu operations
     - Convert to C
 
-    - The register access stalls the processor and reschedules events. make sure the rescheduled events times are a multiple of 11. Fix this
-
 - Part 2
     - Implement Membus
 
+# 11/12/2020
+- Current Issues
+     - Rescheduling to tick 54 is not working correctly.
+     - fix the scheduling for the pipeline stages to be dynamic so it always schedules on a multiple of 11
+     - Make the send data stage always run on the sixth tick of a cycle. make the scheduling dynamic.
 
+
+THE first block is used to setup the main function and the last block is returning from main
 
 ![](DataHazard.png)
 ![](uml.jpg)

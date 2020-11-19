@@ -33,7 +33,7 @@ private:
     // Port1 holds the instruction memory
     class Port1 : public Event{
     private:
-        Instruction instructionMem[0x093]; // Instruction memory 0 - 0x093
+        Instruction instructionMem[0x094]; // Instruction memory 0 - 0x093
 
     public:
         Memory *mem;
@@ -51,7 +51,7 @@ private:
     // Port2 holds the data memory
     class Port2 : public Event{
     private:
-        DataMemory dataMemory[0x1000]; // Memory for loactions 0x200 - 0xfff. Holds locations 0 - 0x200 due to the design but will not be used
+        DataMemory dataMemory[0x1001]; // Memory for loactions 0x200 - 0xfff. Holds locations 0 - 0x200 due to the design but will not be used
         Memory *mem;
         friend class CPU; // Allows class to access these private variables
 
