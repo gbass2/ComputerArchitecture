@@ -60,5 +60,7 @@ Ticks:
      - Make the send data stage always run on the sixth tick of a cycle. make the scheduling dynamic.
 
 
+THE first block is used to setup the main function and the last block is returning from main
+
 ![](DataHazard.png)
 ![](uml.jpg)
