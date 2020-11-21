@@ -11,6 +11,11 @@
 #include "event.hh"
 #include "system.hh"
 #include "memory.hh"
+#include "DRAM.hh"
+#include "membus.hh"
+#include "memory.hh"
+#include "packet.hh"
+#include "ports.hh"
 
 class SimObject {
 protected:
@@ -243,6 +248,31 @@ private:
         void sendData();
     };
 
+    class RequestEvent : public Event{
+        CPU *owner;
+
+        RequestEvent(CPU *_owner) : Event(), owner(_owner) {}
+        void process() override { owner->process(); }
+        const char* description() override { return "MemRequester Clock Event"; }
+    };
+
+    class RequestPort : public MasterPort{
+    private:
+        CPU *owner;
+        PacketPtr activeRequest;
+    public:
+        RequestPort(CPU *_owner) : MasterPort(), owner(_owner) {}
+        bool isBusy() { return (activeRequest); }
+        void recvResp(PacketPtr pkt) override {
+            activeRequest = nullptr;
+            owner->recvResp(pkt);
+        }
+        void sendReq(PacketPtr pkt) override{
+            activeRequest = pkt;
+            MasterPort::sendReq(pkt);
+        }
+    };
+
     // Instances of the pipeline stages
     Fetch *f;
     Decode *d;
@@ -252,13 +282,50 @@ private:
     ALU *a;
     Send *send;
     RegisterBank *reg;
+    RequestEvent *e;
+    RequestPort *port;
 
+    Tick clk_tick;
+    size_t currAddr;
+    size_t endAddr;
     size_t PC = 0; // Program Counter
     size_t cycles = 0; // Cpu cycle count
     friend class RunSim; // Allows RunSim class to access these private variables
 
 public:
-    CPU(std::shared_ptr<System> s1) : SimObject(s1), f(new Fetch(this)), d(new Decode(this)), ex(new Execute(this)), s(new Store(this)), stall(new Stall(this)), a(new ALU(this)), send(new Send(this)), reg(new RegisterBank(s1)){}
+    CPU(std::shared_ptr<System> s1, const char* name, size_t start, size_t end) :
+        SimObject(s1),
+        f(new Fetch(this)),
+        d(new Decode(this)),
+        ex(new Execute(this)),
+        s(new Store(this)),
+        stall(new Stall(this)),
+        a(new ALU(this)),
+        send(new Send(this)),
+        reg(new RegisterBank(s1),
+        e(new RequestEvent(this)),
+        port(new RequestPort(this)),
+        clk_tick(10),
+        currAddr(start),
+        endAddr(end) {}
+    ~CPU;
+    void process() {
+        if(!(port->isBusy())){
+            std::cout << "Creating memory request to Addr: " << currAddr << " for 4 bytes" <<std:: endl;
+            port->sendReq(new Packet(true, currAddr, 4));
+            currAddr+=4;
+        }
+
+        if(currAddr < endAddr){
+            schedule(e, currTick() + clk_tick);
+        }
+    }
+
+    void recvResp(PacketPtr pkt){
+        std::cout << getName() << " received packet responce from memory on Tick: " << currTick() << std::endl;
+        std::cout << getName() << " read: " << *(float *)(pkt->getBuffer()) << std::endl;
+    }
+    MasterPort *getPort() { return port; }
 
     virtual void initialize() override { // Initialzes MEQ with a fetch event
         schedule(f, currTick());

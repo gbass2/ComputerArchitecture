@@ -31,7 +31,7 @@ private:
     public:
         DRAMEvent(DRAM * _owner) : Event(), owner(_owner) {}
         void process() override { owner->process(); }
-        const char* description() override { return "DRAM Responce Event" }
+        const char* description() override { return "DRAM Responce Event"; }
     };
 
     MemPort *port;
@@ -58,14 +58,15 @@ public:
     template<typename T>
     T readAddr(Addr);
     uint8_t readByteAtAddr(Addr);
-    uint16_t readByteAtAddr(Addr);
-    uin32_t readByteAtAddr(Addr);
-    uint64_t readByteAtAddr(Addr);
+    uint16_t readHalfwordAtAddr(Addr);
+    uint32_t readWordAtAddr(Addr);
+    uint64_t readDoubleWordAtAddr(Addr);
 
     void process();
     void recvReq(PacketPtr pkt);
 
-    SlavePort *getPort() { return addrs; }
+    SlavePort *getPort() { return port; }
+    const AddrRange getAddrRange() { return addrs; }
 };
 
 #endif //DRAM_H

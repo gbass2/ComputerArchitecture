@@ -27,12 +27,12 @@ private:
     // ********************************************************************
     class MemSidePort : public MasterPort{
     private:
-        membus *owner;
+    Membus *owner;
         PacketPtr activeRequest;
     public:
         MemSidePort(Membus * _owner) : Event(), owner(_owner) {}
         bool isBusy() { return (activeRequest) }
-        void recvReq(Packe tptr pkt) override {
+        void recvReq(Packetptr pkt) override {
             activeRequest = nullptr;
             owner->recvResp(pkt);
         }
@@ -63,7 +63,7 @@ private:
     std::deque<PacketPtr> packetsWaitingForMemPorts; // Packets that are waiting for memory port to be able to send to memory
     std::deque<fwdQType> packetsWaitingForForward; // Packet forwarding mechanism
 public:
-    Membus(system *sys, Tick forward_time);
+    Membus(System *sys, Tick forward_time);
 
     void tryToSend();
     void forwardPackets();
@@ -74,7 +74,7 @@ public:
 
     MemSideport *getMemSidePort(size_t index);
     CPUSidePort *getCPUSidePort(size_t index);
-    MemSideport *getUnboundCPUSidePort();
+    MemSidePort *getUnboundCPUSidePort();
     CPUSidePort *getUnboundMemSidePort();
 
 };
