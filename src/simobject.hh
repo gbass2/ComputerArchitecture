@@ -27,54 +27,7 @@ public:
     SimObject(std::shared_ptr<System> s4) : sysMain(s4) {}
 };
 
-// Holds the instruction memory and the data memory
-class Memory : public SimObject, public DataMemory, public Instruction{
-private:
-    // Port1 holds the instruction memory
-    class Port1 : public Event{
-    private:
-        Instruction instructionMem[0x094]; // Instruction memory 0 - 0x093
 
-    public:
-        Memory *mem;
-        // Creates and processes a port1 event
-        Port1(Memory *m) : Event(1), mem(m) {}
-        virtual void process() override {
-            std::cout << "scheduling Instruction Memory Access on Tick " << mem->currTick() << std::endl;
-            mem->schedule(mem->p1, mem->currTick() + 1);
-        }
-        virtual const char* description() override { return "Instruction Memory Access"; }
-        Instruction getMemory(size_t PC) { return instructionMem[PC]; }
-        void setMemory(size_t location, uint32_t binary, std::string type, std::string set) { (instructionMem[location]).setBinary(binary);  (instructionMem[location]).setInstType(type); (instructionMem[location]).setInstSet(type);}
-    };
-
-    // Port2 holds the data memory
-    class Port2 : public Event{
-    private:
-        DataMemory dataMemory[0x1001]; // Memory for loactions 0x200 - 0xfff. Holds locations 0 - 0x200 due to the design but will not be used
-        Memory *mem;
-        friend class CPU; // Allows class to access these private variables
-
-    public:
-        // Creates and processes a port1 event
-        Port2(Memory *m) : Event(1), mem(m) {}
-        virtual void process() override {
-            std::cout << "scheduling Data Memory Access on Tick " << mem->currTick() << std::endl;
-            mem->schedule(mem->p2, mem->currTick() + 1);
-        }
-        virtual const char* description() override {return "Data Memory Access"; }
-        DataMemory getMemory(size_t PC) { return dataMemory[PC]; }
-        void setMemory(size_t location, uint32_t data) { (dataMemory[location]).setData(data); }
-    };
-    Port1 *p1;
-    Port2 *p2;
-    friend class CPU; // Allows Send class to access these private variables
-    friend class RunSim; // Allows Send class to access these private variables
-
-public:
-    Memory(std::shared_ptr<System> s3) : SimObject(s3), p1(new Port1(this)), p2(new Port2(this)){}
-    virtual void initialize() override{ std::cout << "Memory initialization" << std::endl; }
-};
 
 class RegisterBank : public SimObject, public Register, public Event{
 private:
@@ -298,8 +251,6 @@ private:
     Stall *stall;
     ALU *a;
     Send *send;
-    std::shared_ptr<Memory> Iport;
-    std::shared_ptr<Memory> Dport;
     RegisterBank *reg;
 
     size_t PC = 0; // Program Counter
@@ -307,7 +258,7 @@ private:
     friend class RunSim; // Allows RunSim class to access these private variables
 
 public:
-    CPU(std::shared_ptr<System> s1, std::shared_ptr<Memory> mem2) : SimObject(s1), f(new Fetch(this)), d(new Decode(this)), ex(new Execute(this)), s(new Store(this)), stall(new Stall(this)), a(new ALU(this)), send(new Send(this)), Iport(mem2), Dport(mem2), reg(new RegisterBank(s1)){}
+    CPU(std::shared_ptr<System> s1) : SimObject(s1), f(new Fetch(this)), d(new Decode(this)), ex(new Execute(this)), s(new Store(this)), stall(new Stall(this)), a(new ALU(this)), send(new Send(this)), reg(new RegisterBank(s1)){}
 
     virtual void initialize() override { // Initialzes MEQ with a fetch event
         schedule(f, currTick());
@@ -317,7 +268,7 @@ public:
 // Runs the simulation
 class RunSim : public Event, public CPU{
 public:
-    RunSim(std::shared_ptr<System> s, std::shared_ptr<Memory> mem1) :  Event(), CPU(s, mem1) {} // Calls the CPU constructor so that it will have the same values as the one in main
+    RunSim(std::shared_ptr<System> s) :  Event(), CPU(s) {} // Calls the CPU constructor so that it will have the same values as the one in main
     void runSimulation(); // Runs the simulation
     void setupSimulator(); // Sets up the instruction memory with the instructions from a file
 
