@@ -10,14 +10,14 @@
 class Membus : public SimObject{
 private:
     // ********************************************************************
-    // Packets take time to filter through the membuc. This event manages
+    // Packets take time to filter through the membus. This event manages
     // this process
     // ********************************************************************
     class MembusForwardEvent : public Event{
     private:
         Membus *owner;
     public:
-        MembusForwardEvent(Membus *_owner) : event(), owner(_owner) {}
+        MembusForwardEvent(Membus *_owner) : Event(), owner(_owner) {}
         void process() override { owner->forwardPackets(); }
         const char* description() override { return "Membus Forward Event"; }
 
@@ -27,16 +27,16 @@ private:
     // ********************************************************************
     class MemSidePort : public MasterPort{
     private:
-        membus *owner;
+        Membus *owner;
         PacketPtr activeRequest;
     public:
         MemSidePort(Membus * _owner) : Event(), owner(_owner) {}
-        bool isBusy() { return (activeRequest) }
-        void recvReq(Packe tptr pkt) override {
+        bool isBusy() { return (activeRequest); }
+        void recvResp(Packetptr pkt) override {
             activeRequest = nullptr;
             owner->recvResp(pkt);
         }
-        void sendReq(PacketPtr pkt){
+        void sendReq override (PacketPtr pkt){
             activeRequest = pkt;
             MasterPort::sendReq(pkt);
         }
@@ -46,11 +46,11 @@ private:
     // ********************************************************************
     class CPUSidePort : public SlavePort{
     private:
-        membus *owner;
+        Membus *owner;
     public:
-        CPUSidePort(membus *_owner): SlavePort(), owner(_owner) {}
-        virtual void recvReq(PacketPtr pkt) override { owner->recvReq(pkt) }
-        const AddrRange getAddrRange() override { return AddrRange(0,0) }
+        CPUSidePort(Membus *_owner): SlavePort(), owner(_owner) {}
+        virtual void recvReq(PacketPtr pkt) override { owner->recvReq(pkt); }
+        const AddrRange getAddrRange() override { return AddrRange(0,0); }
     };
 
     typedef std::pair<Tick, PacketPtr> fwdQType;
@@ -58,25 +58,24 @@ private:
     Tick fwd_time;
     MembusForwardEvent * fwd_event;
     // Attach multiple ports on both the cpu and memory side
-    std::vector<MemSidePort *> MemSidePorts; // memory Side connections
+    std::vector<MemSidePort *> memSidePorts; // memory Side connections
     std::vector<CPUSidePort> cpuSidePorts; // Cpu side connections
     std::deque<PacketPtr> packetsWaitingForMemPorts; // Packets that are waiting for memory port to be able to send to memory
     std::deque<fwdQType> packetsWaitingForForward; // Packet forwarding mechanism
 public:
-    Membus(system *sys, Tick forward_time);
+    Membus(std::shared_ptr<System> sys, Tick forward_time);
 
     void tryToSend();
     void forwardPackets();
     void recvReq(PacketPtr pkt);
     void recvResp(PacketPtr pkt);
-    MemSideport *getRequestPort(PacketPtr pkt);
+    MemSidePort *getRequestPort(PacketPtr pkt);
     CPUSidePort *getResponsePort(PacketPtr pkt);
 
-    MemSideport *getMemSidePort(size_t index);
+    MemSidePort *getMemSidePort(size_t index);
     CPUSidePort *getCPUSidePort(size_t index);
-    MemSideport *getUnboundCPUSidePort();
+    MemSidePort *getUnboundCPUSidePort();
     CPUSidePort *getUnboundMemSidePort();
-
 };
 
 

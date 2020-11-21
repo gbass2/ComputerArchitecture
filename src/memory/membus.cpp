@@ -6,12 +6,12 @@ bool AddressInRange(Addr ad, AddrRange ar) {
      return (ad >= ar.first) && (ad <= ar.second);
 }
 
-Membus::Membus(System *sys, Tick forward_time = 0) :
+Membus::Membus(std::shared_ptr<System> sys, Tick forward_time) :
 SimObject(sys),
 fwd_time(forward_time),
 fwd_event(new MembusForwardEvent(this)) {
-     memSidePorts.push_back(new MemSidePorts(this));
-     cpuSidePorts.push_back(new CPUSidePorts(this));
+     memSidePorts.push_back(new MemSidePort(this));
+     cpuSidePorts.push_back(new CPUSidePort(this));
 }
 
 void Membus::tryToSend() {    // function to try to send to memory

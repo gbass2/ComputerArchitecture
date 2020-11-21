@@ -20,7 +20,7 @@ private:
         memrequester *owner;
         PacketPtr activeRequest;
     public:
-        RequestPort(MemRequester *_owner) : MasterPort(), owner(_owner) {}
+        RequestPort(memrequester *_owner) : MasterPort(), owner(_owner) {}
         bool isBusy() { return (activeRequest); }
         void recvResp(PacketPtr pkt) override {
             activeRequest = nullptr;
@@ -39,15 +39,15 @@ private:
     size_t endAddr;
 
 public:
-    MemRequester(System * sys, const char* name, size_t start, size_t end) :
+    memrequester(System * sys, const char* name, size_t start, size_t end) :
         SimObject(sys, name),
         e(new RequestEvent(this)),
         port(new RequestPort(this)),
         clk_tick(10),
         currAddr(start),
         endAddr(end) {}
-    ~MemRequester();
-    virtual void initialize() override _{
+    ~memrequester();
+    virtual void initialize() override {
         schedule(e, currTick());
     }
     void process() {

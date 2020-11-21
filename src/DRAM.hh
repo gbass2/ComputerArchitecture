@@ -40,7 +40,7 @@ private:
     PacketPtr request; // Storing  a packet ptr for our current request
 
 public:
-    DRAM(System *sys, AddrRange _addrs, Tick respLatency);
+    DRAM(std::shared_ptr<System> sys, AddrRange _addrs, Tick respLatency);
 
     // Helper functions
     void setDataAddr(Addr, uint8_t*, size_t); // Set the value in dram
@@ -56,7 +56,7 @@ public:
     void getDataAtAddr(Addr, uint8_t*, size_t); // Get a value from dram
 
     template<typename T>
-    T readAddr(Addr);
+    T readAtAddr(Addr);
     uint8_t readByteAtAddr(Addr);
     uint16_t readHalfwordAtAddr(Addr);
     uint32_t readWordAtAddr(Addr);

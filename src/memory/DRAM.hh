@@ -31,7 +31,7 @@ private:
     public:
         DRAMEvent(DRAM * _owner) : Event(), owner(_owner) {}
         void process() override { owner->process(); }
-        const char* description() override { return "DRAM Responce Event" }
+        const char* description() override { return "DRAM Responce Event"; }
     };
 
     MemPort *port;
@@ -40,7 +40,7 @@ private:
     PacketPtr request; // Storing  a packet ptr for our current request
 
 public:
-    DRAM(System *sys, AddrRange _addrs, Tick respLatency);
+    DRAM(std::shared_ptr<System> sys, AddrRange _addrs, Tick respLatency);
 
     // Helper functions
     void setDataAddr(Addr, uint8_t*, size_t); // Set the value in dram
@@ -56,16 +56,17 @@ public:
     void getDataAtAddr(Addr, uint8_t*, size_t); // Get a value from dram
 
     template<typename T>
-    T readAddr(Addr);
+    T readAtAddr(Addr);
     uint8_t readByteAtAddr(Addr);
-    uint16_t readByteAtAddr(Addr);
-    uin32_t readByteAtAddr(Addr);
-    uint64_t readByteAtAddr(Addr);
+    uint16_t readHalfwordAtAddr(Addr);
+    uint32_t readWordAtAddr(Addr);
+    uint64_t readDoubleWordAtAddr(Addr);
 
     void process();
     void recvReq(PacketPtr pkt);
 
-    SlavePort *getPort() { return addrs; }
+    SlavePort *getPort() { return port; }
+    const AddrRange getAddrRange() { return addrs; }
 };
 
 #endif //DRAM_H
