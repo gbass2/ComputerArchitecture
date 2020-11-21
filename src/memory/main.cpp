@@ -1,9 +1,9 @@
 #include <iostream>
-//#include "memrequester.hh"
+// #include "memrequester.hh"
 #include "DRAM.hh"
 #include "membus.hh"
 
-int main() {
+int main(){
      System *sys = new System();
      // two devices making memory requests
      // arbitrator between them because they are trying to access the same memory

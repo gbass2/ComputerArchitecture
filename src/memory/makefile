@@ -1,25 +1,27 @@
-CXX=g++
-INCDIR=inc
-SRCDIR=src
-OBJDIR=obj
-CPPFLAGS:=-I$(INCDIR) --std=c++14 -Wall
-SRCS=$(wildcard $(SRCDIR)/*.cpp)
-OBJS=$(SRCS:%.cpp=$(ONJDIR)/%.o)
-TARGET=simulation_demo
+CC = g++
+CFLAGS = -I. --std=c++17
+OBJS = DRAM.o main.o membus.o ports.o simobject.o system.o
+HEADERS = event.hh system.hh simobject.hh DRAM.hh membus.hh memrequester.hh packet.hh ports.hh
+TARGET = simulation
+BASEDIR = /Users/graysonbass/github/ComputerArchitecture
+SRCDIR = $(BASEDIR)/src
+TESTSDIR = $(BASEDIR)/tests
+BINDIR = $(BASEDIR)/bin
+OBJDIR = $(BASEDIR)/obj
 
-.PHONY : clean	run all
+.PHONY : clean run all
 
-all : clean $(Target) run
+all: clean $(TARGET) run
 
-$(OBJS) : $(OBJDIR)/%.o : %.cpp
-	$(CXX) -c -o $@ $< $(CPPFLAGS)
+%.o: %.cpp $(HEADERS)
+	$(CC) -c -o $@ $< $(CFLAGS)
 
 $(TARGET) : $(OBJS)
-	$(CXX) -o $@ $^ $(CPPFLAGS)
+	$(CC) -o $@ $^ $(CFLAGS)
 
-clean :
+clean:
 	rm -rf $(TARGET)
-	rm -rf $(OBJDIR)/$(SRCDIR)/*.o
+	rm -rf *.o
 
-run :
+run:
 	./$(TARGET)
