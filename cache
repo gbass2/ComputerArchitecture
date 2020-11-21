@@ -1,0 +1,113 @@
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <fstream>
+#include <bitset>
+#include <math.h>
+using namespace std;
+
+class sim1 {
+    public:
+        // creating cache set | valid | tag
+        string cache [2][7];    // 3x8 array
+};
+
+void simulationOne(string addy) { // 256 byte cache, 32 byte block, direct mapped
+    
+    int numOfSets = 256 / 32;   // 8
+    int offsetBits = log2(32);                  // 5
+    int indexBits = log2(numOfSets);            // 3
+    int tagBits = 12 - offsetBits - indexBits;  // 4 
+    
+    string tag = addy.substr(0, 4);
+    cout << "tag: " << tag << endl;
+    string index = addy.substr(4,3);
+    cout << "index: " << index << endl;
+    string offset = addy.substr(7,5);
+    cout << "offset: " << offset << endl;
+    
+    sim1 data;
+
+    
+    // initialize index bits (3 bits so we go from 0-7)
+    /* There is a better way todo this! I'll implement it if we have time */
+    data.cache[0][0] = "000";
+    data.cache[0][1] = "001";
+    data.cache[0][2] = "010";
+    data.cache[0][3] = "011";
+    data.cache[0][4] = "100";
+    data.cache[0][5] = "101";
+    data.cache[0][6] = "110";
+    data.cache[0][7] = "111";
+    
+    cout << "numOfSets: " << numOfSets << endl;
+    int i;
+    
+    for (i = 0; i < numOfSets; i++){
+        data.cache[1][i] = "0";
+    }
+    
+    // match set with tag
+    //bool match = false;
+    int indexVal; // = 7 fixes issue but we need to fix it the right way
+    for (i = 0; i < numOfSets; i++){
+        if (data.cache[0][i] == index) {
+            //match = true;
+            indexVal = i;
+            cout << "MATCH AT: " << indexVal << endl;
+            break;
+        }
+    }
+    
+    if (data.cache[1][indexVal] == "0") {   // if the cache tag is empty
+        // cache miss
+        data.cache[1][indexVal] = "1";
+    }
+    else {                                      // if there is a chache tag
+        if (data.cache[2][indexVal] == tag) {   // if tags match
+            // cache hit
+        }
+        else {
+            // cache miss
+            data.cache[2][indexVal] = tag;
+        }
+    }
+
+    
+}
+
+int main() {
+
+    string address = "0x0000049f"; // 10011111
+    stringstream ss;
+    ss << hex << address;
+    unsigned x;
+    ss >> x;
+    bitset<12> b(x);
+    cout << b.to_string() << endl; // 10011111
+    ss.clear();
+
+    ifstream inFile;
+    inFile.open("addresses.txt");
+    string line;
+    string binaryAddress;
+
+    while(getline(inFile, line)) {
+        cout << "line: " << line << endl;// debug
+
+        ss << hex << line;               // stores the hex value of line in ss
+        ss >> x;                         // converts to decimal
+        cout << "decimal: " << x << endl;
+        bitset<12> b(x);                  // converts to binary
+        binaryAddress = b.to_string();
+        cout << "binary: " << binaryAddress << endl;   // ouputs binary of line
+        
+        simulationOne(binaryAddress);
+        
+        
+        
+        cout << endl;
+        ss.clear();
+    }
+    return 0;
+}
