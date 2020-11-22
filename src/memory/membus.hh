@@ -36,13 +36,13 @@ private:
             activeRequest = nullptr;
             owner->recvResp(pkt);
         }
-        void sendResp(PacketPtr pkt) override {
+        void sendReq(PacketPtr pkt) override {
             activeRequest = pkt;
             MasterPort::sendReq(pkt);
         }
     };
     // ********************************************************************
-    // Port that points downward toward DRAM in the memory hiearchy
+    // Port that points upwards toward the CPU in the memory hiearchy
     // ********************************************************************
     class CPUSidePort : public SlavePort{
     private:
@@ -59,7 +59,7 @@ private:
     MembusForwardEvent * fwd_event;
     // Attach multiple ports on both the cpu and memory side
     std::vector<MemSidePort *> memSidePorts; // memory Side connections
-    std::vector<CPUSidePort> cpuSidePorts; // Cpu side connections
+    std::vector<CPUSidePort *> cpuSidePorts; // Cpu side connections
     std::deque<PacketPtr> packetsWaitingForMemPorts; // Packets that are waiting for memory port to be able to send to memory
     std::deque<fwdQType> packetsWaitingForForward; // Packet forwarding mechanism
 public:

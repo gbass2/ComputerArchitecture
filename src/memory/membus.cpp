@@ -33,14 +33,14 @@ void Membus::forwardPackets() {    // a delay in the membus for processing
      Tick curr = currTick();
      // any packet that is in the waiting queue that is eligable to be sent to memory
      // is sent to the queue
-     while(!(packetsWaitingForForward.empty()) && (packetsWaitingForForward.front().first =
+     while(!(packetsWaitingForForward.empty()) && (packetsWaitingForForward.front().first = curr)) {
           fwdQType tmp = packetsWaitingForForward.front();
           packetsWaitingForForward.pop_front();
           packetsWaitingForMemPorts.push_back(tmp.second);
      }
      if (!(packetsWaitingForForward.empty())) {
           fwdQType tmp = packetsWaitingForForward.front();
-          schedule(fwd_evnt, tmp.first);
+          schedule(fwd_event, tmp.first);
      }
 
      tryToSend();

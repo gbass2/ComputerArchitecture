@@ -1,6 +1,7 @@
 #include "register.hh"
 #include "simobject.hh"
 #include "ports.hh"
+#include "alu.cpp"
 #include <memory>
 
 #include <bitset>
