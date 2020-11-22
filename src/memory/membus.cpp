@@ -51,8 +51,8 @@ void Membus::recvReq(PacketPtr pkt) {
      // queue waiting to be forwarded through the device
      packetsWaitingForForward.push_back(fwdQType(forwardTick, pkt));
      // schedule when eligable to be forwarded to memory
-     if (!fwd_evnt->isScheduled())
-          schedule(fwd_evnt, forwardTick);
+     if (!fwd_event->isScheduled())
+          schedule(fwd_event, forwardTick);
      tryToSend();
 }
 

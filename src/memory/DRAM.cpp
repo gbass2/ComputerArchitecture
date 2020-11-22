@@ -4,10 +4,10 @@
 #include <iostream>
 #include <cstdlib>
 
-DRAM::DRAM(System *sys, AddrRange _addrs, Tick respLatency) :
+DRAM::DRAM(std::shared_ptr<System> sys, AddrRange _addrs, Tick respLatency) :
      SimObject(sys),
      addrs(_addrs),
-     responseLatency(respLatency),
+     responceLatency(respLatency),
      port(new MemPort(this)),
      e(new DRAMEvent(this)) {
           size = addrs.second = addrs.first + 1;
@@ -17,25 +17,25 @@ DRAM::DRAM(System *sys, AddrRange _addrs, Tick respLatency) :
 void DRAM::process(){
      // handles the response
      std::cout << "DRAM is responding to a request on Tick:" << currTick() << std::endl;
-     port->sendResp(Request); // respond to packet
+     port->sendResp(request); // respond to packet
 }
 
 void DRAM::recvReq(PacketPtr pkt) {
      std::cout << "DRAM received a request on Tick:" << currTick() << std::endl;
      if (pkt->isRead())
           // get data and load it into the packet
-          detDataAtAddr(pkt->getAddr(), pkt->getBuffer(), pkt->getSize());
+          setDataAddr(pkt->getAddr(), pkt->getBuffer(), pkt->getSize());
      else
           // get data from packet and store it in memory
-          setDataAtAddr(pkt->getAddr(), pkt->getBuffer(), pkt->getSize());
+          setDataAddr(pkt->getAddr(), pkt->getBuffer(), pkt->getSize());
      request = pkt; // store active request so we can retrieve it later
-     schedule(e, currTick() + responseLatency);   // schedule response event
+     schedule(e, currTick() + responceLatency);   // schedule response event
 }
 
 // In the case that we have a packet, the packet will have a buffer associated
 // with it and size
-void DRAM::setDataAtAddr(Addr ad, uint8_t * buff, size_t len){
-     assert((ad >= addrs.first) && ((ad+len) <= addrs.seconds + 1));
+void DRAM::setDataAddr(Addr ad, uint8_t * buff, size_t len){
+     assert((ad >= addrs.first) && ((ad+len) <= addrs.second + 1));
      Addr offset = ad - addrs.first;    // Calcs offest in memory that the
                                         // packet is reading
 
@@ -44,7 +44,7 @@ void DRAM::setDataAtAddr(Addr ad, uint8_t * buff, size_t len){
 // Helper Functions
 template<typename T>     // allows the function to use multiple different types
 void DRAM::writeAtAddr(Addr ad, T val) {
-     setDataAtAddr(ad, (uint8_t *)(&val), sizeof(T));
+     setDataAddr(ad, (uint8_t *)(&val), sizeof(T));
 }
 
 void DRAM::writeByteAtAddr(Addr ad, uint8_t val) {     // T type = byte

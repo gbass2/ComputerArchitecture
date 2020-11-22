@@ -14,7 +14,6 @@
 class SimObject {
 protected:
     std::shared_ptr<System> sysMain;
-    Tick clkTick = 10; // How far in advance that the event is going to be scheduled
 
 public:
     Tick currTick() { return sysMain->currTick(); } // Gets the current sysMaintem time

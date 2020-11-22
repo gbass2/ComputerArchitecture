@@ -30,13 +30,13 @@ private:
         Membus *owner;
         PacketPtr activeRequest;
     public:
-        MemSidePort(Membus * _owner) : Event(), owner(_owner) {}
+        MemSidePort(Membus * _owner) : owner(_owner) {}
         bool isBusy() { return (activeRequest); }
-        void recvResp(Packetptr pkt) override {
+        void recvResp(PacketPtr pkt) override {
             activeRequest = nullptr;
             owner->recvResp(pkt);
         }
-        void sendReq override (PacketPtr pkt){
+        void sendResp(PacketPtr pkt) override {
             activeRequest = pkt;
             MasterPort::sendReq(pkt);
         }

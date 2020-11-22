@@ -10,7 +10,7 @@ int main(){
     auto cpu0 = std::make_shared<CPU>(sys, "cpu0", 0, 0x13FF);
     // auto cpu1 = std::make_shared<CPU>(sys, "cpu1", 0, 1023);
 
-    RunSim *sim = new RunSim(sys, cpu0);
+    RunSim *sim = new RunSim(sys);
 
     DRAM * ram = new DRAM(sys, AddrRange(0, 0x13FF), 20);    // 20 = response time
     Membus * bus = new Membus(sys, 5);                       // 5 = forwarding time
@@ -23,7 +23,7 @@ int main(){
     ram->getPort()->bind(bus->getUnboundCPUSidePort());
 
     // fill DRAM with random floating point values. 0x400 - 0xFFF
-    for (auto i = ram->getAddrRange().first; i < ram->getAddrRange().second; i+=4){
+    for (auto i = ram->getAddrRange().first + 1024; i < ram->getAddrRange().second - 0x400; i+=4){
          float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
          uint32_t val = *(uint32_t *)(&r);
          ram->writeWordAtAddr(i, val);
