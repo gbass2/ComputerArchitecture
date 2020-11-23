@@ -1,6 +1,7 @@
 #include "membus.hh"
 #include <assert.h>
 #include <iostream>
+#include <memory>
 
 bool AddressInRange(Addr ad, AddrRange ar) {
      return (ad >= ar.first) && (ad <= ar.second);

@@ -2,7 +2,7 @@
 #include "simobject.hh"
 
 // Creating the integer registers and floating point registers using a hash table to hold the register and its name
-RegisterBank::RegisterBank(std::shared_ptr<System> s2): SimObject(s2), Register(), Event(1)  {
+RegisterBank::RegisterBank(std::shared_ptr<System> s2): SimObject(s2), Register(), release(new RegisterReleaseEvent(this)), regProcess(new RegisterProcessEvent(this))  {
     intRegisters.insert(std::pair<uint8_t,Register>(00000, Register()));    // x0 zero Hard-Wired Zero
     intRegisters.insert(std::pair<uint8_t,Register>(00001, Register()));    // x1 ra Return Address
     intRegisters.insert(std::pair<uint8_t,Register>(00010, Register()));    // x2 sp Stack Pointer

@@ -63,6 +63,7 @@ public:
     uint64_t readDoubleWordAtAddr(Addr);
 
     void process();
+    void initialize() override {}
     void recvReq(PacketPtr pkt);
 
     SlavePort *getPort() { return port; }

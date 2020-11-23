@@ -64,7 +64,7 @@ private:
     std::deque<fwdQType> packetsWaitingForForward; // Packet forwarding mechanism
 public:
     Membus(std::shared_ptr<System> sys, Tick forward_time);
-
+    void initialize() override {}
     void tryToSend();
     void forwardPackets();
     void recvReq(PacketPtr pkt);
@@ -74,8 +74,8 @@ public:
 
     MemSidePort *getMemSidePort(size_t index);
     CPUSidePort *getCPUSidePort(size_t index);
-    MemSidePort *getUnboundCPUSidePort();
-    CPUSidePort *getUnboundMemSidePort();
+    CPUSidePort *getUnboundCPUSidePort();
+    MemSidePort *getUnboundMemSidePort();
 };
 
 

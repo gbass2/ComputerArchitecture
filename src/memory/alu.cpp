@@ -1,4 +1,4 @@
-#include "simobject.hh"
+#include "cpu.hh"
 // #include <sstream>
 // #include <limits.h>
 // #include <iostream>

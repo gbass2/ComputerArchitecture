@@ -33,8 +33,6 @@ public:
     SimObject() {}
 };
 
-
-
 class RegisterBank : public SimObject, public Register, public Event{
 private:
     bool registerAccess = false;
@@ -250,8 +248,9 @@ private:
     };
 
     class RequestEvent : public Event{
+    private:
         CPU *owner;
-
+    public:
         RequestEvent(CPU *_owner) : Event(), owner(_owner) {}
         void process() override { owner->process(); }
         const char* description() override { return "MemRequester Clock Event"; }
@@ -303,7 +302,7 @@ public:
         stall(new Stall(this)),
         a(new ALU(this)),
         send(new Send(this)),
-        reg(new RegisterBank(s1),
+        reg(new RegisterBank(s1)),
         e(new RequestEvent(this)),
         port(new RequestPort(this)),
         clk_tick(10),
@@ -323,8 +322,8 @@ public:
     }
 
     void recvResp(PacketPtr pkt){
-        std::cout << getName() << " received packet responce from memory on Tick: " << currTick() << std::endl;
-        std::cout << getName() << " read: " << *(float *)(pkt->getBuffer()) << std::endl;
+        // std::cout << getName() << " received packet responce from memory on Tick: " << currTick() << std::endl;
+        // std::cout << getName() << " read: " << *(float *)(pkt->getBuffer()) << std::endl;
     }
     MasterPort *getPort() { return port; }
 

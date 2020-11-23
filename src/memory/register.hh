@@ -57,7 +57,7 @@ public:
     std::unordered_map<uint8_t, Register> intRegisters; // Example: <0101,"Temporary/alternate link register">
     std::unordered_map<uint8_t, Register> fpRegisters; // Example: <0101,"Temporary/alternate link register">
 
-    RegisterBank(std::shared_ptr<System> s2) : SimObject(s2), release(new RegisterReleaseEvent(this)), regProcess(new RegisterProcessEvent(this)) {}
+    RegisterBank(std::shared_ptr<System> s2);
     void setRegiserAccess(bool registerAccess) { this->registerAccess = registerAccess; }
     bool getRegisterAccess() { return registerAccess; }
 
