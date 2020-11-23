@@ -65,10 +65,10 @@ void DRAM::writeDoubleWordAtAddr(Addr ad, uint64_t val) {   // T type long
 }
 
 void DRAM::getDataAtAddr(Addr ad, uint8_t * buff, size_t len) {
-     assert((ad >= addrs.first) && ((ad+len) <= addrs.second + 1));
-     Addr offset = ad - addrs.first;
+    assert((ad >= addrs.first) && ((ad+len) <= addrs.second + 1));
+    Addr offset = ad - addrs.first;
 
-     std::memcpy(buff, (memory + offset), len);
+    std::memcpy(buff, (memory + offset), len);
 }
 
 template<typename T>

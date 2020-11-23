@@ -53,7 +53,6 @@ void Membus::recvReq(PacketPtr pkt) {
      // queue waiting to be forwarded through the device
      packetsWaitingForForward.push_back(fwdQType(forwardTick, pkt));
      // schedule when eligable to be forwarded to memory
-      std::cout << "hello1" << std::endl;
      if (!fwd_event->isScheduled())
           schedule(fwd_event, forwardTick);
      tryToSend();
@@ -75,7 +74,7 @@ Membus::getRequestPort(PacketPtr pkt) {
           if(AddressInRange(pkt->getAddr(), port->getAddrRange()))
                return port;
      }
-     std::cout << "Couldn't find the destination port for the packet";
+     std::cout << "Couldn't find the destination port for the packet" << std::endl;
      assert(0);
      return NULL;
 }
@@ -87,7 +86,7 @@ Membus::getResponsePort(PacketPtr pkt) {
           if (port->getMaster() == pkt->getHeaderEnd())
                return port;
      }
-     std::cout << "Couldn't find the original port for the packet";
+     std::cout << "Couldn't find the original port for the packet" << std::endl;
      assert(0);
      return NULL;
 }

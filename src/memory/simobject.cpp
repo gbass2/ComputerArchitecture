@@ -22,9 +22,10 @@ void RunSim::runSimulation(){
             cout << "Error: Event was scheduled prior to the current time" << endl;
             assert(0);
         } else if((sysMain->getMEQ().front()->getTime()) == currTick()){
-            while((sysMain->getMEQ().front()->getTime()) == currTick())
+            while((sysMain->getMEQ().front()->getTime()) == currTick()){
                 sysMain->popEvent()->process();
-        }
+            }
+        } 
         incTick(1); // Increments currentTick by amount (t)
     }
 

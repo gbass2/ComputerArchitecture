@@ -6,6 +6,7 @@
 
 #include <vector>
 #include <deque>
+#include <memory>
 
 class Membus : public SimObject{
 private:

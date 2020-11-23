@@ -3,6 +3,7 @@
 
 #include "simobject.hh"
 #include "ports.hh"
+#include <memory>
 
 // Change to implement bitset
 

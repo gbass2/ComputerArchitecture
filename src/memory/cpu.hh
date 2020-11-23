@@ -314,25 +314,7 @@ private:
     size_t endAddrD; // End address for the data Memory
 
 public:
-    CPU(std::shared_ptr<System> s1, const char* name, size_t start1, size_t end1, size_t start2, size_t end2) :
-        SimObject(s1, name),
-        f(new Fetch(this)),
-        d(new Decode(this)),
-        ex(new Execute(this)),
-        s(new Store(this)),
-        stall(new Stall(this)),
-        a(new ALU(this)),
-        send(new Send(this)),
-        reg(new RegisterBank(s1)),
-        e1(new RequestInstEvent(this)),
-        e2(new RequestDataEvent(this)),
-        port1(new RequestDataPort(this)),
-        port2(new RequestInstPort(this)),
-        clkTick(10),
-        currAddrI(start1),
-        currAddrD(start2),
-        endAddrI(end1),
-        endAddrD(end2) {}
+    CPU(std::shared_ptr<System> s1, const char* name, size_t start1, size_t end1, size_t start2, size_t end2);
     ~CPU();
     void processInst() {
         if(!(port1->isBusy())){
@@ -344,6 +326,7 @@ public:
 
         // Schedules another memory request. We dont want to do this arbitrarily every clock cycle
         if(currAddrI < endAddrI){
+            std::cout << "Attempting to schedule CPU Data Clock Event at time" << currTick() << std::endl;
             schedule(e1, currTick() + clkTick);
         }
     }
@@ -357,6 +340,7 @@ public:
 
         // Schedules another memory request. We dont want to do this arbitrarily every clock cycle
         if(currAddrD < endAddrD){
+            std::cout << "Attempting to schedule CPU Data Clock Event at time" << currTick() << std::endl;
             schedule(e2, currTick() + clkTick);
         }
     }
@@ -372,6 +356,7 @@ public:
 
     virtual void initialize() override { // Initialzes MEQ with a fetch event
         // setupSimulator();
+        std::cout << "Attempting to schedule CPU Data Clock Event at time" << currTick() << std::endl;
         schedule(e2, currTick()); // Schedules the first fetch event
         // std::cout << "Initializing first fetch for: " << getName() << std::endl << std::endl;
         // schedule(f, currTick() + 1); // Schedules the first fetch event

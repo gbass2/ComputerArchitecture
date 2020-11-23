@@ -1,9 +1,11 @@
 #ifndef REGISTER_H
 #define REGISTER_H
 
-#include <string>
 #include "simobject.hh"
+
+#include <string>
 #include <iostream>
+#include <memory>
 
 // Class for each register created
 class Register{

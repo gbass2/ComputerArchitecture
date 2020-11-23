@@ -2,6 +2,26 @@
 
 using namespace std;
 
+CPU::CPU(std::shared_ptr<System> s1, const char* name, size_t start1, size_t end1, size_t start2, size_t end2) :
+    SimObject(s1, name),
+    f(new Fetch(this)),
+    d(new Decode(this)),
+    ex(new Execute(this)),
+    s(new Store(this)),
+    stall(new Stall(this)),
+    a(new ALU(this)),
+    send(new Send(this)),
+    reg(new RegisterBank(s1)),
+    e1(new RequestInstEvent(this)),
+    e2(new RequestDataEvent(this)),
+    port1(new RequestDataPort(this)),
+    port2(new RequestInstPort(this)),
+    clkTick(10),
+    currAddrI(start1),
+    currAddrD(start2),
+    endAddrI(end1),
+    endAddrD(end2) {}
+
 // Fetches the instruction from memory
 void CPU::Fetch::fetchInstruction() {
     cout << "Fetch Stage" << endl << endl;
