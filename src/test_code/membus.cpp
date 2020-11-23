@@ -40,11 +40,11 @@ void Membus::forwardPackets() {    // a delay in the membus for processing
           packetsWaitingForForward.pop_front();
           packetsWaitingForMemPorts.push_back(tmp.second);
      }
-
      if (!(packetsWaitingForForward.empty())) {
           fwdQType tmp = packetsWaitingForForward.front();
           schedule(fwd_event, tmp.first);
      }
+
      tryToSend();
 }
 
@@ -53,7 +53,6 @@ void Membus::recvReq(PacketPtr pkt) {
      // queue waiting to be forwarded through the device
      packetsWaitingForForward.push_back(fwdQType(forwardTick, pkt));
      // schedule when eligable to be forwarded to memory
-      std::cout << "hello1" << std::endl;
      if (!fwd_event->isScheduled())
           schedule(fwd_event, forwardTick);
      tryToSend();

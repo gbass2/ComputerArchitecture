@@ -22,6 +22,7 @@ public:
     void printMEQ();
     void removeEvent(); // Removes an event from the MEQ
     void clearMEQ() { MEQ.clear(); }  // Clears the entire MEQ
+    Event *popEvent();
 };
 
 #endif // SYSTEM_H

@@ -11,7 +11,6 @@ DRAM::DRAM(std::shared_ptr<System> sys, AddrRange _addrs, Tick respLatency) :
      responceLatency(respLatency),
      port(new MemPort(this)),
      e(new DRAMEvent(this)) {
-          std::cout << "addr second: " << addrs.second << std::endl;
           size = addrs.second - addrs.first + 1;
           memory = (uint8_t*)std::malloc(size);
      }

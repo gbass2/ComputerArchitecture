@@ -11,9 +11,10 @@ Membus::Membus(std::shared_ptr<System> sys, Tick forward_time) :
 SimObject(sys),
 fwd_time(forward_time),
 fwd_event(new MembusForwardEvent(this)) {
-     memSidePorts.push_back(new MemSidePort(this));
-     cpuSidePorts.push_back(new CPUSidePort(this));
-
+     memSideIPorts.push_back(new MemSidePortI(this));
+     memSideDPorts.push_back(new MemSidePortI(this));
+     cpuSideIPorts.push_back(new CPUSidePortI(this));
+     cpuSideDPorts.push_back(new CPUSidePortD(this));
 }
 
 void Membus::tryToSend() {    // function to try to send to memory
@@ -40,11 +41,11 @@ void Membus::forwardPackets() {    // a delay in the membus for processing
           packetsWaitingForForward.pop_front();
           packetsWaitingForMemPorts.push_back(tmp.second);
      }
-
      if (!(packetsWaitingForForward.empty())) {
           fwdQType tmp = packetsWaitingForForward.front();
           schedule(fwd_event, tmp.first);
      }
+
      tryToSend();
 }
 
@@ -53,7 +54,6 @@ void Membus::recvReq(PacketPtr pkt) {
      // queue waiting to be forwarded through the device
      packetsWaitingForForward.push_back(fwdQType(forwardTick, pkt));
      // schedule when eligable to be forwarded to memory
-      std::cout << "hello1" << std::endl;
      if (!fwd_event->isScheduled())
           schedule(fwd_event, forwardTick);
      tryToSend();

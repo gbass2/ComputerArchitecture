@@ -6,12 +6,12 @@ using namespace std;
 void CPU::Fetch::fetchInstruction() {
     cout << "Fetch Stage" << endl << endl;
 
-    if(isMemAccess){
+    // if(isMemAccess){
         // cpu->Iport->p1->process(); // The code does not like how mem is accessing the simobject
         // cpu->schedule(cpu->Iport->p1, cpu->currTick() + 1);
         // cpu->stall->setIsStalled(1);
-        return;
-    }
+    //     return;
+    // }
 
     // The 32bits of data from the 4 memory locations will be concatinated into one 32 bit long instruction and then sent to the decode stage
     // string binary = (currentInstruction1.getBinary()).to_string() + (currentInstruction2.getBinary()).to_string() + (currentInstruction3.getBinary()).to_string() + (currentInstruction4.getBinary()).to_string();
@@ -24,7 +24,7 @@ void CPU::Fetch::fetchInstruction() {
 
 // Deodes the instructions into registers, immediates, etc.
 void CPU::Decode::decodeInstruction() {
-    cout << "Decode Stage" << endl;
+    cout << "Decode Stage" << endl << endl;
     // string instruction = currentInstruction1.getBinary().to_string() + currentInstruction2.getBinary().to_string() + currentInstruction3.getBinary().to_string() + currentInstruction4.getBinary().to_string();
     // if(cpu->reg->getRegisterAccess() == false){
     //     if(currentInstruction1.getInstType() == "R"){
@@ -125,7 +125,7 @@ void CPU::Send::sendData() {
 }
 
 void CPU::setupSimulator(){
-    cout << "Placing the instructions into memory" << endl;
+    cout << "Placing the instructions into memory" << endl << endl;
     // Convert the asm by hand and place them into the correct memory locations
     // Iport->p1->setMemory(0, 0b11001000, "I", "Base"); // 2
     // Iport->p1->setMemory(1, 0b10000000, "I", "Base");
@@ -275,10 +275,9 @@ void CPU::setupSimulator(){
     // Iport->p1->setMemory(145, 0b00000001, "I", "Base");
     // Iport->p1->setMemory(146, 0b00000000, "I", "Base");
     // Iport->p1->setMemory(147, 0b00000000, "I", "Base");
-    //
+
     a->setJump(0x20);
     a->setJump(0x30);
     a->setJump(0x70);
     a->setJump(0x80);
-
 }

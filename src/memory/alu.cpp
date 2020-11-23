@@ -12,7 +12,7 @@
 // std::string GetBinary32( float value );
 //
 // // Determines what alu operation needs to be done
-// void CPU::ALU::aluOperations() {
+void CPU::ALU::aluOperations() {
 //     if(cpu->ex->opcode == "1100100") {      // addi/mv + slli
 //         if(cpu->ex->funct3 == "000") {      // addi/mv
 //             ADDI();
@@ -57,7 +57,7 @@
 //         JALR();
 //     std::cout << "hello" << std::endl;
 //     }
-// }
+}
 //
 // void CPU::ALU::ADDI() {
 //     // rd = rs1 + imm

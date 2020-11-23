@@ -34,12 +34,14 @@ void System::schedule(Event *e, Tick t){ // Schedules an event into MEQ
             MEQ.push_back(e);
         }
     } else {
+        std::cout << e->description() << std::endl;
+        std::cout << MEQ.front()->description() << std::endl;
         assert(0);
     }
 }
 
 void System::reschedule(Event *e, Tick t){ // Reschedules an event in MEQ
-    // assert(t >= currentTick);
+    assert(t >= currentTick);
     if(e->isScheduled()){
 
         MEQ.erase(findEvent(e));
@@ -67,6 +69,13 @@ void System::printMEQ(){
         std::cout << (MEQ.at(i))->getTime() << ":" << (MEQ.at(i))->description() << std::endl;
     }
     std::cout << "MEQ end" << std::endl << std::endl;
+}
+
+Event *System::popEvent() {
+   Event * tmp = MEQ.front();
+   tmp->deschedule();
+   MEQ.erase(MEQ.begin());
+   return tmp;
 }
 
 // Removes an Event from MEQ
