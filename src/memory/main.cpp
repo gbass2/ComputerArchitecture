@@ -22,7 +22,7 @@ int main(){
 
     // Binding the device's ports to the bus
     Iram->getPort()->bind(bus->getUnboundMemSidePort()); // Binding Instruction memory membus
-    cpu0->getPort1()->bind(bus->getUnboundCPUSidePort()); // Binding cpu0 instruction port (por2) to membus
+    cpu0->getPort1()->bind(bus->getUnboundCPUSidePort()); // Binding cpu0 instruction port (port2) to membus
     ram->getPort()->bind(bus->getUnboundMemSidePort());  // Binding instruction memory membus
     cpu0->getPort2()->bind(bus->getUnboundCPUSidePort()); // Binding cpu0 data port (port1) to membus
 
@@ -78,8 +78,8 @@ void setupSimulator(CPU* cpu, DRAM *ram){ // Sets up the instruction memory with
     ram->writeAtAddr(0, 0b11000000101001000010001011111111); // 38
     ram->writeAtAddr(0, 0b11000000001001001000000100000000); // 39
     ram->writeAtAddr(0, 0b11000001000001001000001100000000); // 40
-    ram->writeAtAddr(0, 0b11001000100000001000000010000000); // 42
-    ram->writeAtAddr(0, 0b11100110000000010000000000000000); //
+    ram->writeAtAddr(0, 0b11001000100000001000000010000000); // 41
+    ram->writeAtAddr(0, 0b11100110000000010000000000000000); // 42
 
     // Setting the branching locations
     cpu->getALU()->setJump(0x20);
