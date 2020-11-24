@@ -197,7 +197,6 @@ void setupSimulator(CPU* cpu){ // Sets up the instruction memory with the instru
     cpu->getALU()->setJump(0x30);
     cpu->getALU()->setJump(0x70);
     cpu->getALU()->setJump(0x80);
-    std::cout << cpu->getALU()->getJump().front() << std::endl;
 }
 
 // #include "event.hh"
