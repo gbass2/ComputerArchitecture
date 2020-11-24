@@ -344,10 +344,10 @@ public:
         }
 
         // Schedules another memory request. We dont want to do this arbitrarily every clock cycle
-        if(currAddrD < endAddrD){
-            std::cout << "Attempting to schedule CPU Data Clock Event at time" << currTick() << std::endl;
-            schedule(e2, currTick() + clkTick);
-        }
+        // if(currAddrD < endAddrD){
+        //     std::cout << "Attempting to schedule CPU Data Clock Event at time" << currTick() << std::endl;
+        //     schedule(e2, currTick() + clkTick);
+        // }
     }
 
     void recvResp(PacketPtr pkt){
@@ -361,9 +361,8 @@ public:
     MasterPort *getPort2() { return port2; }
 
     virtual void initialize() override { // Initialzes MEQ with a fetch event
-        schedule(e1, currTick()); // Schedules the first fetch event
-        // std::cout << "Initializing first fetch for: " << getName() << std::endl << std::endl;
-        // schedule(f, currTick() + 1); // Schedules the first fetch event
+        std::cout << "Initializing first fetch for: " << getName() << std::endl << std::endl;
+        schedule(f, currTick() + 1); // Schedules the first fetch event
     }
     ALU *getALU() { return a; }
 };
