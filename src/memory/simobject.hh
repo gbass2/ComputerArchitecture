@@ -6,6 +6,7 @@
 #include <deque>
 #include <iostream>
 #include <string>
+#include <memory>
 #include <unordered_map>
 #include "event.hh"
 #include "system.hh"

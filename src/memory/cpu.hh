@@ -22,15 +22,19 @@ private:
                 cpu->f->fetchInstruction();
 
                 // // Scheduling decode for next instruction
-                cpu->d->decodeEvent();
-                //
-                // // Scheduling fetch for next instruction
-                cpu->f->fetchEvent();
-                //
-                // // Creating a send data event
-                // cpu->send->sendEvent();
-                //
-                // cpu->f->setIsMemAccess(true);
+                if(cpu->currAddrI < cpu->endAddrI){
+                    cpu->d->decodeEvent();
+                    //
+                    // // Scheduling fetch for next instruction
+                    cpu->f->fetchEvent();
+                    //
+                    // // Creating a send data event
+                    // cpu->send->sendEvent();
+                    //
+                    // cpu->f->setIsMemAccess(true);
+                }
+
+                cpu->currAddrI += 4;
             }
             virtual const char* description() override {return "Fetch";}
             void fetchEvent(){
@@ -63,7 +67,7 @@ private:
 
             // if(cpu->stall->getIsStalled() == false){
                 // cpu->sysMain->removeEvent();
-                cpu->reg->setRegiserAccess(0);
+                // cpu->reg->setRegiserAccess(0);
             //     cpu->ex->exEvent();
             // }
 
@@ -201,6 +205,7 @@ private:
 
         virtual const char* description() override { return "ALU"; }
         void setJump(size_t addrs) { jump.push_back(addrs); }
+        std::deque<size_t> getJump() { return jump; }
         size_t getFirstJump() { return jump.front(); }
         void aluOperations();
         void ADDI();
@@ -355,14 +360,11 @@ public:
     MasterPort *getPort2() { return port2; }
 
     virtual void initialize() override { // Initialzes MEQ with a fetch event
-        // setupSimulator();
-        std::cout << "Attempting to schedule CPU Data Clock Event at time" << currTick() << std::endl;
-        schedule(e2, currTick()); // Schedules the first fetch event
-        // std::cout << "Initializing first fetch for: " << getName() << std::endl << std::endl;
-        // schedule(f, currTick() + 1); // Schedules the first fetch event
+        // schedule(e2, currTick()); // Schedules the first fetch event
+        std::cout << "Initializing first fetch for: " << getName() << std::endl << std::endl;
+        schedule(f, currTick() + 1); // Schedules the first fetch event
     }
-
-    void setupSimulator(); // Sets up the instruction memory with the instructions
+    ALU *getALU() { return a; }
 };
 
 #endif
