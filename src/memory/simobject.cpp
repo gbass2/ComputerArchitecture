@@ -8,7 +8,7 @@ using namespace std;
 void RunSim::runSimulation(){
     double numInstructions = 37; // Remove once ret is implemented
 
-    while(!(sysMain->getMEQ()).empty()){
+    while(!(sysMain->getMEQ().empty())){
         // Counting the cycles
         if(currTick() % 10 == 0 && currTick() > 1)
             cycles++;
@@ -21,8 +21,8 @@ void RunSim::runSimulation(){
         if ((sysMain->getMEQ().front()->getTime()) < currTick()){
             cout << "Error: Event was scheduled prior to the current time" << endl;
             assert(0);
-        } else if((sysMain->getMEQ().front()->getTime()) == currTick()){
-            while((sysMain->getMEQ().front()->getTime()) == currTick()){
+        } else if(!(sysMain->getMEQ().empty()) && (sysMain->getMEQ().front()->getTime()) == currTick()){
+            while(!(sysMain->getMEQ().empty()) && (sysMain->getMEQ().front()->getTime()) == currTick()){
                 sysMain->popEvent()->process();
             }
         }

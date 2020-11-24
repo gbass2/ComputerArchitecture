@@ -14,8 +14,8 @@ CPU::CPU(std::shared_ptr<System> s1, const char* name, size_t start1, size_t end
     reg(new RegisterBank(s1)),
     e1(new RequestInstEvent(this)),
     e2(new RequestDataEvent(this)),
-    port1(new RequestDataPort(this)),
-    port2(new RequestInstPort(this)),
+    port1(new RequestInstPort(this)),
+    port2(new RequestDataPort(this)),
     clkTick(10),
     currAddrI(start1),
     currAddrD(start2),
@@ -100,11 +100,13 @@ void CPU::Decode::decodeInstruction() {
 
 // Prints the execute stage
 void CPU::Execute::executeInstruction() {
-    cpu->a->process();
+    cout << "Execute Stage" << endl << endl;
+    // cpu->a->process();
 }
 
 // Prints the store instruction
 void CPU::Store::storeInstruction() {
+    cout << "Store Stage" << endl << endl;
     // Create a register access event
     // Store back into register
 }

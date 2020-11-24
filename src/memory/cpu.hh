@@ -68,7 +68,7 @@ private:
             // if(cpu->stall->getIsStalled() == false){
                 // cpu->sysMain->removeEvent();
                 // cpu->reg->setRegiserAccess(0);
-            //     cpu->ex->exEvent();
+                cpu->ex->exEvent();
             // }
 
         }
@@ -101,7 +101,7 @@ private:
         virtual void process() override {
             cpu->ex->executeInstruction();
             // // if(cpu->stall->getIsStalled() == false){
-            //     // // cpu->s->storeEvent();
+                cpu->s->storeEvent();
                 // cpu->sysMain->removeEvent();
 
             // Check the instruction set to determine latency time
@@ -117,11 +117,11 @@ private:
         void exEvent(){
             std::cout << "Scheduling Execute on Tick " << cpu->currTick() << std::endl;
             // cpu->sysMain->removeEvent(); // removing event that was just executed
-
-            if((cpu->currTick() + 10 == 11 + (cpu->cycles)*10))
-                cpu->schedule(cpu->ex, cpu->currTick() + cpu->clkTick); // Scheduling new event
-            else
-                cpu->schedule(cpu->ex, ((cpu->cycles + 1)*(cpu->clkTick+1))); // Scheduling new event
+             cpu->schedule(cpu->ex, cpu->currTick() + cpu->clkTick); // Scheduling new event
+            // if((cpu->currTick() + 10 == 11 + (cpu->cycles)*10))
+            //     cpu->schedule(cpu->ex, cpu->currTick() + cpu->clkTick); // Scheduling new event
+            // else
+            //     cpu->schedule(cpu->ex, ((cpu->cycles + 1)*(cpu->clkTick+1))); // Scheduling new event
         }
         void executeInstruction();
         void setIsMemAccess(bool isMemAccess){ this->isMemAccess = isMemAccess; }
@@ -141,17 +141,17 @@ private:
     public:
         Store(CPU *c) : Event(0), cpu(c) {}
         virtual void process() override {
-
+            cpu->s->storeInstruction();
         }
         virtual const char* description() override {return "Store";}
         void storeEvent(){
             std::cout << "Scheduling Store on Tick " << cpu->currTick() << std::endl;
             // cpu->sysMain->removeEvent(); // removing event that was just executed
-
-            if((cpu->currTick() + 10 == 11 + (cpu->cycles)*10))
-                cpu->schedule(cpu->s, cpu->currTick() + cpu->clkTick); // Scheduling new event
-            else
-                cpu->schedule(cpu->s, ((cpu->cycles + 1)*(cpu->clkTick+1))); // Scheduling new event
+            cpu->schedule(cpu->s, cpu->currTick() + cpu->clkTick); // Scheduling new event
+            // if((cpu->currTick() + 10 == 11 + (cpu->cycles)*10))
+            //     cpu->schedule(cpu->s, cpu->currTick() + cpu->clkTick); // Scheduling new event
+            // else
+            //     cpu->schedule(cpu->s, ((cpu->cycles + 1)*(cpu->clkTick+1))); // Scheduling new event
         }
         void storeInstruction();
     };
@@ -257,7 +257,7 @@ private:
         CPU *owner;
         PacketPtr activeRequest;
     public:
-        RequestDataPort(CPU *_owner) : MasterPort(), owner(_owner) {}
+        RequestDataPort(CPU *_owner) : MasterPort(), owner(_owner), activeRequest(0) {}
         bool isBusy() { return (activeRequest); }
         void recvResp(PacketPtr pkt) override {
             activeRequest = nullptr;
@@ -285,7 +285,7 @@ private:
         CPU *owner;
         PacketPtr activeRequest;
     public:
-        RequestInstPort(CPU *_owner) : MasterPort(), owner(_owner) {}
+        RequestInstPort(CPU *_owner) : MasterPort(), owner(_owner), activeRequest(0) {}
         bool isBusy() { return (activeRequest); }
         void recvResp(PacketPtr pkt) override {
             activeRequest = nullptr;
@@ -308,8 +308,8 @@ private:
     RegisterBank *reg;
     RequestInstEvent *e1;   // Used to create a request event for instruction memory
     RequestDataEvent *e2;   // Used to create a request event for data memory
-    RequestDataPort *port1; // Used to access the request port for instruction memory
-    RequestInstPort *port2; // Used to access the request port for data memory
+    RequestInstPort *port1; // Used to access the request port for instruction memory
+    RequestDataPort *port2; // Used to access the request port for data memory
 
     size_t cycles = 1;
     Tick clkTick; // How far in advance that the event is going to be scheduled
@@ -351,8 +351,9 @@ public:
     }
 
     void recvResp(PacketPtr pkt){
-        std::cout << getName() << " received packet responce from memory on Tick: " << currTick() << std::endl;
-        std::cout << getName() << " read: " << *(float *)(pkt->getBuffer()) << std::endl;
+        std::cout << getName() << " received packet response from memory on Tick: " << currTick() << std::endl;
+        // std::cout << getName() << " read: " << *(float *)(pkt->getBuffer()) << std::endl;
+        std::cout << getName() << " read: " << *(uint32_t *)(pkt->getBuffer()) << std::endl;
 
         // The read from memory ends up here so, have a variable to store the data until it is stored from whoever called it.
     }
@@ -360,9 +361,9 @@ public:
     MasterPort *getPort2() { return port2; }
 
     virtual void initialize() override { // Initialzes MEQ with a fetch event
-        // schedule(e2, currTick()); // Schedules the first fetch event
-        std::cout << "Initializing first fetch for: " << getName() << std::endl << std::endl;
-        schedule(f, currTick() + 1); // Schedules the first fetch event
+        schedule(e1, currTick()); // Schedules the first fetch event
+        // std::cout << "Initializing first fetch for: " << getName() << std::endl << std::endl;
+        // schedule(f, currTick() + 1); // Schedules the first fetch event
     }
     ALU *getALU() { return a; }
 };

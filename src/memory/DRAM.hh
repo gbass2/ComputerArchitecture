@@ -32,7 +32,7 @@ private:
     public:
         DRAMEvent(DRAM * _owner) : Event(), owner(_owner) {}
         void process() override { owner->process(); }
-        const char* description() override { return "DRAM Responce Event"; }
+        const char* description() override { return "DRAM Response Event"; }
     };
 
     MemPort *port;
