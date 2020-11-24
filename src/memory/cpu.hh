@@ -330,10 +330,10 @@ public:
         }
 
         // Schedules another memory request. We dont want to do this arbitrarily every clock cycle
-        if(currAddrI < endAddrI){
-            std::cout << "Attempting to schedule CPU Data Clock Event at time" << currTick() << std::endl;
-            schedule(e1, currTick() + clkTick);
-        }
+        // if(currAddrI < endAddrI){
+        //     std::cout << "Attempting to schedule CPU Data Clock Event at time" << currTick() << std::endl;
+        //     schedule(e1, currTick() + clkTick);
+        // }
     }
     void processData() {
         if(!(port2->isBusy())){
