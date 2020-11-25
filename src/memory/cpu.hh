@@ -7,14 +7,34 @@
 #include <memory>
 #include <bitset>
 
+template<typename T>
+struct Instruction{
+    Register * rs1, rs2, rs3, rd;
+    T immDestination;
+    T result;
+    T funct3;
+    T opcode, funct7;
+    T funct2, funct5, imm;
+
+    T data;
+};
+
+class Pipeline{
+protected:
+    Instruction<std::bitset<32>> inst;
+};
+
 class CPU : public SimObject{
 private:
     // Pipeline stages
     // Fetch Stage
-    class Fetch : public Event{
+    class Fetch{
     protected:
+        class FetchEvent : public Event{
+
+        };
         CPU *cpu;
-        bool isMemAccess = true;
+        // bool isMemAccess = true;
         friend class CPU; // Allows CPU class to access these private variables
     public:
         Fetch(CPU *c) : Event(), cpu(c) {}
@@ -34,7 +54,7 @@ private:
                     // cpu->f->setIsMemAccess(true);
                 }
 
-                cpu->currAddrI += 4;
+                // cpu->currAddrI += 4;
             }
             virtual const char* description() override {return "Fetch";}
             void fetchEvent(){
@@ -43,7 +63,7 @@ private:
                 cpu->schedule(cpu->f, cpu->currTick() + cpu->clkTick); // Scheduling new event
             }
         void fetchInstruction(); // Gets the instruction from the instruction memory
-        void setIsMemAccess(bool isMemAccess){ this->isMemAccess = isMemAccess; }
+        // void setIsMemAccess(bool isMemAccess){ this->isMemAccess = isMemAccess; }
     };
 
     // Decode Stage
@@ -305,11 +325,15 @@ private:
     Stall *stall;
     ALU *a;
     Send *send;
+    // Register bank for the cpu
     RegisterBank *reg;
+    // Ports to access memory
     RequestInstEvent *e1;   // Used to create a request event for instruction memory
     RequestDataEvent *e2;   // Used to create a request event for data memory
     RequestInstPort *port1; // Used to access the request port for instruction memory
     RequestDataPort *port2; // Used to access the request port for data memory
+
+    std::bitset<32> currentInstruction;
 
     size_t cycles = 1;
     Tick clkTick; // How far in advance that the event is going to be scheduled
@@ -330,10 +354,10 @@ public:
         }
 
         // Schedules another memory request. We dont want to do this arbitrarily every clock cycle
-        // if(currAddrI < endAddrI){
-        //     std::cout << "Attempting to schedule CPU Data Clock Event at time" << currTick() << std::endl;
-        //     schedule(e1, currTick() + clkTick);
-        // }
+        if(currAddrI < endAddrI){
+            std::cout << "Attempting to schedule CPU Data Clock Event at time" << currTick() << std::endl;
+            schedule(e1, currTick() + clkTick);
+        }
     }
     void processData() {
         if(!(port2->isBusy())){
@@ -344,18 +368,21 @@ public:
         }
 
         // Schedules another memory request. We dont want to do this arbitrarily every clock cycle
-        // if(currAddrD < endAddrD){
-        //     std::cout << "Attempting to schedule CPU Data Clock Event at time" << currTick() << std::endl;
-        //     schedule(e2, currTick() + clkTick);
-        // }
+        if(currAddrD < endAddrD){
+            std::cout << "Attempting to schedule CPU Data Clock Event at time" << currTick() << std::endl;
+            schedule(e2, currTick() + clkTick);
+        }
     }
 
     void recvResp(PacketPtr pkt){
         std::cout << getName() << " received packet response from memory on Tick: " << currTick() << std::endl;
         // std::cout << getName() << " read: " << *(float *)(pkt->getBuffer()) << std::endl;
-        std::cout << getName() << " read: " << *(uint32_t *)(pkt->getBuffer()) << std::endl;
+        // Reading from memory in decimal
+        std::cout << getName() << " read in decimal: " << *(uint32_t *)(pkt->getBuffer()) << std::endl;
 
-        // The read from memory ends up here so, have a variable to store the data until it is stored from whoever called it.
+        // Reading from memory in binary
+        currentInstruction = *(uint32_t *)(pkt->getBuffer());
+        std::cout << getName() << " read in binary: " << currentInstruction << std::endl;
     }
     MasterPort *getPort1() { return port1; } // Returns the
     MasterPort *getPort2() { return port2; }

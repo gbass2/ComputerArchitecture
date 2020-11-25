@@ -20,12 +20,12 @@ private:
 public:
     Packet(bool read, Addr _dst, size_t _size):
         _isRead(read),
-        buffer(new uint8_t(_size)),
+        buffer(new uint8_t[_size]),
         dst(_dst),
         size(_size) {}
     ~Packet() {
         header.clear();
-        if(buffer) delete buffer;
+        if(buffer) delete[] buffer;
     }
     uint8_t *getBuffer() { return buffer; }
     bool isRead() { return _isRead; }

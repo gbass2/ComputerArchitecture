@@ -86,7 +86,7 @@ void CPU::Decode::decodeInstruction() {
     //         rd =  stoi((instruction.substr(15,5)));
     //         imm = (instruction.substr(21,10) + instruction.substr(20,1) + instruction.substr(12,8) + instruction.substr(31,1));
     //     }
-    //
+    // 
     //     // hazards check goes here
     //     // If so then stall, come back and access registers values
     //     // See hazard table for how long to stall
