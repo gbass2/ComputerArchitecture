@@ -1,10 +1,10 @@
-#include "cpu.hh"
-#include <sstream>
-#include <limits.h>
-#include <iostream>
-#include <bitset>
-#include <math.h>
-#include <bitset>
+#include "simobject.hh"
+// #include <sstream>
+// #include <limits.h>
+// #include <iostream>
+// #include <bitset>
+// #include <math.h>
+// #include <bitset>
 //
 // int Binary2Decimal(std::string binary, int significantBits);
 // std::string Decimal2Binary(std::string input);
@@ -173,7 +173,7 @@ void CPU::ALU::aluOperations() {
 //     return numberIn;
 // }
 //
-// Converts a passed in double to a string
+// // Converts a passed in double to a string
 // std::string CONVERT_TYPE(long double input){
 //     std::ostringstream ss;
 //
@@ -183,10 +183,10 @@ void CPU::ALU::aluOperations() {
 //     return numberIn;
 // }
 //
-// std::string Decimal2SignedBinary(double input){
+// std::string Decimal2Binary(std::string input){
 //     std::string result;
 //     // Convert to double
-//     int numberIn = input;
+//     int numberIn = CONVERT_TYPE(input);
 //
 //     int i = 0;
 //    for(i = 31; i >= 0; i--){

@@ -1,7 +1,7 @@
 CC = g++
 CFLAGS = -I. --std=c++17
-OBJS = main.o system.o simobject.o alu.o DRAM.o main.o membus.o ports.o cpu.o register.o
-HEADERS = event.hh system.hh simobject.hh register.hh DRAM.hh membus.hh packet.hh ports.hh cpu.hh
+OBJS = main.o system.o simobject.o alu.o DRAM.o main.o membus.o ports.o
+HEADERS = event.hh system.hh simobject.hh memory.hh DRAM.hh membus.hh memrequester.hh packet.hh ports.hh
 TARGET = simulation
 BASEDIR = /Users/graysonbass/github/ComputerArchitecture
 SRCDIR = $(BASEDIR)/src
