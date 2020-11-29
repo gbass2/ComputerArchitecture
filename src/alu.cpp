@@ -13,50 +13,50 @@
 //
 // // Determines what alu operation needs to be done
 void CPU::ALU::aluOperations() {
-//     if(cpu->ex->opcode == "1100100") {      // addi/mv + slli
-//         if(cpu->ex->funct3 == "000") {      // addi/mv
-//             ADDI();
-//         }
-//         else if(cpu->ex->funct3 == "001") { // slli
-//             SLLI();
-//         }
-//     }
-//     else if(cpu->ex->opcode == "1100010") { // sw
-//         SW();
-//     }
-//     else if(cpu->ex->opcode == "1100101") {
-//         if(cpu->ex->funct3 == "010") {      // fsw
-//             FSW();
-//         }
-//         else if(cpu->ex->funct3 == "111") { // fadd.s
-//             FADDS();
-//         }
-//     }
-//     else if(cpu->ex->opcode == "1111011") { // j
-//         J();
-//     }
-//     else if(cpu->ex->opcode == "1100000") { // lw
-//         LW();
-//     }
-//     else if(cpu->ex->opcode == "1100011") { // blt
-//         BLT();
-//     }
-//     else if(cpu->ex->opcode == "1110110") { // lui
-//         LUI();
-//     }
-//     else if(cpu->ex->opcode == "1110000") { // flw
-//         FLW();
-//     }
-//     else if(cpu->ex->opcode == "1100110") { // add
-//         ADD();
-//     }
-//     else if(cpu->ex->opcode == "1100101") { // fsw
-//         FSW();
-//     }
-//     else if(cpu->ex->opcode == "1110011") { // ret/jalr
-//         JALR();
-//     std::cout << "hello" << std::endl;
-//     }
+    // if(cpu->ex->opcode == "1100100") {      // addi/mv + slli
+    //     if(cpu->ex->funct3 == "000") {      // addi/mv
+    //         ADDI();
+    //     }
+    //     else if(cpu->ex->funct3 == "001") { // slli
+    //         SLLI();
+    //     }
+    // }
+    // else if(cpu->ex->opcode == "1100010") { // sw
+    //     SW();
+    // }
+    // else if(cpu->ex->opcode == "1100101") {
+    //     if(cpu->ex->funct3 == "010") {      // fsw
+    //         FSW();
+    //     }
+    //     else if(cpu->ex->funct3 == "111") { // fadd.s
+    //         FADDS();
+    //     }
+    // }
+    // else if(cpu->ex->opcode == "1111011") { // j
+    //     J();
+    // }
+    // else if(cpu->ex->opcode == "1100000") { // lw
+    //     LW();
+    // }
+    // else if(cpu->ex->opcode == "1100011") { // blt
+    //     BLT();
+    // }
+    // else if(cpu->ex->opcode == "1110110") { // lui
+    //     LUI();
+    // }
+    // else if(cpu->ex->opcode == "1110000") { // flw
+    //     FLW();
+    // }
+    // else if(cpu->ex->opcode == "1100110") { // add
+    //     ADD();
+    // }
+    // else if(cpu->ex->opcode == "1100101") { // fsw
+    //     FSW();
+    // }
+    // else if(cpu->ex->opcode == "1110011") { // ret/jalr
+    //     JALR();
+    // std::cout << "hello" << std::endl;
+    // }
 }
 //
 // void CPU::ALU::ADDI() {

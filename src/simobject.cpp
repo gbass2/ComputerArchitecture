@@ -13,7 +13,7 @@ void RunSim::runSimulation(){
         if(currTick() % 10 == 0 && currTick() > 1)
             cycles++;
 
-        printMEQ();
+        // printMEQ();
 
         cout << "Current Cycle: " << cycles  << endl;
         cout << "Current Tick: " << currTick() << endl;
