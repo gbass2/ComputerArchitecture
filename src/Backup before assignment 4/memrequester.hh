@@ -47,12 +47,12 @@ public:
         currAddr(start),
         endAddr(end) {}
     ~memrequester();
-    virtual void initialize() override _{
+    virtual void initialize() override {
         schedule(e, currTick());
     }
     void process() {
         if(!(port->isBusy())){
-            std::cout << "Creating memory request to Addr: " << currAddr << " for 4 bytes" <<std::endl;
+            std::cout << "Creating memory request to Addr: " << currAddr << " for 4 bytes" <<std:: endl;
             port->sendReq(new Packet(true, currAddr, 4));
             currAddr+=4;
         }

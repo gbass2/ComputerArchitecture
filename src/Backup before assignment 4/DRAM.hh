@@ -3,7 +3,6 @@
 
 #include "simobject.hh"
 #include "ports.hh"
-#include <memory>
 
 // Change to implement bitset
 
@@ -32,7 +31,7 @@ private:
     public:
         DRAMEvent(DRAM * _owner) : Event(), owner(_owner) {}
         void process() override { owner->process(); }
-        const char* description() override { return "DRAM Response Event"; }
+        const char* description() override { return "DRAM Responce Event"; }
     };
 
     MemPort *port;
@@ -64,7 +63,6 @@ public:
     uint64_t readDoubleWordAtAddr(Addr);
 
     void process();
-    void initialize() override {}
     void recvReq(PacketPtr pkt);
 
     SlavePort *getPort() { return port; }

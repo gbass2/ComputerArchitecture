@@ -4,7 +4,6 @@
 #include <deque>
 #include <utility>
 #include <cinttypes>
-#include <iostream>
 
 typedef size_t Addr;
 typedef std::pair<Addr, Addr> AddrRange;
@@ -37,11 +36,7 @@ public:
     void appendHeader(MasterPort *port) { header.push_back(port); }
     void popHeader() { header.pop_back(); } // When traversing back through the memory hiearchy to return back to the device that originated the request. Pop off the header
     MasterPort * getHeaderEnd() { return header.back(); } // Find the last location we were at by getting the last part of the header.
-    void printHeader() {
-        for(size_t i = 0; i < header.size(); i++){
-            std::cout << header.at(i) << std::endl;
-        }
-    }
+
 };
 
 typedef Packet *PacketPtr;

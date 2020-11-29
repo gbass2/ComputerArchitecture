@@ -3,7 +3,6 @@
 #include <cstring>
 #include <iostream>
 #include <cstdlib>
-#include <memory>
 
 DRAM::DRAM(std::shared_ptr<System> sys, AddrRange _addrs, Tick respLatency) :
      SimObject(sys),
@@ -11,7 +10,7 @@ DRAM::DRAM(std::shared_ptr<System> sys, AddrRange _addrs, Tick respLatency) :
      responceLatency(respLatency),
      port(new MemPort(this)),
      e(new DRAMEvent(this)) {
-          size = addrs.second - addrs.first + 1;
+          size = addrs.second = addrs.first + 1;
           memory = (uint8_t*)std::malloc(size);
      }
 
@@ -25,7 +24,7 @@ void DRAM::recvReq(PacketPtr pkt) {
      std::cout << "DRAM received a request on Tick:" << currTick() << std::endl;
      if (pkt->isRead())
           // get data and load it into the packet
-          getDataAtAddr(pkt->getAddr(), pkt->getBuffer(), pkt->getSize());
+          setDataAddr(pkt->getAddr(), pkt->getBuffer(), pkt->getSize());
      else
           // get data from packet and store it in memory
           setDataAddr(pkt->getAddr(), pkt->getBuffer(), pkt->getSize());
@@ -36,7 +35,7 @@ void DRAM::recvReq(PacketPtr pkt) {
 // In the case that we have a packet, the packet will have a buffer associated
 // with it and size
 void DRAM::setDataAddr(Addr ad, uint8_t * buff, size_t len){
-     // assert((ad >= addrs.first) && ((ad+len) <= addrs.second + 1));
+     assert((ad >= addrs.first) && ((ad+len) <= addrs.second + 1));
      Addr offset = ad - addrs.first;    // Calcs offest in memory that the
                                         // packet is reading
 
@@ -65,10 +64,10 @@ void DRAM::writeDoubleWordAtAddr(Addr ad, uint64_t val) {   // T type long
 }
 
 void DRAM::getDataAtAddr(Addr ad, uint8_t * buff, size_t len) {
-    assert((ad >= addrs.first) && ((ad+len) <= addrs.second + 1));
-    Addr offset = ad - addrs.first;
+     assert((ad >= addrs.first) && ((ad+len) <= addrs.second + 1));
+     Addr offset = ad - addrs.first;
 
-    std::memcpy(buff, (memory + offset), len);
+     std::memcpy(buff, (memory + offset), len);
 }
 
 template<typename T>

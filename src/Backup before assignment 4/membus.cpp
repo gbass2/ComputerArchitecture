@@ -1,7 +1,6 @@
 #include "membus.hh"
 #include <assert.h>
 #include <iostream>
-#include <memory>
 
 bool AddressInRange(Addr ad, AddrRange ar) {
      return (ad >= ar.first) && (ad <= ar.second);
@@ -13,7 +12,6 @@ fwd_time(forward_time),
 fwd_event(new MembusForwardEvent(this)) {
      memSidePorts.push_back(new MemSidePort(this));
      cpuSidePorts.push_back(new CPUSidePort(this));
-
 }
 
 void Membus::tryToSend() {    // function to try to send to memory
@@ -35,16 +33,16 @@ void Membus::forwardPackets() {    // a delay in the membus for processing
      Tick curr = currTick();
      // any packet that is in the waiting queue that is eligable to be sent to memory
      // is sent to the queue
-     while(!(packetsWaitingForForward.empty()) && (packetsWaitingForForward.front().first = curr)) {
+     while(!(packetsWaitingForForward.empty()) && (packetsWaitingForForward.front().first =
           fwdQType tmp = packetsWaitingForForward.front();
           packetsWaitingForForward.pop_front();
           packetsWaitingForMemPorts.push_back(tmp.second);
      }
-
      if (!(packetsWaitingForForward.empty())) {
           fwdQType tmp = packetsWaitingForForward.front();
-          schedule(fwd_event, tmp.first);
+          schedule(fwd_evnt, tmp.first);
      }
+
      tryToSend();
 }
 
@@ -53,8 +51,8 @@ void Membus::recvReq(PacketPtr pkt) {
      // queue waiting to be forwarded through the device
      packetsWaitingForForward.push_back(fwdQType(forwardTick, pkt));
      // schedule when eligable to be forwarded to memory
-     if (!fwd_event->isScheduled())
-          schedule(fwd_event, forwardTick);
+     if (!fwd_evnt->isScheduled())
+          schedule(fwd_evnt, forwardTick);
      tryToSend();
 }
 
@@ -74,7 +72,7 @@ Membus::getRequestPort(PacketPtr pkt) {
           if(AddressInRange(pkt->getAddr(), port->getAddrRange()))
                return port;
      }
-     std::cout << "Couldn't find the destination port for the packet" << std::endl;
+     std::cout << "Couldn't find the destination port for the packet";
      assert(0);
      return NULL;
 }
@@ -86,7 +84,7 @@ Membus::getResponsePort(PacketPtr pkt) {
           if (port->getMaster() == pkt->getHeaderEnd())
                return port;
      }
-     std::cout << "Couldn't find the original port for the packet" << std::endl;
+     std::cout << "Couldn't find the original port for the packet";
      assert(0);
      return NULL;
 }
