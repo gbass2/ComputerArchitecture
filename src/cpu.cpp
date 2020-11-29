@@ -26,6 +26,7 @@ CPU::CPU(std::shared_ptr<System> s1, const char* name, size_t start1, size_t end
 void CPU::Fetch::fetchInstruction() {
     cout << "Processing Fetch Stage" << endl << endl;
     setBusy(1);
+    setRead(1);
     cpu->processInst();
 }
 

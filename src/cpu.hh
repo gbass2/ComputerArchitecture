@@ -23,9 +23,16 @@ struct Instruction{
 
 // Base pipeline stage class
 class Pipeline{
+protected:
+    bool busy; // Pipleine busy or not
+    bool read; // Memory read or write
 public:
     Instruction<std::bitset<32>> *inst;
-    Pipeline() : inst(new Instruction<std::bitset<32>>()) {}
+    Pipeline() : busy(0), inst(new Instruction<std::bitset<32>>()) {}
+    void setBusy(bool _busy) { busy = _busy; }
+    void setRead(bool _read) { read = _read; }
+    bool isBusy() { return busy; } // Used to determine if the stage is busy
+    bool isRead() { return read; } // Used to determine if the stage is writing or reading from memory
 };
 
 class CPU : public SimObject{
@@ -50,14 +57,12 @@ private:
         };
         CPU *cpu;
         FetchEvent *e; // Access the FetchEvent class from Fetch or outside Fetch
-        bool busy; // Pipleine busy or not
+
 
         friend class CPU; // Allows CPU class to access these private variables
     public:
-        Fetch(CPU *c) : cpu(c), e(new FetchEvent(this)), busy(0) {}
+        Fetch(CPU *c) : cpu(c), e(new FetchEvent(this)) {}
         void fetchInstruction();
-        void setBusy(bool _busy) { busy = _busy; }
-        bool isBusy() { return busy; } // Used to determine if the fetch stage is busy
     };
 
     // Decode Stage
@@ -120,15 +125,11 @@ private:
         };
         CPU *cpu;
         ExecuteEvent *e; // Access the ExecuteEvent class from Execute or outside Execute
-        bool busy; // Busy or not
-
         friend class CPU; // Allows CPU class to access these private variables
 
     public:
-        Execute(CPU *c) : cpu(c), e(new ExecuteEvent(this)), busy(0) {}
+        Execute(CPU *c) : cpu(c), e(new ExecuteEvent(this)) {}
         void executeInstruction();
-        void setBusy(bool _busy) { busy = _busy; }
-        bool isBusy() { return busy; } // Used to determine if the fetch stage is busy
     };
 
 // Store Stage
@@ -151,15 +152,11 @@ private:
     };
     CPU *cpu;
     StoreEvent *e; // Access the StoreEvent class from Store or outside Store
-    bool busy; // Busy or not
-
     friend class CPU; // Allows CPU class to access these private variables
 
 public:
-    Store(CPU *c) : cpu(c), e(new StoreEvent(this)), busy(0) {}
+    Store(CPU *c) : cpu(c), e(new StoreEvent(this)) {}
     void storeInstruction();
-    void setBusy(bool _busy) { busy = _busy; }
-    bool isBusy() { return busy; }
     };
 
     // Stalls the pipeline
@@ -366,7 +363,7 @@ public:
         // Reading from memory in decimal
         // std::cout << getName() << " read in decimal: " << *(uint32_t *)(pkt->getBuffer()) << std::endl;
 
-        if(f->isBusy()){
+        if(f->isBusy() && f->isRead()){
             // Reading from memory in binary
             currentInstruction = *(uint32_t *)(pkt->getBuffer());
             std::cout << getName() << " read in binary: " << currentInstruction << std::endl;
