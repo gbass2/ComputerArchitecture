@@ -7,9 +7,10 @@
 #include <memory>
 #include <bitset>
 
+// Holds the data between the pipeline stages
 template<typename T>
 struct Instruction{
-    Register * rs1, rs2, rs3, rd;
+    Register rs1, rs2, rs3, rd;
     T immDestination;
     T result;
     T funct3;
@@ -17,163 +18,148 @@ struct Instruction{
     T funct2, funct5, imm;
 
     T data;
+    T currentInstruction; // The 32 bit instruction
 };
 
+// Base pipeline stage class
 class Pipeline{
-protected:
-    Instruction<std::bitset<32>> inst;
+public:
+    Instruction<std::bitset<32>> *inst;
+    Pipeline() : inst(new Instruction<std::bitset<32>>()) {}
 };
 
 class CPU : public SimObject{
 private:
     // Pipeline stages
     // Fetch Stage
-    class Fetch{
+    class Fetch : public Pipeline{
     protected:
+        // Fetch event for the fetch stage. It calls the processInst to access memory
         class FetchEvent : public Event{
-
+        private:
+            Fetch *fetch;
+        public:
+            FetchEvent(Fetch *_f) : Event(), fetch(_f) {}
+            virtual void process() override { fetch->fetchInstruction(); }
+                virtual const char* description() override {return "Fetch";}
+                void fetchEvent(){
+                    std::cout << "Scheduling Fetch Event on Tick " << fetch->cpu->currTick() << std::endl;
+                    // cpu->sysMain->removeEvent(); // removing event that was just executed
+                    fetch->cpu->schedule(fetch->e, fetch->cpu->currTick() + fetch->cpu->clkTick); // Scheduling new event
+                }
         };
         CPU *cpu;
-        // bool isMemAccess = true;
+        FetchEvent *e; // Access the FetchEvent class from Fetch or outside Fetch
+        bool busy; // Pipleine busy or not
+
         friend class CPU; // Allows CPU class to access these private variables
     public:
-        Fetch(CPU *c) : Event(), cpu(c) {}
-            virtual void process() override {
-                cpu->f->fetchInstruction();
-
-                // // Scheduling decode for next instruction
-                if(cpu->currAddrI < cpu->endAddrI){
-                    cpu->d->decodeEvent();
-                    //
-                    // // Scheduling fetch for next instruction
-                    cpu->f->fetchEvent();
-                    //
-                    // // Creating a send data event
-                    // cpu->send->sendEvent();
-                    //
-                    // cpu->f->setIsMemAccess(true);
-                }
-
-                // cpu->currAddrI += 4;
-            }
-            virtual const char* description() override {return "Fetch";}
-            void fetchEvent(){
-                std::cout << "Scheduling Fetch on Tick " << cpu->currTick() << std::endl;
-                // cpu->sysMain->removeEvent(); // removing event that was just executed
-                cpu->schedule(cpu->f, cpu->currTick() + cpu->clkTick); // Scheduling new event
-            }
-        void fetchInstruction(); // Gets the instruction from the instruction memory
-        // void setIsMemAccess(bool isMemAccess){ this->isMemAccess = isMemAccess; }
+        Fetch(CPU *c) : cpu(c), e(new FetchEvent(this)), busy(0) {}
+        void fetchInstruction();
+        void setBusy(bool _busy) { busy = _busy; }
+        bool isBusy() { return busy; } // Used to determine if the fetch stage is busy
     };
 
     // Decode Stage
-    class Decode : public Event{
+    class Decode : public Pipeline{
     // Finds the data from the registers and passes it to the execution stage to be executed
     private:
+        // Decode event for the decode stage
+        class DecodeEvent : public Event{
+        private:
+            Decode *dec;
+        public:
+            DecodeEvent(Decode *_d) : Event(), dec(_d) {}
+            virtual void process() override {
+                dec->decodeInstruction();
+
+                // if(cpu->stall->getIsStalled() == false){
+                    // cpu->reg->setRegiserAccess(0);
+                dec->cpu->ex->e->exEvent();
+                // }
+
+            }
+            virtual const char* description() override {return "Decode";}
+            void decodeEvent(){
+                std::cout << "Scheduling Decode Event on Tick " << dec->cpu->currTick() << std::endl;
+                dec->cpu->schedule(dec->e, dec->cpu->currTick() + dec->cpu->clkTick); // Scheduling new event
+            }
+        };
         CPU *cpu;
-        std::bitset<32> rs1, rs2, rs3;
-        std::bitset<5> rd;
-        std::bitset<32 >immDestination;
-        std::bitset<32> result;
-        std::bitset<3> funct3;
-        std::bitset<7> opcode, funct7;
-        std::string funct2, funct5, imm;
-        friend class CPU; // Allows Send class to access these private variables
+        DecodeEvent *e; // Access the DecodeEvent class from Decode or outside Decode
+        bool busy;
+
+        friend class CPU; // Allows CPU class to access these private variables
 
     public:
-        Decode(CPU *c) : Event(0), cpu(c) {}
-        virtual void process() override {
-            cpu->d->decodeInstruction();
-
-            // if(cpu->stall->getIsStalled() == false){
-                // cpu->sysMain->removeEvent();
-                // cpu->reg->setRegiserAccess(0);
-                cpu->ex->exEvent();
-            // }
-
-        }
-        virtual const char* description() override {return "Decode";}
-        void decodeEvent(){
-            std::cout << "Scheduling Decode on Tick " << cpu->currTick() << std::endl;
-            cpu->schedule(cpu->d, cpu->currTick() + cpu->clkTick); // Scheduling new event
-        }
+        Decode(CPU *c) : cpu(c), e(new DecodeEvent(this)), busy(0) {}
         void decodeInstruction();
+        void setBusy(bool _busy) { busy = _busy; }
+        bool isBusy() { return busy; }  // Used to determine if the fetch stage is busy
     };
 
     // Execute Stage
-    class Execute : public Event{
+    class Execute : Pipeline{
     // Passes the incoming registers or memory location to the ALU to be operated
     private:
+        // Execute event for the execute stage
+        class ExecuteEvent : public Event{
+        private:
+            Execute *ex;
+        public:
+            ExecuteEvent(Execute *_ex) : Event(), ex(_ex) {}
+            virtual void process() override {
+                ex->executeInstruction();
+                ex->cpu->s->e->storeEvent();
+            }
+            virtual const char* description() override {return "Execute";}
+            void exEvent(){
+                std::cout << "Scheduling Execute Event on Tick " << ex->cpu->currTick() << std::endl;
+                ex->cpu->schedule(ex->e, ex->cpu->currTick() + ex->cpu->clkTick); // Scheduling new event
+            }
+        };
         CPU *cpu;
-        std::bitset<32> rs1, rs2, rs3;
-        std::bitset<5> rd;
-        std::bitset<32 >immDestination;
-        std::bitset<32> result;
-        std::bitset<3> funct3;
-        std::bitset<7> opcode, funct7;
-        std::string funct2, funct5, imm;
-        bool isMemAccess = false;
-        // Instruction currentInstruction;
+        ExecuteEvent *e; // Access the ExecuteEvent class from Execute or outside Execute
+        bool busy; // Busy or not
+
         friend class CPU; // Allows CPU class to access these private variables
 
     public:
-        Execute(CPU *c) : Event(0), cpu(c) {}
-        virtual void process() override {
-            cpu->ex->executeInstruction();
-            // // if(cpu->stall->getIsStalled() == false){
-                cpu->s->storeEvent();
-                // cpu->sysMain->removeEvent();
-
-            // Check the instruction set to determine latency time
-            //     if(cpu->ex->getInstruction().getInstSet() == "Base"){
-            //         // Creating the Instruction latency by stalling
-            //         stall->setIsStalled(1);
-            //         stall->setAmount(8);
-            //         stall->process();
-            //     }
-            // // }
-        }
-        virtual const char* description() override {return "Execute";}
-        void exEvent(){
-            std::cout << "Scheduling Execute on Tick " << cpu->currTick() << std::endl;
-            // cpu->sysMain->removeEvent(); // removing event that was just executed
-             cpu->schedule(cpu->ex, cpu->currTick() + cpu->clkTick); // Scheduling new event
-            // if((cpu->currTick() + 10 == 11 + (cpu->cycles)*10))
-            //     cpu->schedule(cpu->ex, cpu->currTick() + cpu->clkTick); // Scheduling new event
-            // else
-            //     cpu->schedule(cpu->ex, ((cpu->cycles + 1)*(cpu->clkTick+1))); // Scheduling new event
-        }
+        Execute(CPU *c) : cpu(c), e(new ExecuteEvent(this)), busy(0) {}
         void executeInstruction();
-        void setIsMemAccess(bool isMemAccess){ this->isMemAccess = isMemAccess; }
-        // void setInstruction(Instruction currentInstruction) { this->currentInstruction = currentInstruction; }
-        // Instruction getInstruction() { return currentInstruction;}
-
+        void setBusy(bool _busy) { busy = _busy; }
+        bool isBusy() { return busy; } // Used to determine if the fetch stage is busy
     };
 
-    // Store Stage
-    class Store : public Event{
-    // Store back in memory if needed
+// Store Stage
+class Store : public Pipeline{
+private:
+    // Store event for the store stage
+    class StoreEvent : public Event{
     private:
-        CPU *cpu;
-        std::bitset<5> rd;
-        std::bitset<32 >immDestination;
-        friend class CPU; // Allows CPU class to access these private variables
+        Store *s;
     public:
-        Store(CPU *c) : Event(0), cpu(c) {}
+        StoreEvent(Store *_s) : Event(), s(_s) {}
         virtual void process() override {
-            cpu->s->storeInstruction();
+            s->storeInstruction();
         }
         virtual const char* description() override {return "Store";}
         void storeEvent(){
-            std::cout << "Scheduling Store on Tick " << cpu->currTick() << std::endl;
-            // cpu->sysMain->removeEvent(); // removing event that was just executed
-            cpu->schedule(cpu->s, cpu->currTick() + cpu->clkTick); // Scheduling new event
-            // if((cpu->currTick() + 10 == 11 + (cpu->cycles)*10))
-            //     cpu->schedule(cpu->s, cpu->currTick() + cpu->clkTick); // Scheduling new event
-            // else
-            //     cpu->schedule(cpu->s, ((cpu->cycles + 1)*(cpu->clkTick+1))); // Scheduling new event
+            std::cout << "Scheduling Store on Tick " << s->cpu->currTick() << std::endl;
+            s->cpu->schedule(s->e, s->cpu->currTick() + s->cpu->clkTick); // Scheduling new event
         }
-        void storeInstruction();
+    };
+    CPU *cpu;
+    StoreEvent *e; // Access the StoreEvent class from Store or outside Store
+    bool busy; // Busy or not
+
+    friend class CPU; // Allows CPU class to access these private variables
+
+public:
+    Store(CPU *c) : cpu(c), e(new StoreEvent(this)), busy(0) {}
+    void storeInstruction();
+    void setBusy(bool _busy) { busy = _busy; }
+    bool isBusy() { return busy; }
     };
 
     // Stalls the pipeline
@@ -187,10 +173,8 @@ private:
         Stall(CPU *c) : Event(1), cpu(c) {}
         virtual void process() override {
             // Stall the processor
-            // cpu->sysMain->removeEvent();
             cpu->stall->stallCPU();
             cpu->stall->setIsStalled(0);
-            // Set isStalled to 0 where ever the stall event was created the stall event
         }
         virtual const char* description() override { return "Stall"; }
         void stallEvent(){
@@ -353,10 +337,12 @@ public:
             currAddrI+=4;
         }
 
-        // Schedules another memory request. We dont want to do this arbitrarily every clock cycle
+        // Schedules another fetch Event
         if(currAddrI < endAddrI){
-            std::cout << "Attempting to schedule CPU Data Clock Event at time" << currTick() << std::endl;
-            schedule(e1, currTick() + clkTick);
+            std::cout << "currAddrI: " << currAddrI << std::endl;
+            std::cout << "endAddrI: " << endAddrI << std::endl;
+            // d->e->decodeEvent(); // Scheduling decode
+            f->e->fetchEvent(); // Scheduling fetch
         }
     }
     void processData() {
@@ -368,28 +354,31 @@ public:
         }
 
         // Schedules another memory request. We dont want to do this arbitrarily every clock cycle
-        if(currAddrD < endAddrD){
-            std::cout << "Attempting to schedule CPU Data Clock Event at time" << currTick() << std::endl;
-            schedule(e2, currTick() + clkTick);
-        }
+        // if(currAddrD < endAddrD){
+        //     std::cout << "Attempting to schedule CPU Data Clock Event at time" << currTick() << std::endl;
+        //     schedule(e2, currTick() + clkTick);
+        // }
     }
 
     void recvResp(PacketPtr pkt){
         std::cout << getName() << " received packet response from memory on Tick: " << currTick() << std::endl;
         // std::cout << getName() << " read: " << *(float *)(pkt->getBuffer()) << std::endl;
         // Reading from memory in decimal
-        std::cout << getName() << " read in decimal: " << *(uint32_t *)(pkt->getBuffer()) << std::endl;
+        // std::cout << getName() << " read in decimal: " << *(uint32_t *)(pkt->getBuffer()) << std::endl;
 
-        // Reading from memory in binary
-        currentInstruction = *(uint32_t *)(pkt->getBuffer());
-        std::cout << getName() << " read in binary: " << currentInstruction << std::endl;
+        if(f->isBusy()){
+            // Reading from memory in binary
+            currentInstruction = *(uint32_t *)(pkt->getBuffer());
+            std::cout << getName() << " read in binary: " << currentInstruction << std::endl;
+            f->setBusy(0);
+        }
     }
     MasterPort *getPort1() { return port1; } // Returns the
     MasterPort *getPort2() { return port2; }
 
     virtual void initialize() override { // Initialzes MEQ with a fetch event
         std::cout << "Initializing first fetch for: " << getName() << std::endl << std::endl;
-        schedule(f, currTick() + 1); // Schedules the first fetch event
+        schedule(f->e, currTick() + 1);
     }
     ALU *getALU() { return a; }
 };

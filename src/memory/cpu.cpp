@@ -24,27 +24,14 @@ CPU::CPU(std::shared_ptr<System> s1, const char* name, size_t start1, size_t end
 
 // Fetches the instruction from memory
 void CPU::Fetch::fetchInstruction() {
-    cout << "Fetch Stage" << endl << endl;
-
-    // if(isMemAccess){
-        // cpu->Iport->p1->process(); // The code does not like how mem is accessing the simobject
-        // cpu->schedule(cpu->Iport->p1, cpu->currTick() + 1);
-        // cpu->stall->setIsStalled(1);
-    //     return;
-    // }
-
-    // The 32bits of data from the 4 memory locations will be concatinated into one 32 bit long instruction and then sent to the decode stage
-    // string binary = (currentInstruction1.getBinary()).to_string() + (currentInstruction2.getBinary()).to_string() + (currentInstruction3.getBinary()).to_string() + (currentInstruction4.getBinary()).to_string();
-    //
-    // cout << "instruction fetched: "  << binary << endl;
-    // cout << "instruction Type: "  << currentInstruction1.getInstType() << endl;
-
-    // cpu->PC += 4;
+    cout << "Processing Fetch Stage" << endl << endl;
+    setBusy(1);
+    cpu->processInst();
 }
 
 // Deodes the instructions into registers, immediates, etc.
 void CPU::Decode::decodeInstruction() {
-    cout << "Decode Stage" << endl << endl;
+    cout << "Processing Decode Stage" << endl << endl;
     // string instruction = currentInstruction1.getBinary().to_string() + currentInstruction2.getBinary().to_string() + currentInstruction3.getBinary().to_string() + currentInstruction4.getBinary().to_string();
     // if(cpu->reg->getRegisterAccess() == false){
     //     if(currentInstruction1.getInstType() == "R"){
@@ -86,7 +73,7 @@ void CPU::Decode::decodeInstruction() {
     //         rd =  stoi((instruction.substr(15,5)));
     //         imm = (instruction.substr(21,10) + instruction.substr(20,1) + instruction.substr(12,8) + instruction.substr(31,1));
     //     }
-    // 
+    //
     //     // hazards check goes here
     //     // If so then stall, come back and access registers values
     //     // See hazard table for how long to stall
@@ -100,13 +87,13 @@ void CPU::Decode::decodeInstruction() {
 
 // Prints the execute stage
 void CPU::Execute::executeInstruction() {
-    cout << "Execute Stage" << endl << endl;
+    cout << "Processing Execute Stage" << endl << endl;
     // cpu->a->process();
 }
 
 // Prints the store instruction
 void CPU::Store::storeInstruction() {
-    cout << "Store Stage" << endl << endl;
+    cout << "Processing Store Stage" << endl << endl;
     // Create a register access event
     // Store back into register
 }
@@ -121,27 +108,17 @@ void CPU::Stall::stallCPU() {
 }
 
 void CPU::Send::sendData() {
-    // Passing fetch to decode
-    // cpu->d->currentInstruction1 = cpu->f->currentInstruction1;
-    // cpu->d->currentInstruction2 = cpu->f->currentInstruction2;
-    // cpu->d->currentInstruction3 = cpu->f->currentInstruction3;
-    // cpu->d->currentInstruction4 = cpu->f->currentInstruction3;
+    //If pipeline stages are not busy then pass between stages
+    if(!(cpu->f->isBusy() && cpu->d->isBusy() && cpu->ex->isBusy() &&cpu->s->isBusy())){
+        // Passing fetch to decode
+        cpu->d->inst = cpu->f->inst;
+        // Passing decode to execute
+        cpu->ex->inst = cpu->d->inst;
+        // Passing execute to store
+        cpu->s->inst = cpu->ex->inst;
+    }
 
-    // Passing decode to execute
-    cpu->ex->rs1 = cpu->d->rs1;
-    cpu->ex->rs2 = cpu->d->rs2;
-    cpu->ex->rs3 = cpu->d->rs3;
-    cpu->ex->rd = cpu->d->rd;
-    cpu->ex->funct2 = cpu->d->funct2;
-    cpu->ex->funct3 = cpu->d->funct3;
-    cpu->ex->funct5 = cpu->d->funct5;
-    cpu->ex->funct7= cpu->d->funct7;
-    cpu->ex->opcode = cpu->d->opcode;
-    cpu->ex->imm = cpu->d->imm;
-    // cpu->ex->setInstruction(cpu->d->currentInstruction1);
-
-    // Passing execute to store
-    cpu->s->rd = cpu->ex->rd;
-    cpu->s->immDestination = cpu->ex->immDestination;
-
+    // If pipeline stages are busy reschedule release event
+    else
+        cpu->schedule(this, cpu->currTick() + 1);
 }
