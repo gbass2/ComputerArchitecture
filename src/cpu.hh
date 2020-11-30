@@ -28,7 +28,7 @@ protected:
     bool busy; // Pipleine busy or not
     bool read; // Memory read or write
 public:
-    Instruction<int> *inst;
+    Instruction<int> inst;
     Pipeline() : busy(0), inst(new Instruction<int>()) {}
     void setBusy(bool _busy) { busy = _busy; }
     void setRead(bool _read) { read = _read; }
@@ -54,7 +54,6 @@ private:
                     std::cout << "Scheduling Fetch Event on Tick " << fetch->cpu->currTick() << std::endl;
                     size_t n = fetch->cpu->currTick();
                     size_t eventTime = (n >= 0 ? ((n + 10 - 1) / 10) * 10 : (n / 10) * 10) + 1;
-                    std::cout << "eventTime: " << eventTime << std::endl;
                     fetch->cpu->schedule(fetch->e, eventTime); // Scheduling new event
                 }
         };
@@ -93,7 +92,6 @@ private:
                 std::cout << "Scheduling Decode Event on Tick " << dec->cpu->currTick() << std::endl;
                 size_t n = dec->cpu->currTick();
                 size_t eventTime = (n >= 0 ? ((n + 10 - 1) / 10) * 10 : (n / 10) * 10) + 1;
-                std::cout << "eventTime: " << eventTime << std::endl;
                 dec->cpu->schedule(dec->e, eventTime); // Scheduling new event
             }
         };
@@ -121,13 +119,15 @@ private:
             virtual void process() override {
                 ex->executeInstruction();
 
-                if(ex->cpu->currAddrI < ex->cpu->endAddrI)
-                    ex->cpu->s->e->storeEvent();
+                // if(ex->cpu->currAddrI < ex->cpu->endAddrI)
+                //     ex->cpu->s->e->storeEvent();
             }
             virtual const char* description() override {return "Execute";}
             void exEvent(){
                 std::cout << "Scheduling Execute Event on Tick " << ex->cpu->currTick() << std::endl;
-                ex->cpu->schedule(ex->e, ex->cpu->currTick() + ex->cpu->clkTick); // Scheduling new event
+                size_t n = ex->cpu->currTick();
+                size_t eventTime = (n >= 0 ? ((n + 10 - 1) / 10) * 10 : (n / 10) * 10) + 21;
+                ex->cpu->schedule(ex->e, eventTime); // Scheduling new event
             }
         };
         CPU *cpu;
@@ -154,7 +154,9 @@ private:
         virtual const char* description() override {return "Store";}
         void storeEvent(){
             std::cout << "Scheduling Store on Tick " << s->cpu->currTick() << std::endl;
-            s->cpu->schedule(s->e, s->cpu->currTick() + s->cpu->clkTick); // Scheduling new event
+            size_t n = s->cpu->currTick();
+            size_t eventTime = (n >= 0 ? ((n + 10 - 1) / 10) * 10 : (n / 10) * 10) + 21;
+            s->cpu->schedule(s->e, eventTime); // Scheduling new event
         }
     };
     CPU *cpu;
@@ -206,7 +208,7 @@ public:
         }
         void aluEvent(){
             std::cout << "scheduling Alu on Tick " << cpu->currTick() << std::endl;
-            cpu->schedule(cpu->a, cpu->currTick() + cpu->clkTick); // Scheduling new event
+            cpu->schedule(cpu->a, cpu->currTick() + cpu->clkTick + 1); // Scheduling new event
         }
 
         virtual const char* description() override { return "ALU"; }
@@ -243,7 +245,6 @@ public:
             std::cout << "scheduling Send Data on Tick " << cpu->currTick() << std::endl;
             size_t n = cpu->currTick();
             size_t eventTime = (n >= 0 ? (n / 10) * 10 : ((n - 10 + 1) / 10) * 10) + 6;
-            std::cout << "eventTime: " << eventTime << std::endl;
             cpu->schedule(cpu->send, eventTime); // Scheduling new event
         }
         void sendData();

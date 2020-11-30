@@ -15,25 +15,28 @@ template<typename T>
 class Register{
 protected:
     T *data; // Holds the 32 bit value for this register
-    char regType;
-    std::bitset<5> name;
+    char regType; // Not currently used
+    std::bitset<5> name; // Register name in binary
 
 public:
     Register(T *_data, char regType) : data{_data}, regType{regType} {}
     Register() :  data(new T(0)), regType{'\0'}, name{0} {}
 
-    T *getData() { return data;}
-    void setData(int *_data) { data = _data; }
-    void setData(float *_data) { data = _data; }
-    char getRegType() { return regType;}
-    void setRegType(char regType) { this->regType = regType; }
+    T *getData() const { return data;}
+    void setData(int *_data) { data = _data; } // Set the data in int
+    void setData(float *_data) { data = _data; } // Set the data in float
     void setName(std::bitset<5> _name) { name = _name; }
-    std::bitset<5> getName() { return name; }
+    std::bitset<5> getName() const { return name; }
+
+    char getRegType() { return regType;} // Not currently used
+    void setRegType(char regType) { this->regType = regType; } // Not currently used
 
 };
 
+// Holds the bank of integer and floating point registers
 class RegisterBank : public SimObject{
 private:
+    // Not currently used
     class RegisterReleaseEvent : public Event{
     private:
         RegisterBank *owner;
@@ -42,6 +45,8 @@ private:
         virtual void process() override {} // Realse the register value
         virtual const char* description() override {return "Register Access";}
     };
+
+    // Event for loading values from registers and storing values in registers
     class RegisterProcessEvent : public Event{
     private:
         RegisterBank *owner;
@@ -54,7 +59,7 @@ private:
     RegisterReleaseEvent *release;
     RegisterProcessEvent *regProcess;
     CPU *cpu;
-    bool read = false;
+    bool read = true; // Set false for write and true for read
 public:
     std::unordered_map<uint8_t, Register<int>> intRegisters; // Example: <0101,"Temporary/alternate link register">
     std::unordered_map<uint8_t, Register<float>> fpRegisters; // Example: <0101,"Temporary/alternate link register">

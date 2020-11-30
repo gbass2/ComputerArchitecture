@@ -33,8 +33,10 @@ void CPU::Fetch::fetchInstruction() {
 // Decodes the instruction into registers, immediates, etc.
 void CPU::Decode::decodeInstruction() {
     cout << "Processing Decode Stage" << endl << endl;
+    setBusy(1);
 
     string instruction = inst->currentInstruction.to_string();
+    // Finds the instruction type, if its a float ot int, and what set of instructions it is from
     inst->opcode = bitset<7>(instruction.substr(0,7));
     inst->funct3 = bitset<3>(instruction.substr(12,3));
     findInstructionType();
@@ -89,6 +91,7 @@ void CPU::Decode::decodeInstruction() {
 // Prints the execute stage
 void CPU::Execute::executeInstruction() {
     cout << "Processing Execute Stage" << endl << endl;
+    cout << "instruction: " << inst->currentInstruction << endl;
     // cpu->a->process();
 }
 
@@ -112,13 +115,14 @@ void CPU::Send::sendData() {
     cout << "Sending data between stages" << endl << endl;
     //If pipeline stages are not busy then pass between stages
     if(!(cpu->f->isBusy() && cpu->d->isBusy() && cpu->ex->isBusy() &&cpu->s->isBusy())){
-        // Passing fetch to decode
-        cpu->d->inst = cpu->f->inst;
-        // Passing decode to execute
-        cpu->ex->inst = cpu->d->inst;
-        cpu->ex->inst = cpu->d->inst;
         // Passing execute to store
         cpu->s->inst = cpu->ex->inst;
+        
+        // Passing decode to execute
+        cpu->ex->inst = cpu->d->inst;
+
+        // Passing fetch to decode
+        cpu->d->inst = cpu->f->inst;
     }
 
     // If pipeline stages are busy reschedule release event
@@ -128,7 +132,6 @@ void CPU::Send::sendData() {
 
 void CPU::Decode::findInstructionType(){
      // base 10 multiply 20 float 50
-     cout << inst->opcode << std::endl;
     if(inst->opcode.to_string() == "1110110"){ // LUI
         inst->type = "U";
         inst->isFloat = false;
