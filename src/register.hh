@@ -14,16 +14,17 @@ class CPU;
 template<typename T>
 class Register{
 protected:
-    T data; // Holds the 32 bit value for this register
+    T *data; // Holds the 32 bit value for this register
     char regType;
     std::bitset<5> name;
 
 public:
-    Register(uint32_t data, char regType) : data{data}, regType{regType} {}
-    Register() : regType{'\0'}, name{0} {}
+    Register(T *_data, char regType) : data{_data}, regType{regType} {}
+    Register() :  data(new T(0)), regType{'\0'}, name{0} {}
 
-    uint32_t getData() { return data;}
-    void setData(uint32_t data) { this->data = data; }
+    T *getData() { return data;}
+    void setData(int *_data) { data = _data; }
+    void setData(float *_data) { data = _data; }
     char getRegType() { return regType;}
     void setRegType(char regType) { this->regType = regType; }
     void setName(std::bitset<5> _name) { name = _name; }

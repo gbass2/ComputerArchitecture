@@ -83,8 +83,8 @@ private:
 
                 // if(cpu->stall->getIsStalled() == false){
                     // cpu->reg->setRegiserAccess(0);
-                // if(dec->cpu->currAddrI < dec->cpu->endAddrI)
-                //     dec->cpu->ex->e->exEvent();
+                if(dec->cpu->currAddrI < dec->cpu->endAddrI)
+                    dec->cpu->ex->e->exEvent();
                 // }
 
             }
@@ -327,6 +327,7 @@ public:
     size_t currAddrD; // Current address for the data Memory
     size_t endAddrI; // End address for the Instruction Memory
     size_t endAddrD; // End address for the data Memory
+    friend RegisterBank;
 
 public:
     CPU(std::shared_ptr<System> s1, const char* name, size_t start1, size_t end1, size_t start2, size_t end2);

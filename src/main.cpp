@@ -52,7 +52,7 @@ void setupSimulator(CPU* cpu, DRAM *ram){ // Sets up the instruction memory with
     ram->writeWordAtAddr(16, 0b11001000101000000000000000000000); // 6
     ram->writeWordAtAddr(20, 0b11000100010101000010010101111111); // 7
     ram->writeWordAtAddr(24, 0b11000100000101000010010101111111); // 8
-    ram->writeWordAtAddr(18, 0b11110110000000000000000001000000); // 9
+    ram->writeWordAtAddr(28, 0b11110110000000000000000001000000); // 9
     ram->writeWordAtAddr(32, 0b11000000101001000010000011111111); // 11
     ram->writeWordAtAddr(36, 0b11001001101000000000111111110000); // 12
     ram->writeWordAtAddr(40, 0b11000110000000111010010100010000); // 13
@@ -66,7 +66,7 @@ void setupSimulator(CPU* cpu, DRAM *ram){ // Sets up the instruction memory with
     ram->writeWordAtAddr(72, 0b11101100101000000000000000000000); // 22
     ram->writeWordAtAddr(76, 0b11001000101000001010000000000001); // 23
     ram->writeWordAtAddr(80, 0b11001000101000001010000000000001); // 24
-    ram->writeWordAtAddr(84, 0b11001100101000001010110100000000); // 25
+    ram->writeWordAtAddr(84, 0b11100001000001001010000000000000); // 25
     ram->writeWordAtAddr(88, 0b11001010000011100000100000000000); // 26
     ram->writeWordAtAddr(92, 0b11101100101000000000000000000000); // 27
     ram->writeWordAtAddr(96, 0b11001000101000001010000000000011); // 28

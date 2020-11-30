@@ -1,5 +1,6 @@
 #include "register.hh"
 #include "simobject.hh"
+#include "cpu.hh"
 
 // Creating the integer registers and floating point registers using a hash table to hold the register and its name
 RegisterBank::RegisterBank(std::shared_ptr<System> s2, CPU *c): SimObject(s2), release(new RegisterReleaseEvent(this)), regProcess(new RegisterProcessEvent(this)), cpu(c)  {
@@ -71,8 +72,57 @@ RegisterBank::RegisterBank(std::shared_ptr<System> s2, CPU *c): SimObject(s2), r
 }
 
 void RegisterBank::process(){
-    std::cout << "Register Access" << std::endl;
-    if(read){
-        
+    std::cout << "Register Access" << std::endl << std::endl;
+
+    std::bitset<5> name;
+    uint8_t nameInInt;
+
+    if(read){ // Read from register
+        if(!(cpu->d->inst->isFloat)){ // For a int read
+            // Rs1
+            name = cpu->d->inst->rs1.getName();
+            nameInInt = stoi(name.to_string());
+            cpu->d->inst->rs1 = intRegisters[nameInInt];
+            cpu->d->inst->rs1.setName(name);
+
+            // Rs2
+            name= cpu->d->inst->rs2.getName();
+            nameInInt = stoi(name.to_string());
+            cpu->d->inst->rs2 = intRegisters[nameInInt];
+            cpu->d->inst->rs2.setName(name);
+
+            // Rs3
+            name= cpu->d->inst->rs3.getName();
+            nameInInt = stoi(name.to_string());
+            cpu->d->inst->rs3 = intRegisters[nameInInt];
+            cpu->d->inst->rs3.setName(name);
+        } else if((cpu->d->inst->isFloat)){ // For a floating point read
+            // Rs1
+            name= cpu->d->inst->rs1.getName();
+            nameInInt = stoi(name.to_string());
+            cpu->d->inst->rs1.setData((int *)(fpRegisters[nameInInt].getData()));
+
+            // Rs2
+            name= cpu->d->inst->rs2.getName();
+            nameInInt = stoi(name.to_string());
+            cpu->d->inst->rs2.setData((int *)(fpRegisters[nameInInt].getData()));
+
+            // Rs3
+            name= cpu->d->inst->rs3.getName();
+            nameInInt = stoi(name.to_string());
+            cpu->d->inst->rs3.setData((int *)(fpRegisters[nameInInt].getData()));
+        }
+    } else { // Wriite to register
+        if(!(cpu->d->inst->isFloat)){ // For a int write
+            name = cpu->d->inst->rd.getName();
+            nameInInt = stoi(name.to_string());
+            intRegisters[nameInInt] = cpu->d->inst->rd;
+        } else if((cpu->d->inst->isFloat)){ // For a floating point write
+            // cout << "rs1: " << *(float *)(inst->rs1.getData()) << endl;
+            name = cpu->d->inst->rd.getName();
+            nameInInt = stoi(name.to_string());
+            intRegisters[nameInInt].setData(*(float *)(cpu->d->inst->rd.getData()));
+            intRegisters[nameInInt].setName(name);
+        }
     }
 }
