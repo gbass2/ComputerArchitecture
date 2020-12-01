@@ -64,13 +64,12 @@ void CPU::ALU::aluOperations() {
 void CPU::ALU::ADDI() {
     // rd = rs1 + imm
     int val1, val2;
-    std::string test;
 
     val1 = cpu->ex->intInst.rs1.getData();    // rs1
     val2 =  Binary2Decimal(cpu->ex->intInst.imm.to_string(), 12); // immediate
 
 
-    cpu->ex->intInst.data =  val1 + val2;
+    cpu->ex->intInst.data =  val1 + val2; // Adding an int to an immediate value
 }
 
 void CPU::ALU::SLLI() {   // Logical left shift (zeros are shifted into the lower bits) PAGE 14
@@ -78,36 +77,31 @@ void CPU::ALU::SLLI() {   // Logical left shift (zeros are shifted into the lowe
 }
 
 void CPU::ALU::SW() {
-    // rs2 rs1 imm[4:0]
+    cpu->processData(); // Storing word to memory
 }
 
 void CPU::ALU::FSW() {
-
+        cpu->processData(); // Storing word to memory
 }
 
 void CPU::ALU::FADDS() {
     // rd = rs1 + rs2
-    std::string val1, val2;
-    float val3, val4;
+    float val1, val2;
 
-    val1 = ((cpu->reg->intRegisters)[stoi(cpu->ex->rs1)]).getData().to_string();
-    val1 = ((cpu->reg->intRegisters)[stoi(cpu->ex->rs2)]).getData().to_string();
+    val1 = cpu->ex->fInst.rs1.getData();    // rs1
+    val2 = cpu->ex->fInst.rs2.getData();    // rs2
 
-    val3 = GetFloat32(val1);
-    val4 = GetFloat32(val2);
-
-    cpu->ex->result = GetBinary32(val3 + val4);
+    cpu->ex->cpu->ex->fInst.data = val1 + val2; // Adding 2 float values
 
 }
 
 void CPU::ALU::J() {
-    cpu->PC = jump.front();
+    cpu->currAddrI = jump.front(); // Jumoing back to an address
     jump.pop_front();
-
 }
 
 void CPU::ALU::LW() {
-
+    cpu->processData(); // Loading word from memory
 }
 
 void CPU::ALU::BLT() {

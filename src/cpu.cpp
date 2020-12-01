@@ -126,10 +126,10 @@ void CPU::Decode::decodeInstruction() {
 // Prints the execute stage
 void CPU::Execute::executeInstruction() {
     cout << endl << "Processing Execute Stage for " << cpu->getName() << endl;
-
-    setBusy(1);
-
-    cpu->a->process();
+    //
+    // setBusy(1);
+    //
+    // cpu->a->process();
 
     // If load or store then call processData from the alu function
 

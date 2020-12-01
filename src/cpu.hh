@@ -128,8 +128,8 @@ private:
             virtual void process() override {
                 ex->executeInstruction();
 
-                // if(ex->cpu->currAddrI < ex->cpu->endAddrI)
-                //     ex->cpu->s->e->storeEvent();
+                if((ex->cpu->currAddrI < ex->cpu->endAddrI) && ((ex->isMemAccess() && ex->isRead()) || !ex->isMemAccess()))
+                    ex->cpu->s->e->storeEvent();
             }
             virtual const char* description() override {return "Execute";}
             void exEvent(){
