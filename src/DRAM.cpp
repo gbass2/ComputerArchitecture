@@ -39,7 +39,6 @@ void DRAM::setDataAddr(Addr ad, uint8_t * buff, size_t len){
      // assert((ad >= addrs.first) && ((ad+len) <= addrs.second + 1));
      Addr offset = ad - addrs.first;    // Calcs offest in memory that the
                                         // packet is reading
-
      std::memcpy((memory + offset), buff, len);   // pointer in our memory for DRAM
 }
 // Helper Functions
