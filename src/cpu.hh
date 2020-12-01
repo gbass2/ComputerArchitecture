@@ -12,14 +12,15 @@
 template<typename T>
 struct Instruction{
     Register<T> rs1, rs2, rs3, rd; // Registers for the current instruction
+
     std::bitset<3> funct3;
     std::bitset<7> opcode, funct7;
     std::bitset<20> funct2, funct5, imm;
     std::bitset<32> currentInstruction; // The 32 bit instruction
-    std::string type; // Type of instruction
-    bool isFloat = false;
-    size_t set; // the latency involved based on what instruction set it comes from
+    T data;
 
+    std::string type; // Type of instruction
+    size_t set; // the latency involved based on what instruction set is being processed
 };
 
 // Base pipeline stage class
@@ -27,13 +28,21 @@ class Pipeline{
 protected:
     bool busy; // Pipleine busy or not
     bool read; // Memory read or write
+    bool memAccess; // Memory access or not for the execute stage
+    bool isFloat;
 public:
-    Instruction<int> inst;
-    Pipeline() : busy(0), inst(new Instruction<int>()) {}
+    Instruction<int> intInst;
+    Instruction<int> fInst;
+
+    Pipeline(): busy(0), read(1), memAccess(0), isFloat(0){}
     void setBusy(bool _busy) { busy = _busy; }
     void setRead(bool _read) { read = _read; }
-    bool isBusy() { return busy; } // Used to determine if the stage is busy
-    bool isRead() { return read; } // Used to determine if the stage is writing or reading from memory
+    void setMemAccess(bool _memAccess) { memAccess = _memAccess; }
+    void setFloat(bool _isFloat) { isFloat = _isFloat; }
+    bool isBusy() { return busy; }
+    bool isRead() { return read; }
+    bool isMemAccess() { return memAccess; }
+    bool getIsFloat() { return isFloat; }
 };
 
 class CPU : public SimObject{
@@ -107,7 +116,7 @@ private:
     };
 
     // Execute Stage
-    class Execute : Pipeline{
+    class Execute : public Pipeline{
     // Passes the incoming registers or memory location to the ALU to be operated
     private:
         // Execute event for the execute stage
@@ -350,8 +359,16 @@ public:
     void processData() {
         if(!(port2->isBusy())){
             std::cout << "Creating memory request to Addr: " << currAddrD << " for 4 bytes on Tick: " << currTick() << std:: endl;
-            port2->sendReq(new Packet(true, currAddrD, 4));
-
+            if(ex->isRead())
+                port2->sendReq(new Packet(true, currAddrD, 4));
+            else{
+                if(!ex->getIsFloat()){
+                    port2->sendReq(new Packet(false, currAddrD, (uint8_t *)&ex->intInst.data, 4));
+                } else {
+                    port2->sendReq(new Packet(false, currAddrD, (uint8_t *)&ex->fInst.data, 4));
+                }
+                ex->setBusy(0);
+            }
             currAddrD+=4;
         }
 
@@ -372,15 +389,24 @@ public:
             // Reading from memory in binary
             std::bitset<32> instruction = *(uint32_t *)(pkt->getBuffer());
             std::cout << getName() << " read in binary: " << instruction << std::endl;
-            f->inst->currentInstruction = instruction;
+            f->intInst.currentInstruction = instruction;
             f->setBusy(0);
-            f->setRead(0);
 
             if(currAddrI < endAddrI){
                 send->sendEvent();   // Scheduling send data
                 d->e->decodeEvent(); // Scheduling decode
                 f->e->fetchEvent();  // Scheduling fetch
             }
+        } else if(ex->isBusy() && ex->isRead()){
+            // Reading int from data memory
+            if(!ex->getIsFloat())
+                ex->intInst.data = *(int *)(pkt->getBuffer());
+
+            // Reading float from memory
+            else
+                ex->fInst.data = *(float *)(pkt->getBuffer());
+
+            a->aluEvent(); // Scheduling an alu event to execute the instruction
         }
     }
     MasterPort *getPort1() { return port1; } // Returns the

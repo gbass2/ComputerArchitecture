@@ -20,10 +20,17 @@ int main(){
     // cout << "num in decimal: " << numbit.to_ulong() << endl;
     //
     // // Then we can spilt it up as normal for the deocde/execute stages
-    float val = .5;
-    int *j = (int *)(&val); // storage element
-    cout << "j: " << *j << endl;
-    float p = *(float *)(j);
-    cout << "p: " << p << endl;
+    int val = 100000000;
+    int e;
+    uint8_t* p;
+    p = (uint8_t *)(&val);
+    e = *(int *)(p);
+    cout << "e: " << e << endl;
+
+    // float val = .5;
+    // int *j = (int *)(&val); // storage element
+    // cout << "j: " << *j << endl;
+    // float p = *(float *)(j);
+    // cout << "p: " << p << endl;
     return 0;
 }

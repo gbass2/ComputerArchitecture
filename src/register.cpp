@@ -78,55 +78,56 @@ void RegisterBank::process(){
     uint8_t nameInInt; // The name of the register in uint8_t. Needed because the unordered_map uses a uint8_t
 
     if(read){ // Read from register
-        if(!(cpu->d->inst->isFloat)){ // For a int read
+        if(!(cpu->d->getIsFloat())){ // For a int read
             // Retrieving Rs1
-            name = cpu->d->inst->rs1.getName();
+            name = cpu->d->intInst.rs1.getName();
             nameInInt = stoi(name.to_string());
-            cpu->d->inst->rs1 = intRegisters[nameInInt];
-            cpu->d->inst->rs1.setName(name);
+            cpu->d->intInst.rs1 = intRegisters[nameInInt];
+            cpu->d->intInst.rs1.setName(name);
 
             // Retrieving Rs2
-            name = cpu->d->inst->rs2.getName();
+            name = cpu->d->intInst.rs2.getName();
             nameInInt = stoi(name.to_string());
-            cpu->d->inst->rs2 = intRegisters[nameInInt];
-            cpu->d->inst->rs2.setName(name);
+            cpu->d->intInst.rs2 = intRegisters[nameInInt];
+            cpu->d->intInst.rs2.setName(name);
 
             // Retrieving Rs3
-            name= cpu->d->inst->rs3.getName();
+            name= cpu->d->intInst.rs3.getName();
             nameInInt = stoi(name.to_string());
-            cpu->d->inst->rs3 = intRegisters[nameInInt];
-            cpu->d->inst->rs3.setName(name);
+            cpu->d->intInst.rs3 = intRegisters[nameInInt];
+            cpu->d->intInst.rs3.setName(name);
 
-        } else if((cpu->d->inst->isFloat)){ // For a floating point read
+        } else if((cpu->d->getIsFloat())){ // For a floating point read
             // Retrieving Rs1
-            name = cpu->d->inst->rs1.getName();
+            name = cpu->d->fInst.rs1.getName();
             nameInInt = stoi(name.to_string());
-            cpu->d->inst->rs1.setData((int *)(fpRegisters[nameInInt].getData()));
+            cpu->d->fInst.rs1.setData(fpRegisters[nameInInt].getData());
 
             // Retrieving Rs2
-            name = cpu->d->inst->rs2.getName();
+            name = cpu->d->fInst.rs2.getName();
             nameInInt = stoi(name.to_string());
-            cpu->d->inst->rs2.setData((int *)(fpRegisters[nameInInt].getData()));
+            cpu->d->fInst.rs2.setData(fpRegisters[nameInInt].getData());
 
             // Retrieving Rs3
-            name = cpu->d->inst->rs3.getName();
+            name = cpu->d->fInst.rs3.getName();
             nameInInt = stoi(name.to_string());
-            cpu->d->inst->rs3.setData((int *)(fpRegisters[nameInInt].getData()));
+            cpu->d->fInst.rs3.setData(fpRegisters[nameInInt].getData());
             cpu->d->setBusy(0);
         }
     } else { // Wriite to register
-        if(!(cpu->s->inst->isFloat)){ // For a int write
+        if(!(cpu->s->getIsFloat())){ // For a int write
             // Storing Rd
-            name = cpu->s->inst->rd.getName();
+            name = cpu->s->intInst.rd.getName();
             nameInInt = stoi(name.to_string());
-            intRegisters[nameInInt] = cpu->s->inst->rd;
+            intRegisters[nameInInt] = cpu->s->intInst.rd;
 
-        } else if((cpu->s->inst->isFloat)){ // For a floating point write
+        } else if((cpu->s->getIsFloat())){ // For a floating point write
             // Storing Rd
-            name = cpu->s->inst->rd.getName();
+            name = cpu->s->fInst.rd.getName();
             nameInInt = stoi(name.to_string());
-            fpRegisters[nameInInt].setData((float *)(cpu->s->inst->rd.getData()));
+            fpRegisters[nameInInt].setData(cpu->s->fInst.rd.getData());
             fpRegisters[nameInInt].setName(name);
         }
+        cpu->ex->setBusy(0);
     }
 }

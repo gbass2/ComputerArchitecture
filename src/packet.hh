@@ -24,6 +24,12 @@ public:
         buffer(new uint8_t[_size]),
         dst(_dst),
         size(_size) {}
+    Packet(bool read, Addr _dst, uint8_t* _buffer,  size_t _size):
+        _isRead(read),
+        buffer(_buffer),
+        dst(_dst),
+        size(_size) {}
+
     ~Packet() {
         header.clear();
         if(buffer) delete[] buffer;
