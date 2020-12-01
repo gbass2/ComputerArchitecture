@@ -405,8 +405,6 @@ public:
             // Reading float from memory
             else
                 ex->fInst.data = *(float *)(pkt->getBuffer());
-
-            a->aluEvent(); // Scheduling an alu event to execute the instruction
         }
     }
     MasterPort *getPort1() { return port1; } // Returns the
