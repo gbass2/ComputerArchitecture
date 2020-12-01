@@ -97,6 +97,7 @@ void RegisterBank::process(){
             cpu->d->intInst.rs3 = intRegisters[nameInInt];
             cpu->d->intInst.rs3.setName(name);
 
+
         } else if((cpu->d->getIsFloat())){ // For a floating point read
             // Retrieving Rs1
             name = cpu->d->fInst.rs1.getName();
@@ -112,7 +113,6 @@ void RegisterBank::process(){
             name = cpu->d->fInst.rs3.getName();
             nameInInt = stoi(name.to_string());
             cpu->d->fInst.rs3.setData(fpRegisters[nameInInt].getData());
-            cpu->d->setBusy(0);
         }
     } else { // Wriite to register
         if(!(cpu->s->getIsFloat())){ // For a int write
@@ -121,13 +121,14 @@ void RegisterBank::process(){
             nameInInt = stoi(name.to_string());
             intRegisters[nameInInt] = cpu->s->intInst.rd;
 
-        } else if((cpu->s->getIsFloat())){ // For a floating point write
+        } else { // For a floating point write
             // Storing Rd
             name = cpu->s->fInst.rd.getName();
             nameInInt = stoi(name.to_string());
             fpRegisters[nameInInt].setData(cpu->s->fInst.rd.getData());
             fpRegisters[nameInInt].setName(name);
         }
+        cpu->d->setBusy(0);
         cpu->ex->setBusy(0);
     }
 }

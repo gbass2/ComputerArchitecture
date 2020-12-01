@@ -42,7 +42,7 @@ void CPU::Decode::decodeInstruction() {
     findInstructionType();
 
     cout << "instruction: " << instruction << endl;
-    if(isFloat == 0){
+    if(!isFloat){
         if(intInst.type == "R"){
             intInst.opcode = bitset<7>(instruction.substr(0,7));
             intInst.rd.setName(bitset<5>(instruction.substr(7,5)));
@@ -113,12 +113,12 @@ void CPU::Decode::decodeInstruction() {
                 fInst.imm = bitset<20>(instruction.substr(21,10) + instruction.substr(20,1) + instruction.substr(12,8) + instruction.substr(31,1));
         }
     }
-//
-//         // hazards check goes here
-//         // If so then stall, come back and access registers values
-//         // See hazard table for how long to stall
-//         // ---------------------------
-//
+
+        // hazards check goes here
+        // If so then stall, come back and access registers values
+        // See hazard table for how long to stall
+        // ---------------------------
+
     cpu->reg->setRead(1);
     cpu->reg->scheduleRegisterEvent();
 }
@@ -126,10 +126,10 @@ void CPU::Decode::decodeInstruction() {
 // Prints the execute stage
 void CPU::Execute::executeInstruction() {
     cout << endl << "Processing Execute Stage for " << cpu->getName() << endl;
-    //
-    // setBusy(1);
-    //
-    // cpu->a->process();
+
+    setBusy(1);
+
+    cpu->a->aluEvent();
 
     // If load or store then call processData from the alu function
 
