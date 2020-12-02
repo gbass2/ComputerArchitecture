@@ -15,7 +15,9 @@ struct Instruction{
 
     std::bitset<3> funct3;
     std::bitset<7> opcode, funct7;
-    std::bitset<20> funct2, funct5, imm;
+    std::bitset<20> funct2, funct5;
+    std::bitset<12> immISB;
+    std::bitset<20> immJU;
     std::bitset<32> currentInstruction; // The 32 bit instruction
     T data;
 
@@ -337,6 +339,7 @@ public:
     size_t currAddrD; // Current address for the data Memory
     size_t endAddrI; // End address for the Instruction Memory
     size_t endAddrD; // End address for the data Memory
+    size_t byteAmount; // Amount of bytes need from memory
     friend RegisterBank;
 
 public:
@@ -349,27 +352,20 @@ public:
 
             currAddrI+=4;
         }
-
-        // Schedules another fetch Event
-        // if(currAddrI < endAddrI){
-        //     d->e->decodeEvent(); // Scheduling decode
-        //     f->e->fetchEvent(); // Scheduling fetch
-        // }
     }
     void processData() {
         if(!(port2->isBusy())){
             std::cout << "Creating memory request to Addr: " << currAddrD << " for 4 bytes on Tick: " << currTick() << std:: endl;
             if(ex->isRead())
-                port2->sendReq(new Packet(true, currAddrD, 4));
+                port2->sendReq(new Packet(true, currAddrD, byteAmount));
             else{
                 if(!ex->getIsFloat()){
-                    port2->sendReq(new Packet(false, currAddrD, (uint8_t *)&ex->intInst.data, 4));
+                    port2->sendReq(new Packet(false, currAddrD, (uint8_t *)&ex->intInst.rs2.getData(), byteAmount));
                 } else {
-                    port2->sendReq(new Packet(false, currAddrD, (uint8_t *)&ex->fInst.data, 4));
+                    port2->sendReq(new Packet(false, currAddrD, (uint8_t *)&ex->fInst.rs2.getData(), byteAmount));
                 }
                 ex->setBusy(0);
             }
-            currAddrD+=4;
         }
 
         // Schedules another memory request. We dont want to do this arbitrarily every clock cycle
@@ -400,11 +396,11 @@ public:
         } else if(ex->isBusy() && ex->isRead()){
             // Reading int from data memory
             if(!ex->getIsFloat())
-                ex->intInst.data = *(int *)(pkt->getBuffer());
+                ex->intInst.rd.setData(*(int *)(pkt->getBuffer())); // Loading into rd. The store stage will get the data and store it in the rpoper location
 
             // Reading float from memory
             else
-                ex->fInst.data = *(float *)(pkt->getBuffer());
+                ex->fInst.rd.set(*(float *)(pkt->getBuffer()));
         }
     }
     MasterPort *getPort1() { return port1; } // Returns the
