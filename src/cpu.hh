@@ -126,7 +126,7 @@ private:
             virtual void process() override {
                 ex->executeInstruction();
 
-                if((ex->cpu->currAddrI < ex->cpu->endAddrI) && ((ex->isMemAccess() && ex->isRead()) || !ex->isMemAccess()))
+                if((ex->cpu->currAddrI < ex->cpu->endAddrI) && (((ex->isMemAccess() && ex->isRead())) || !ex->isMemAccess()))
                     ex->cpu->s->e->storeEvent();
             }
             virtual const char* description() override {return "Execute";}
@@ -321,9 +321,8 @@ public:
     Stall *stall;
     ALU *a;
     Send *send;
-    // Register bank for the cpu
-    RegisterBank *regd; // Decode uses this to access the registers
-    RegisterBank *regs; // Store uses this to access the registers
+    // Register bank for the cpu.
+    RegisterBank *reg;
     // Ports to access memory
     RequestInstEvent *e1;   // Used to create a request event for instruction memory
     RequestDataEvent *e2;   // Used to create a request event for data memory

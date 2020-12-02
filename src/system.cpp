@@ -18,9 +18,8 @@ void System::schedule(Event *e, Tick t){ // Schedules an event into MEQ
     // assert(t <= currTick());
 
     // Adding the event to MEQ
-    if(!(e->isScheduled()) || (!(strcmp(MEQ.front()->description(), "Register Access")))){
+    if(!(e->isScheduled())){
         e->schedule(t);
-        std::cout << "here" << std::endl;
 
         if(e->getPriority()) {
             MEQ.push_front(e);

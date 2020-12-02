@@ -11,8 +11,7 @@ CPU::CPU(std::shared_ptr<System> s1, const char* name, size_t start1, size_t end
     stall(new Stall(this)),
     a(new ALU(this)),
     send(new Send(this)),
-    regD(new RegisterBank(s1, this)),
-    regS(new RegisterBank(s1, this)),
+    reg(new RegisterBank(s1, this)),
     e1(new RequestInstEvent(this)),
     e2(new RequestDataEvent(this)),
     port1(new RequestInstPort(this)),
@@ -131,6 +130,8 @@ void CPU::Execute::executeInstruction() {
 
     setBusy(1);
     cpu->a->aluEvent();
+
+    // Add the latencies in for the instructions. RV32I is 10 ticks, RV32M is 20 ticks, RV32F si 50 ticks
 }
 
 // Stores the data from execute into destination register

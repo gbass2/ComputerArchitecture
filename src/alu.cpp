@@ -13,6 +13,7 @@ std::string GetBinary32( float value );
 //
 // // Determines what alu operation needs to be done
 void CPU::ALU::aluOperations() {
+    std::cout << std::endl << "Processing ALU Operation" << std::endl;
     if(!cpu->ex->getIsFloat()){ // Calling the functions to execute the integer instructions
         if(cpu->ex->intInst.opcode.to_string() == "1100100") {      // addi/mv + slli
             if(cpu->ex->intInst.funct3.to_string() == "000") {      // addi/mv
