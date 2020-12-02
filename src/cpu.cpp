@@ -118,10 +118,7 @@ void CPU::Decode::decodeInstruction() {
         // If so then stall, come back and access registers values
         // See hazard table for how long to stall
         // ---------------------------
-
-    cpu->d->setRead(1);
-    cpu->reg->scheduleRegisterEvent();
-    cpu->printMEQ();
+        cpu->d->setBusy(0);
 }
 
 // Prints the execute stage
@@ -129,16 +126,16 @@ void CPU::Execute::executeInstruction() {
     cout << endl << "Processing Execute Stage for " << cpu->getName() << endl;
 
     setBusy(1);
-    cpu->a->aluEvent();
-
+    cpu->a->process();
     // Add the latencies in for the instructions. RV32I is 10 ticks, RV32M is 20 ticks, RV32F si 50 ticks
 }
 
 // Stores the data from execute into destination register
 void CPU::Store::storeInstruction() {
     cout << endl << "Processing Store Stage for " << cpu->getName() << endl;
-    cpu->s->setRead(0);
-    cpu->reg->scheduleRegisterEvent();
+    cpu->reg->setRead(0);
+    cpu->reg->process();
+    cpu->s->setBusy(0); // Setting store stage to not busy
 }
 
 void CPU::Stall::stallCPU() {
@@ -245,3 +242,30 @@ void CPU::Decode::findInstructionType(){
          setFloat(1);
     }
 }
+
+void CPU::recvResp(PacketPtr pkt){
+        std::cout << getName() << " received packet response from memory on Tick: " << currTick() << std::endl;
+
+        if(f->isBusy() && f->isRead()){      // only true for fetch stage
+            // Reading from memory in binary
+            std::bitset<32> instruction = *(uint32_t *)(pkt->getBuffer());
+            std::cout << getName() << " read in binary: " << instruction << std::endl;
+            f->intInst.currentInstruction = instruction;
+
+            if(currAddrI < endAddrI){
+                send->sendEvent();   // Scheduling send data
+                d->e->decodeEvent(); // Scheduling decode
+                f->e->fetchEvent();  // Scheduling fetch
+            }
+        } else if(ex->isBusy() && ex->isRead()){
+            // Reading int from data memory
+            if(!ex->getIsFloat())
+                ex->intInst.rd.setData(*(int *)(pkt->getBuffer())); // Loading into rd. The store stage will get the data and store it in the rpoper location
+
+            // Reading float from memory
+            else
+                ex->fInst.rd.setData(*(float *)(pkt->getBuffer()));
+        }
+            f->setBusy(0);  // Setting fetch stage to not busy
+            ex->setBusy(0); // Setting execute stage to not busy
+    }

@@ -11,8 +11,12 @@ void setupSimulator(CPU *cpu, DRAM *ram);
 int main(){
     auto sys = std::make_shared<System>();
 
-    CPU *cpu0 = new CPU(sys, "cpu0", 0, 0x93, 0x200, 0x13FF); // Passes in the device name, the starting and end addrs for instruction memory, andd the stating and end addrs for data memory
-    CPU *cpu1 = new CPU(sys, "cpu1", 0, 0x93, 0x200, 0x13FF); // Passes in the device name, the starting and end addrs for instruction memory, andd the stating and end addrs for data memory
+    size_t stackEnd = 0x2FF;
+    size_t dramBegin = 0x200;
+    size_t dramEnd = 0x13FF;
+
+    CPU *cpu0 = new CPU(sys, "cpu0", 0, 0x93, dramBegin, dramEnd); // Passes in the device name, the starting and end addrs for instruction memory, andd the stating and end addrs for data memory
+    CPU *cpu1 = new CPU(sys, "cpu1", 0, 0x93, dramBegin, dramEnd); // Passes in the device name, the starting and end addrs for instruction memory, andd the stating and end addrs for data memory
 
     RunSim *sim = new RunSim(sys);
 
@@ -34,6 +38,9 @@ int main(){
          uint32_t val = *(uint32_t *)(&r);
          ram->writeWordAtAddr(i, val);
     }
+
+    // Setting the frame ptr to the starting value of the stack and the stack ptr to the ending point of the stack
+    cpu0->setStackFrame(dramBegin, stackEnd);
 
     setupSimulator(cpu0, Iram);
     cpu0->initialize();       // Sets up the first event. Which is a fetch event
@@ -84,9 +91,9 @@ void setupSimulator(CPU* cpu, DRAM *ram){ // Sets up the instruction memory with
     ram->writeWordAtAddr(140, 0b11001000100000001000000010000000); // 41
     ram->writeWordAtAddr(144, 0b11100110000000010000000000000000); // 42
 
-    // Setting the branching locations
-    cpu->getALU()->setJump(0x20);
-    cpu->getALU()->setJump(0x30);
-    cpu->getALU()->setJump(0x70);
-    cpu->getALU()->setJump(0x80);
+    // // Setting the branching locations
+    // cpu->getALU()->setJump(0x20);
+    // cpu->getALU()->setJump(0x30);
+    // cpu->getALU()->setJump(0x70);
+    // cpu->getALU()->setJump(0x80);
 }
