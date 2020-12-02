@@ -147,7 +147,10 @@ void CPU::ALU::FLW() {
 }
 
 void CPU::ALU::ADD() {
+    val1 = cpu->ex->intInst.rs1.getData();    // rs1
+    val2 = cpu->ex->intInst.rs2.getData();    // rs2
 
+    cpu->ex->cpu->ex->intInst.rd.setData(val1 + val2); // Adding 2 int values
 }
 
 void CPU::ALU::JALR() {

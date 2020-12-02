@@ -400,7 +400,7 @@ public:
 
             // Reading float from memory
             else
-                ex->fInst.rd.set(*(float *)(pkt->getBuffer()));
+                ex->fInst.rd.setData(*(float *)(pkt->getBuffer()));
         }
     }
     MasterPort *getPort1() { return port1; } // Returns the

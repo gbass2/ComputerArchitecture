@@ -128,12 +128,7 @@ void CPU::Execute::executeInstruction() {
     cout << endl << "Processing Execute Stage for " << cpu->getName() << endl;
 
     setBusy(1);
-
     cpu->a->aluEvent();
-
-    // If load or store then call processData from the alu function
-
-    // If store to memory then create a memory write inside the alu
 }
 
 // Stores the data from execute into destination register
