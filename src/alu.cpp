@@ -66,10 +66,10 @@ void CPU::ALU::ADDI() {
     int val1, val2;
 
     val1 = cpu->ex->intInst.rs1.getData();    // rs1
-    val2 =  Binary2Decimal(cpu->ex->intInst.imm.to_string(), 12); // immediate
+    val2 =  Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12); // immediate
 
 
-    cpu->ex->intInst.data =  val1 + val2; // Adding an int to an immediate value
+    cpu->ex->intInst.rd.setData(val1 + val2); // Adding an int to an immediate value
 }
 
 void CPU::ALU::SLLI() {   // Logical left shift (zeros are shifted into the lower bits) PAGE 14
@@ -77,11 +77,19 @@ void CPU::ALU::SLLI() {   // Logical left shift (zeros are shifted into the lowe
 }
 
 void CPU::ALU::SW() {
+    cpu->byteAmount = 4; // 32 bits for a word
+    int imm = Binary2Decimal(ex->cpu->ex->intInst.immISB.to_string(), 12);
+    size_t addrs =  +  ex->cpu->ex->intInst->rs1.getData() + imm;
+    ex->cpu->ex->intInst.rd.setData(ex->cpu->ex->intInst.rs2.getData());
     cpu->processData(); // Storing word to memory
 }
 
 void CPU::ALU::FSW() {
-        cpu->processData(); // Storing word to memory
+    cpu->byteAmount = 4; // 32 bits for a word
+    int imm = Binary2Decimal(ex->cpu->ex->fInst.immISB.to_string(), 12);
+    size_t addrs =  +  ex->cpu->ex->fInst->rs1.getData() + imm;
+    ex->cpu->ex->intInst.rd.setData(ex->cpu->ex->fInst.rs2.getData());
+    cpu->processData(); // Storing word to memory
 }
 
 void CPU::ALU::FADDS() {
@@ -91,58 +99,55 @@ void CPU::ALU::FADDS() {
     val1 = cpu->ex->fInst.rs1.getData();    // rs1
     val2 = cpu->ex->fInst.rs2.getData();    // rs2
 
-    cpu->ex->cpu->ex->fInst.data = val1 + val2; // Adding 2 float values
-
+    cpu->ex->cpu->ex->fInst.rd.setData(val1 + val2); // Adding 2 float values
 }
 
 void CPU::ALU::J() {
-    cpu->currAddrI = jump.front(); // Jumoing back to an address
-    jump.pop_front();
+     // Jumping back to an address
+     int val = Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12);
+     cpu->currAddrI += val;
+
+     // Storing address in rd
+     cpu->ex->intInst->re.setData(val)
 }
 
 void CPU::ALU::LW() {
+    cpu->byteAmount = 4; // 32 bits for a word
+    int imm = Binary2Decimal(ex->cpu->ex->intInst.immISB.to_string(), 12);
+    size_t addrs =  +  ex->cpu->ex->intInst->rs1.getData() + imm;
+
     cpu->processData(); // Loading word from memory
 }
 
-void CPU::ALU::BLT() {
-    std::string val1, val2;
-    float val3, val4;
+void CPU::ALU::BLT() {  // Branch Less Than
+    int val1, val2;
 
-    val1 = ((cpu->reg->intRegisters)[stoi(cpu->ex->rs1)]).getData().to_string();
-    val1 = ((cpu->reg->intRegisters)[stoi(cpu->ex->rs2)]).getData().to_string();
+    val1 = cpu->ex->intInst.rs1.getData();    // rs1
+    val2 = cpu->ex->intInst.rs2.getData();    // rs2
 
-    // integer values in base 10
-    val3 = Binary2Decimal(val1, 32);
-    val4 = Binary2Decimal(val2, 32);
-
-    if(val3 < val4){
-        cpu->PC = jump.front();
-        jump.pop_front();
+    if(val1 < val2){
+        int val3 = Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12);
+        cpu->currAddrI += val3;
     }
 }
 
 void CPU::ALU::LUI() {
-
+    string imm = ex->cpu-ex-intInst.immJU.to_string() + "000000000000";
+    int val = Binary2Decimal(imm, 32);
+    cpu->ex->intInst.rd.setData(imm);
+    cpu->processData(); // Loading word from memory
 }
 
 void CPU::ALU::FLW() {
+    cpu->byteAmount = 4; // 32 bits for a word
+    int imm = Binary2Decimal(ex->cpu->ex->fInst.immISB.to_string(), 12);
+    size_t addrs =  +  ex->cpu->ex->fInst->rs1.getData() + imm;
 
+    cpu->processData(); // Loading word from memory
 }
 
 void CPU::ALU::ADD() {
-  std::string val1, val2, val3;
-  val1 = ((cpu->reg->intRegisters)[stoi(cpu->ex->rd)]).getData().to_string();
-  val2 = ((cpu->reg->intRegisters)[stoi(cpu->ex->rs1)]).getData().to_string();
-  val3 = ((cpu->reg->intRegisters)[stoi(cpu->ex->rs2)]).getData().to_string();
-
-  int vali1, vali2;
-  vali1 = Binary2Decimal(val1, 32);
-  vali2 = Binary2Decimal(val2, 32);
-
-  std::string result;
-
-  cpu->ex->result = Decimal2Binary(std::to_string(vali1 + vali2));
-
+    
 }
 
 void CPU::ALU::JALR() {

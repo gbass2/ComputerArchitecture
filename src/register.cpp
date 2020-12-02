@@ -117,7 +117,7 @@ void RegisterBank::process(){
     } else { // Wriite to register
         if(!(cpu->s->getIsFloat())){ // For a int write
             // Storing Rd
-            name = cpu->s->intInst.rd.getName();
+            name = cpu->s->intInst.rd.getName();    // 5bit value
             nameInInt = stoi(name.to_string());
             intRegisters[nameInInt] = cpu->s->intInst.rd;
 
