@@ -91,12 +91,8 @@ private:
             virtual void process() override {
                 dec->decodeInstruction();
 
-                // if(cpu->stall->getIsStalled() == false){
-                    // cpu->reg->setRegiserAccess(0);
                 if(dec->cpu->currAddrI < dec->cpu->endAddrI)
                     dec->cpu->ex->e->exEvent();
-                // }
-
             }
             virtual const char* description() override {return "Decode";}
             void decodeEvent(){
@@ -213,13 +209,13 @@ public:
         // friend class CPU; // Allows CPU class to access these private variables
 
     public:
-        ALU(CPU *c) : Event(1), cpu(c) {}
+        ALU(CPU *c) : Event(0), cpu(c) {}
         virtual void process() override {
             cpu->a->aluOperations();
         }
         void aluEvent(){
             std::cout << "scheduling Alu on Tick " << cpu->currTick() << std::endl;
-            cpu->schedule(cpu->a, cpu->currTick() + cpu->clkTick + 1); // Scheduling new event
+            cpu->schedule(cpu->a, cpu->currTick() + 1); // Scheduling new event
         }
 
         virtual const char* description() override { return "ALU"; }
@@ -326,7 +322,8 @@ public:
     ALU *a;
     Send *send;
     // Register bank for the cpu
-    RegisterBank *reg;
+    RegisterBank *regd; // Decode uses this to access the registers
+    RegisterBank *regs; // Store uses this to access the registers
     // Ports to access memory
     RequestInstEvent *e1;   // Used to create a request event for instruction memory
     RequestDataEvent *e2;   // Used to create a request event for data memory
@@ -360,9 +357,11 @@ public:
                 port2->sendReq(new Packet(true, currAddrD, byteAmount));
             else{
                 if(!ex->getIsFloat()){
-                    port2->sendReq(new Packet(false, currAddrD, (uint8_t *)&ex->intInst.rs2.getData(), byteAmount));
+                    int val = ex->intInst.rs2.getData();
+                    port2->sendReq(new Packet(false, currAddrD, (uint8_t *)(&val), byteAmount));
                 } else {
-                    port2->sendReq(new Packet(false, currAddrD, (uint8_t *)&ex->fInst.rs2.getData(), byteAmount));
+                    int val = ex->fInst.rs2.getData();
+                    port2->sendReq(new Packet(false, currAddrD, (uint8_t *)(&val), byteAmount));
                 }
                 ex->setBusy(0);
             }

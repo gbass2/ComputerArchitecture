@@ -77,7 +77,7 @@ void RegisterBank::process(){
     std::bitset<5> name; // The name of the register in bitset
     uint8_t nameInInt; // The name of the register in uint8_t. Needed because the unordered_map uses a uint8_t
 
-    if(read){ // Read from register
+    if(cpu->d->isRead()){ // Read from register
         if(!(cpu->d->getIsFloat())){ // For a int read
             // Retrieving Rs1
             name = cpu->d->intInst.rs1.getName();

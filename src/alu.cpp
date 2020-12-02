@@ -78,17 +78,17 @@ void CPU::ALU::SLLI() {   // Logical left shift (zeros are shifted into the lowe
 
 void CPU::ALU::SW() {
     cpu->byteAmount = 4; // 32 bits for a word
-    int imm = Binary2Decimal(ex->cpu->ex->intInst.immISB.to_string(), 12);
-    size_t addrs =  +  ex->cpu->ex->intInst->rs1.getData() + imm;
-    ex->cpu->ex->intInst.rd.setData(ex->cpu->ex->intInst.rs2.getData());
+    int imm = Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12);
+    size_t addrs =  +  cpu->ex->intInst.rs1.getData() + imm;
+    cpu->ex->intInst.rd.setData(cpu->ex->intInst.rs2.getData());
     cpu->processData(); // Storing word to memory
 }
 
 void CPU::ALU::FSW() {
     cpu->byteAmount = 4; // 32 bits for a word
-    int imm = Binary2Decimal(ex->cpu->ex->fInst.immISB.to_string(), 12);
-    size_t addrs =  +  ex->cpu->ex->fInst->rs1.getData() + imm;
-    ex->cpu->ex->intInst.rd.setData(ex->cpu->ex->fInst.rs2.getData());
+    int imm = Binary2Decimal(cpu->ex->fInst.immISB.to_string(), 12);
+    size_t addrs =  +  cpu->ex->fInst.rs1.getData() + imm;
+    cpu->ex->intInst.rd.setData(cpu->ex->fInst.rs2.getData());
     cpu->processData(); // Storing word to memory
 }
 
@@ -99,7 +99,7 @@ void CPU::ALU::FADDS() {
     val1 = cpu->ex->fInst.rs1.getData();    // rs1
     val2 = cpu->ex->fInst.rs2.getData();    // rs2
 
-    cpu->ex->cpu->ex->fInst.rd.setData(val1 + val2); // Adding 2 float values
+    cpu->ex->fInst.rd.setData(val1 + val2); // Adding 2 float values
 }
 
 void CPU::ALU::J() {
@@ -108,13 +108,13 @@ void CPU::ALU::J() {
      cpu->currAddrI += val;
 
      // Storing address in rd
-     cpu->ex->intInst->re.setData(val)
+     cpu->ex->intInst.rd.setData(val);
 }
 
 void CPU::ALU::LW() {
     cpu->byteAmount = 4; // 32 bits for a word
-    int imm = Binary2Decimal(ex->cpu->ex->intInst.immISB.to_string(), 12);
-    size_t addrs =  +  ex->cpu->ex->intInst->rs1.getData() + imm;
+    int imm = Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12);
+    size_t addrs =  +  cpu->ex->intInst.rs1.getData() + imm;
 
     cpu->processData(); // Loading word from memory
 }
@@ -132,25 +132,25 @@ void CPU::ALU::BLT() {  // Branch Less Than
 }
 
 void CPU::ALU::LUI() {
-    string imm = ex->cpu-ex-intInst.immJU.to_string() + "000000000000";
+    std::string imm = cpu->ex->intInst.immJU.to_string() + "000000000000";
     int val = Binary2Decimal(imm, 32);
-    cpu->ex->intInst.rd.setData(imm);
+    cpu->ex->intInst.rd.setData(val);
     cpu->processData(); // Loading word from memory
 }
 
 void CPU::ALU::FLW() {
     cpu->byteAmount = 4; // 32 bits for a word
-    int imm = Binary2Decimal(ex->cpu->ex->fInst.immISB.to_string(), 12);
-    size_t addrs =  +  ex->cpu->ex->fInst->rs1.getData() + imm;
+    int imm = Binary2Decimal(cpu->ex->fInst.immISB.to_string(), 12);
+    size_t addrs =  +  cpu->ex->fInst.rs1.getData() + imm;
 
     cpu->processData(); // Loading word from memory
 }
 
 void CPU::ALU::ADD() {
-    val1 = cpu->ex->intInst.rs1.getData();    // rs1
-    val2 = cpu->ex->intInst.rs2.getData();    // rs2
+    int val1 = cpu->ex->intInst.rs1.getData();    // rs1
+    int val2 = cpu->ex->intInst.rs2.getData();    // rs2
 
-    cpu->ex->cpu->ex->intInst.rd.setData(val1 + val2); // Adding 2 int values
+    cpu->ex->intInst.rd.setData(val1 + val2); // Adding 2 int values
 }
 
 void CPU::ALU::JALR() {
@@ -170,7 +170,7 @@ double CONVERT_TYPE(std::string input){
     return numberIn;
 }
 
-Converts a passed in double to a string
+// Converts a passed in double to a string
 std::string CONVERT_TYPE(long double input){
     std::ostringstream ss;
 

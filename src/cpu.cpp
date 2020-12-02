@@ -11,7 +11,8 @@ CPU::CPU(std::shared_ptr<System> s1, const char* name, size_t start1, size_t end
     stall(new Stall(this)),
     a(new ALU(this)),
     send(new Send(this)),
-    reg(new RegisterBank(s1, this)),
+    regD(new RegisterBank(s1, this)),
+    regS(new RegisterBank(s1, this)),
     e1(new RequestInstEvent(this)),
     e2(new RequestDataEvent(this)),
     port1(new RequestInstPort(this)),
@@ -55,10 +56,10 @@ void CPU::Decode::decodeInstruction() {
             intInst.rd.setName(bitset<5>(instruction.substr(7,5)));
             intInst.funct3 = bitset<3>(instruction.substr(12,3));
             intInst.rs1.setName(bitset<5>(instruction.substr(15,5)));
-            intInst.immISB = bitset<20>(instruction.substr(20,12));
+            intInst.immISB = bitset<12>(instruction.substr(20,12));
         } else if(intInst.type == "S"){
             intInst.opcode =  bitset<7>(instruction.substr(0,7));
-            intInst.immISB = bitset<20>(instruction.substr(7,5) + instruction.substr(25,7));
+            intInst.immISB = bitset<12>(instruction.substr(7,5) + instruction.substr(25,7));
             intInst.funct3 = bitset<3>(instruction.substr(12,3));
             intInst.rs1.setName(bitset<5>(instruction.substr(15,5)));
             intInst.rs2.setName(bitset<5>(instruction.substr(20,5)));
@@ -68,7 +69,7 @@ void CPU::Decode::decodeInstruction() {
             intInst.immJU =  bitset<20>(instruction.substr(12,20));
         } else if(intInst.type == "B"){
             intInst.opcode = bitset<7>(instruction.substr(0,7));
-            intInst.immISB =  bitset<20>(instruction.substr(8,4) + instruction.substr(25,6) + instruction.substr(7,1) + instruction.substr(31,1));
+            intInst.immISB =  bitset<12>(instruction.substr(8,4) + instruction.substr(25,6) + instruction.substr(7,1) + instruction.substr(31,1));
             intInst.funct3 = bitset<3>(instruction.substr(12,3));
             intInst.rs1.setName(bitset<5>(instruction.substr(15,5)));
             intInst.rs2.setName(bitset<5>(instruction.substr(20,5)));
@@ -90,10 +91,10 @@ void CPU::Decode::decodeInstruction() {
                 fInst.rd.setName(bitset<5>(instruction.substr(7,5)));
                 fInst.funct3 = bitset<3>(instruction.substr(12,3));
                 fInst.rs1.setName(bitset<5>(instruction.substr(15,5)));
-                fInst.immISB = bitset<20>(instruction.substr(20,12));
+                fInst.immISB = bitset<12>(instruction.substr(20,12));
             } else if(fInst.type == "S"){
                 fInst.opcode =  bitset<7>(instruction.substr(0,7));
-                fInst.immISB = bitset<20>(instruction.substr(7,5) + instruction.substr(25,7));
+                fInst.immISB = bitset<12>(instruction.substr(7,5) + instruction.substr(25,7));
                 fInst.funct3 = bitset<3>(instruction.substr(12,3));
                 fInst.rs1.setName(bitset<5>(instruction.substr(15,5)));
                 fInst.rs2.setName(bitset<5>(instruction.substr(20,5)));
@@ -103,7 +104,7 @@ void CPU::Decode::decodeInstruction() {
                 fInst.immJU =  bitset<20>(instruction.substr(12,20));
             } else if(fInst.type == "B"){
                 fInst.opcode = bitset<7>(instruction.substr(0,7));
-                fInst.immISB =  bitset<20>(instruction.substr(8,4) + instruction.substr(25,7) + instruction.substr(7,1) + instruction.substr(31,1));
+                fInst.immISB =  bitset<12>(instruction.substr(8,4) + instruction.substr(25,7) + instruction.substr(7,1) + instruction.substr(31,1));
                 fInst.funct3 = bitset<3>(instruction.substr(12,3));
                 fInst.rs1.setName(bitset<5>(instruction.substr(15,5)));
                 fInst.rs2.setName(bitset<5>(instruction.substr(20,5)));
@@ -119,8 +120,9 @@ void CPU::Decode::decodeInstruction() {
         // See hazard table for how long to stall
         // ---------------------------
 
-    cpu->reg->setRead(1);
+    cpu->d->setRead(1);
     cpu->reg->scheduleRegisterEvent();
+    cpu->printMEQ();
 }
 
 // Prints the execute stage
@@ -134,8 +136,7 @@ void CPU::Execute::executeInstruction() {
 // Stores the data from execute into destination register
 void CPU::Store::storeInstruction() {
     cout << endl << "Processing Store Stage for " << cpu->getName() << endl;
-
-    cpu->reg->setRead(0);
+    cpu->s->setRead(0);
     cpu->reg->scheduleRegisterEvent();
 }
 
