@@ -147,7 +147,7 @@ void CPU::ALU::FLW() {
 }
 
 void CPU::ALU::ADD() {
-    
+
 }
 
 void CPU::ALU::JALR() {
