@@ -81,6 +81,7 @@ void CPU::ALU::SW() {
     cpu->byteAmount = 4; // 32 bits for a word
     int imm = Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12);
     size_t addrs =  +  cpu->ex->intInst.rs1.getData() + imm;
+    cpu->currAddrD = addrs;
     cpu->ex->intInst.rd.setData(cpu->ex->intInst.rs2.getData());
     cpu->processData(); // Storing word to memory
 }
@@ -89,6 +90,7 @@ void CPU::ALU::FSW() {
     cpu->byteAmount = 4; // 32 bits for a word
     int imm = Binary2Decimal(cpu->ex->fInst.immISB.to_string(), 12);
     size_t addrs =  +  cpu->ex->fInst.rs1.getData() + imm;
+    cpu->currAddrD = addrs;
     cpu->ex->intInst.rd.setData(cpu->ex->fInst.rs2.getData());
     cpu->processData(); // Storing word to memory
 }
@@ -107,15 +109,16 @@ void CPU::ALU::J() {
      // Jumping back to an address
      int val = Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12);
      cpu->currAddrI += val;
-
+     int val2 = cpu->currAddrI;
      // Storing address in rd
-     cpu->ex->intInst.rd.setData(val);
+     cpu->ex->intInst.rd.setData(val2);
 }
 
 void CPU::ALU::LW() {
     cpu->byteAmount = 4; // 32 bits for a word
     int imm = Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12);
     size_t addrs =  +  cpu->ex->intInst.rs1.getData() + imm;
+    cpu->currAddrD = addrs;
 
     cpu->processData(); // Loading word from memory
 }
@@ -143,6 +146,7 @@ void CPU::ALU::FLW() {
     cpu->byteAmount = 4; // 32 bits for a word
     int imm = Binary2Decimal(cpu->ex->fInst.immISB.to_string(), 12);
     size_t addrs =  +  cpu->ex->fInst.rs1.getData() + imm;
+    cpu->currAddrD = addrs;
 
     cpu->processData(); // Loading word from memory
 }
@@ -155,11 +159,11 @@ void CPU::ALU::ADD() {
 }
 
 void CPU::ALU::JALR() {
-
-}
-
-void CPU::ALU::RET() {
-
+    int val = cpu->ex->intInst.rs1.getData();    // rs1
+    int imm = Binary2Decimal(cpu->ex->fInst.immISB.to_string(), 12);
+    cpu->currAddrI += val + imm;
+    int val2 = cpu->currAddrI;
+    cpu->ex->intInst.rd.setData(val2);
 }
 
 double CONVERT_TYPE(std::string input){
