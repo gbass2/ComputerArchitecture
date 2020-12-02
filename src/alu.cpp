@@ -38,6 +38,9 @@ void CPU::ALU::aluOperations() {
         else if(cpu->ex->intInst.opcode.to_string() == "1110110") { // lui
             LUI();
         }
+        else if(cpu->ex->intInst.opcode.to_string() == "1110100"){
+            AUIPC();
+        }
         else if(cpu->ex->intInst.opcode.to_string() == "1100110") { // add
             ADD();
         }
@@ -69,49 +72,11 @@ void CPU::ALU::ADDI() {
     val1 = cpu->ex->intInst.rs1.getData();    // rs1
     val2 =  Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12); // immediate
 
-
     cpu->ex->intInst.rd.setData(val1 + val2); // Adding an int to an immediate value
 }
 
 void CPU::ALU::SLLI() {   // Logical left shift (zeros are shifted into the lower bits) PAGE 14
-// <<
-}
 
-void CPU::ALU::SW() {
-    cpu->byteAmount = 4; // 32 bits for a word
-    int imm = Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12);
-    size_t addrs =  +  cpu->ex->intInst.rs1.getData() + imm;
-    cpu->currAddrD = addrs;
-    cpu->ex->intInst.rd.setData(cpu->ex->intInst.rs2.getData());
-    cpu->processData(); // Storing word to memory
-}
-
-void CPU::ALU::FSW() {
-    cpu->byteAmount = 4; // 32 bits for a word
-    int imm = Binary2Decimal(cpu->ex->fInst.immISB.to_string(), 12);
-    size_t addrs =  +  cpu->ex->fInst.rs1.getData() + imm;
-    cpu->currAddrD = addrs;
-    cpu->ex->intInst.rd.setData(cpu->ex->fInst.rs2.getData());
-    cpu->processData(); // Storing word to memory
-}
-
-void CPU::ALU::FADDS() {
-    // rd = rs1 + rs2
-    float val1, val2;
-
-    val1 = cpu->ex->fInst.rs1.getData();    // rs1
-    val2 = cpu->ex->fInst.rs2.getData();    // rs2
-
-    cpu->ex->fInst.rd.setData(val1 + val2); // Adding 2 float values
-}
-
-void CPU::ALU::J() {
-     // Jumping back to an address
-     int val = Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12);
-     cpu->currAddrI += val;
-     int val2 = cpu->currAddrI;
-     // Storing address in rd
-     cpu->ex->intInst.rd.setData(val2);
 }
 
 void CPU::ALU::LW() {
@@ -121,6 +86,40 @@ void CPU::ALU::LW() {
     cpu->currAddrD = addrs;
 
     cpu->processData(); // Loading word from memory
+}
+
+void CPU::ALU::SW() {
+    cpu->byteAmount = 4; // 32 bits for a word
+    int imm = Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12);
+    size_t addrs =  +  cpu->ex->intInst.rs1.getData() + imm;
+    cpu->currAddrD = addrs;
+
+    cpu->ex->intInst.rd.setData(cpu->ex->intInst.rs2.getData());
+    cpu->processData(); // Storing word to memory
+}
+
+void CPU::ALU::LUI() {
+    std::string imm = cpu->ex->intInst.immJU.to_string() + "000000000000";
+    int val = Binary2Decimal(imm, 32);
+
+    cpu->ex->intInst.rd.setData(val); // Loading upper 20 bits to rd with lower 12 bits 0
+}
+
+void CPU::ALU::AUIPC() {
+    std::string imm = cpu->ex->intInst.immJU.to_string() + "000000000000";
+    int offset = Binary2Decimal(imm, 32);
+
+    cpu->currAddrI += offest; // Adding offset to pc
+    int val2 = cpu->currAddrI;
+
+    cpu->ex->intInst.rd.setData(val2); // Saving the current address in rd
+}
+
+void CPU::ALU::ADD() {
+    int val1 = cpu->ex->intInst.rs1.getData();    // rs1
+    int val2 = cpu->ex->intInst.rs2.getData();    // rs2
+
+    cpu->ex->intInst.rd.setData(val1 + val2); // Adding 2 int values
 }
 
 void CPU::ALU::BLT() {  // Branch Less Than
@@ -135,11 +134,33 @@ void CPU::ALU::BLT() {  // Branch Less Than
     }
 }
 
-void CPU::ALU::LUI() {
-    std::string imm = cpu->ex->intInst.immJU.to_string() + "000000000000";
-    int val = Binary2Decimal(imm, 32);
-    cpu->ex->intInst.rd.setData(val);
-    cpu->processData(); // Loading word from memory
+void CPU::ALU::J() {
+     // Jumping back to an address
+     int val = Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12);
+     cpu->currAddrI += val;
+     int val2 = cpu->currAddrI;
+
+     // Storing address in rd
+     cpu->ex->intInst.rd.setData(val2);
+}
+
+void CPU::ALU::JALR() {
+    int val = cpu->ex->intInst.rs1.getData();    // rs1
+    int imm = Binary2Decimal(cpu->ex->fInst.immISB.to_string(), 12);
+    cpu->currAddrI += val + imm;
+
+    int val2 = cpu->currAddrI;
+    cpu->ex->intInst.rd.setData(val2);
+}
+
+void CPU::ALU::FADDS() {
+    // rd = rs1 + rs2
+    float val1, val2;
+
+    val1 = cpu->ex->fInst.rs1.getData();    // rs1
+    val2 = cpu->ex->fInst.rs2.getData();    // rs2
+
+    cpu->ex->fInst.rd.setData(val1 + val2); // Adding 2 float values
 }
 
 void CPU::ALU::FLW() {
@@ -151,20 +172,16 @@ void CPU::ALU::FLW() {
     cpu->processData(); // Loading word from memory
 }
 
-void CPU::ALU::ADD() {
-    int val1 = cpu->ex->intInst.rs1.getData();    // rs1
-    int val2 = cpu->ex->intInst.rs2.getData();    // rs2
-
-    cpu->ex->intInst.rd.setData(val1 + val2); // Adding 2 int values
-}
-
-void CPU::ALU::JALR() {
-    int val = cpu->ex->intInst.rs1.getData();    // rs1
+void CPU::ALU::FSW() {
+    cpu->byteAmount = 4; // 32 bits for a word
     int imm = Binary2Decimal(cpu->ex->fInst.immISB.to_string(), 12);
-    cpu->currAddrI += val + imm;
-    int val2 = cpu->currAddrI;
-    cpu->ex->intInst.rd.setData(val2);
+    size_t addrs =  +  cpu->ex->fInst.rs1.getData() + imm;
+    cpu->currAddrD = addrs;
+
+    cpu->ex->intInst.rd.setData(cpu->ex->fInst.rs2.getData());
+    cpu->processData(); // Storing word to memory
 }
+
 
 double CONVERT_TYPE(std::string input){
     long double numberIn;
