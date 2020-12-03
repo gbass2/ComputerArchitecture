@@ -84,19 +84,23 @@ void RegisterBank::process(){
             nameInInt = stoi(name.to_string());
             cpu->ex->intInst.rs1 = intRegisters[nameInInt];
             cpu->ex->intInst.rs1.setName(name);
+            std::cout << "rs1: " << intRegisters[nameInInt].getData() << std::endl;
+            std::cout << "nameInInt: " << name << std::endl;
 
             // Retrieving Rs2
             name = cpu->ex->intInst.rs2.getName();
             nameInInt = stoi(name.to_string());
             cpu->ex->intInst.rs2 = intRegisters[nameInInt];
             cpu->ex->intInst.rs2.setName(name);
+            std::cout << "rs2: " << intRegisters[nameInInt].getData() << std::endl;
+            std::cout << "nameInInt: " << name << std::endl;
+
 
             // Retrieving Rs3
             name= cpu->ex->intInst.rs3.getName();
             nameInInt = stoi(name.to_string());
             cpu->ex->intInst.rs3 = intRegisters[nameInInt];
             cpu->ex->intInst.rs3.setName(name);
-
 
         } else if((cpu->ex->getIsFloat())){ // For a floating point read
             // Retrieving Rs1

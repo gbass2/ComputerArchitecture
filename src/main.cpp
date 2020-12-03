@@ -14,6 +14,8 @@ int main(){
     size_t stackEnd = 0x2FF;
     size_t dramBegin = 0x200;
     size_t dramEnd = 0x13FF;
+    std::cout <<  "stack end: " << stackEnd << std::endl;
+    std::cout << "stack begin: " << dramBegin << std::endl;
 
     CPU *cpu0 = new CPU(sys, "cpu0", 0, 0x93, dramBegin, dramEnd); // Passes in the device name, the starting and end addrs for instruction memory, andd the stating and end addrs for data memory
     CPU *cpu1 = new CPU(sys, "cpu1", 0, 0x93, dramBegin, dramEnd); // Passes in the device name, the starting and end addrs for instruction memory, andd the stating and end addrs for data memory
