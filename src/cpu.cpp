@@ -191,27 +191,37 @@ void CPU::Send::sendData() {
     cout << endl << "Sending data between stages for " << cpu->getName() << endl << endl;
     //If pipeline stages are not busy then pass between stages
     if(!(cpu->f->isBusy() && cpu->d->isBusy() && cpu->ex->isBusy() &&cpu->s->isBusy())){
-        // For an int instrcution
-        // Passing execute to store
+
+        // Passing the instruction of execute to store for int instruction
         cpu->s->intInst = cpu->ex->intInst;
 
-        cout << "read: " << cpu->d->isRead() << endl;
-        // Passing decode to execute
+        // Passing the instruction of decode to execute for int instruction
         cpu->ex->intInst = cpu->d->intInst;
-        cout << "read: " << cpu->ex->isRead() << endl;
 
-        // Passing fetch to decode
+        // Passing the instruction of fetch to decode for int instruction
         cpu->d->intInst = cpu->f->intInst;
 
-        // For a fp instruction
-        // Passing execute to store
+        // Passing the instruction of execute to store for float instruction
         cpu->s->fInst = cpu->ex->fInst;
 
-        // Passing decode to execute
+        // Passing the instruction of decode to execute for float instruction
         cpu->ex->fInst = cpu->d->fInst;
 
-        // Passing fetch to decode
+        // Passing the instruction of fetch to decode for float instruction
         cpu->d->fInst = cpu->f->fInst;
+
+        // Passing the rest of the pipeline parameters to next stages
+        cpu->s->setRead(cpu->ex->isRead());
+        cpu->s->setMemAccess(cpu->ex->isMemAccess());
+        cpu->s->setFloat(cpu->ex->getIsFloat());
+
+        cpu->ex->setRead(cpu->d->isRead());
+        cpu->ex->setMemAccess(cpu->d->isMemAccess());
+        cpu->ex->setFloat(cpu->d->getIsFloat());
+
+        cpu->d->setRead(cpu->f->isRead());
+        cpu->d->setMemAccess(cpu->f->isMemAccess());
+        cpu->d->setFloat(cpu->f->getIsFloat());
     }
 
     // If pipeline stages are busy reschedule release event
@@ -224,12 +234,14 @@ void CPU::Send::sendData() {
 void CPU::Decode::findInstructionType(){
      // base 10 multiply 20 float 50
     if(intInst.opcode.to_string() == "1110110"){ // LUI
+        cout << "LUI" << endl;
         intInst.type = "U";
         intInst.set = 10; // 10 sim ticks
         setRead(1);
         setMemAccess(1);
         setFloat(0);
    } else if(intInst.opcode.to_string() == "1110100") {  // AUIPC
+       cout << "AUIPC" << endkl
          intInst.type = "U";
          intInst.set = 10; // 10 sim ticks
          setFloat(0);
@@ -257,7 +269,6 @@ void CPU::Decode::findInstructionType(){
          setRead(0);
          setMemAccess(1);
          setFloat(0);
-         cout << "Kill me " << endl;
     } else if(intInst.opcode.to_string() == "1100100"){  // ADDI
          intInst.type = "I";
          intInst.set = 10; // 10 sim ticks

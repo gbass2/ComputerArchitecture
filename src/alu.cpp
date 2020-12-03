@@ -108,7 +108,6 @@ void CPU::ALU::SW() {
     cpu->currAddrD = addrs;
 
     std::cout << "Current address: " << addrs << std::endl;
-    std::cout << "isRead: " << cpu->ex->isRead() << std::endl;
     cpu->processData(); // Storing word to memory
 }
 
