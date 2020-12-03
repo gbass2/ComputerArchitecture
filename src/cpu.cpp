@@ -124,8 +124,12 @@ void CPU::Decode::decodeInstruction() {
 // Prints the execute stage
 void CPU::Execute::executeInstruction() {
     cout << endl << "Processing Execute Stage for " << cpu->getName() << endl;
-
     setBusy(1);
+
+    // Accessing the registers to get the Values
+    cpu->reg->setRead(1);
+    cpu->reg->process();
+
     cpu->a->process();
     // Add the latencies in for the instructions. RV32I is 10 ticks, RV32M is 20 ticks, RV32F si 50 ticks
 }
@@ -173,8 +177,10 @@ void CPU::Send::sendData() {
     }
 
     // If pipeline stages are busy reschedule release event
-    else
+    else{
+        cout << "Stage is busy. Rescheduling send data" << endl;
         cpu->schedule(this, cpu->currTick() + 1);
+    }
 }
 
 void CPU::Decode::findInstructionType(){
