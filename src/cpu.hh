@@ -380,10 +380,8 @@ public:
     ALU *getALU() { return a; }
     void findInstType();
     void setStackFrame(int stackBegin, int stackEnd){
-        reg->intRegisters[01000].setData(stackBegin); // Setting the frame ptr
-        reg->intRegisters[00010].setData(stackEnd); // Setting stack ptr
-        std::cout << "fp: " << reg->intRegisters[01000].getData() << std::endl;
-        std::cout << "sp: " << reg->intRegisters[00010].getData() << std::endl;
+        reg->intRegisters[1000].setData(stackBegin); // Setting the frame ptr
+        reg->intRegisters[10].setData(stackEnd); // Setting stack ptr
     }
 };
 
