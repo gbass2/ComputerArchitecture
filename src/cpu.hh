@@ -7,6 +7,7 @@
 #include <cmath>
 #include <memory>
 #include <bitset>
+#include<algorithm>
 
 // Holds the data between the pipeline stages
 template<typename T>
@@ -354,8 +355,9 @@ public:
     void processData() {
         if(!(port2->isBusy())){
             std::cout << "Creating memory request to Addr: " << currAddrD << " for 4 bytes on Tick: " << currTick() << std:: endl;
-            if(ex->isRead())
+            if(ex->isRead()){
                 port2->sendReq(new Packet(true, currAddrD, byteAmount));
+            }
             else{
                 if(!ex->getIsFloat()){
                     int val = ex->intInst.rs2.getData();
@@ -378,9 +380,9 @@ public:
     }
     ALU *getALU() { return a; }
     void findInstType();
-    void setStackFrame(int stackBegin, int stackEnd){
-        reg->intRegisters[01000].setData(stackBegin); // Setting the frame ptr
-        reg->intRegisters[00010].setData(stackEnd); // Setting stack ptr
+    void setRegister(int stackBegin, int stackEnd){
+        reg->intRegisters[1000].setData(stackBegin); // Setting the frame ptr
+        reg->intRegisters[10].setData(stackEnd); // Setting stack ptr
     }
 };
 

@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <iostream>
 #include <memory>
+#include <bitset>
 
 bool AddressInRange(Addr ad, AddrRange ar) {
      return (ad >= ar.first) && (ad <= ar.second);

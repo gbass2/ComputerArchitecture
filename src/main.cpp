@@ -14,6 +14,8 @@ int main(){
     size_t stackEnd = 0x2FF;
     size_t dramBegin = 0x200;
     size_t dramEnd = 0x13FF;
+    std::cout <<  "stack end: " << stackEnd << std::endl;
+    std::cout << "stack begin: " << dramBegin << std::endl;
 
     CPU *cpu0 = new CPU(sys, "cpu0", 0, 0x93, dramBegin, dramEnd); // Passes in the device name, the starting and end addrs for instruction memory, andd the stating and end addrs for data memory
     CPU *cpu1 = new CPU(sys, "cpu1", 0, 0x93, dramBegin, dramEnd); // Passes in the device name, the starting and end addrs for instruction memory, andd the stating and end addrs for data memory
@@ -40,7 +42,7 @@ int main(){
     }
 
     // Setting the frame ptr to the starting value of the stack and the stack ptr to the ending point of the stack
-    cpu0->setStackFrame(dramBegin, stackEnd);
+    cpu0->setRegister(dramBegin, stackEnd);
 
     setupSimulator(cpu0, Iram);
     cpu0->initialize();       // Sets up the first event. Which is a fetch event
@@ -52,7 +54,6 @@ int main(){
 
 void setupSimulator(CPU* cpu, DRAM *ram){ // Sets up the instruction memory with the instructions
     std::cout << "Placing the instructions into memory" << std::endl << std::endl;
-
     ram->writeWordAtAddr(0, 0b11001000100000001000000011111111); // 2
     ram->writeWordAtAddr(4, 0b11000100011001001000100000000000); // 3
     ram->writeWordAtAddr(8, 0b11000100001001001000000100001000); // 4
