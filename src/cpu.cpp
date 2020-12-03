@@ -55,27 +55,37 @@ void CPU::Decode::decodeInstruction() {
             intInst.rd.setName(bitset<5>(instruction.substr(7,5)));
             intInst.funct3 = bitset<3>(instruction.substr(12,3));
             intInst.rs1.setName(bitset<5>(instruction.substr(15,5)));
-            intInst.immISB = bitset<12>(instruction.substr(20,12));
+            string tempImm = instruction.substr(20,12);
+            reverse(tempImm.begin(), tempImm.end());
+            intInst.immISB = bitset<12>(tempImm);
         } else if(intInst.type == "S"){
             intInst.opcode =  bitset<7>(instruction.substr(0,7));
-            intInst.immISB = bitset<12>(instruction.substr(7,5) + instruction.substr(25,7));
+            string tempImm = instruction.substr(7,5) + instruction.substr(25,7);
+            reverse(tempImm.begin(), tempImm.end());
+            intInst.immISB = bitset<12>(tempImm);
             intInst.funct3 = bitset<3>(instruction.substr(12,3));
             intInst.rs1.setName(bitset<5>(instruction.substr(15,5)));
             intInst.rs2.setName(bitset<5>(instruction.substr(20,5)));
         } else if(intInst.type == "U"){
             intInst.opcode = bitset<7>(instruction.substr(0,7));
             intInst.rd.setName(bitset<5>(instruction.substr(7,5)));
-            intInst.immJU =  bitset<20>(instruction.substr(12,20));
+            string tempImm = instruction.substr(12,20);
+            reverse(tempImm.begin(), tempImm.end());
+            intInst.immJU =  bitset<20>(tempImm);
         } else if(intInst.type == "B"){
             intInst.opcode = bitset<7>(instruction.substr(0,7));
-            intInst.immISB =  bitset<12>(instruction.substr(8,4) + instruction.substr(25,6) + instruction.substr(7,1) + instruction.substr(31,1));
+            string tempImm = instruction.substr(8,4) + instruction.substr(25,6) + instruction.substr(7,1) + instruction.substr(31,1);
+            reverse(tempImm.begin(), tempImm.end());
+            intInst.immISB =  bitset<12>(tempImm);
             intInst.funct3 = bitset<3>(instruction.substr(12,3));
             intInst.rs1.setName(bitset<5>(instruction.substr(15,5)));
             intInst.rs2.setName(bitset<5>(instruction.substr(20,5)));
         } else if(intInst.type == "J"){
             intInst.opcode = bitset<7>(instruction.substr(0,7));
             intInst.rd.setName(bitset<5>(instruction.substr(15,5)));
-            intInst.immJU = bitset<20>(instruction.substr(21,10) + instruction.substr(20,1) + instruction.substr(12,8) + instruction.substr(31,1));
+            string tempImm = instruction.substr(21,10) + instruction.substr(20,1) + instruction.substr(12,8) + instruction.substr(31,1);
+            reverse(tempImm.begin(), tempImm.end());
+            intInst.immJU = bitset<20>(tempImm);
         }
     } else {
             if(fInst.type == "R"){

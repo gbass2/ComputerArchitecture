@@ -97,15 +97,17 @@ void CPU::ALU::SW() {
     std::cout << "imm: " << cpu->ex->intInst.immISB << std::endl;
     std::cout << "opcode: " << cpu->ex->intInst.opcode << std::endl;
     std::cout << "funct3: " << cpu->ex->intInst.funct3 << std::endl;
-    std::cout << "rs1: " << cpu->ex->intInst.rs1.getName() << std::endl;
-    std::cout << "rs2: " << cpu->ex->intInst.rs2.getName() << std::endl;
+    std::cout << "rs1: " << cpu->ex->intInst.rs1.getData() << std::endl;
+    std::cout << "rs2: " << cpu->ex->intInst.rs2.getData() << std::endl;
 
 
     cpu->byteAmount = 4; // 32 bits for a word
     int imm = Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12);
-    std::cout << "imm in int: " <<  << std::endl;
+    std::cout << "imm in int: " << imm << std::endl;
     size_t addrs =  +  cpu->ex->intInst.rs1.getData() + imm;
     cpu->currAddrD = addrs;
+
+    std::cout << "Current address: " << imm << std::endl;
 
     cpu->ex->intInst.rd.setData(cpu->ex->intInst.rs2.getData());
     cpu->processData(); // Storing word to memory
@@ -142,14 +144,14 @@ void CPU::ALU::BLT() {  // Branch Less Than
     val2 = cpu->ex->intInst.rs2.getData();    // rs2
 
     if(val1 < val2){
-        int val3 = Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12);
+        int val3 = Binary2Decimal(cpu->ex->intInst.immJU.to_string(), 12);
         cpu->currAddrI += val3;
     }
 }
 
 void CPU::ALU::J() {
      // Jumping back to an address
-     int val = Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12);
+     int val = Binary2Decimal(cpu->ex->intInst.immJU.to_string(), 12);
      cpu->currAddrI += val;
      int val2 = cpu->currAddrI;
 
@@ -159,7 +161,7 @@ void CPU::ALU::J() {
 
 void CPU::ALU::JALR() {
     int val = cpu->ex->intInst.rs1.getData();    // rs1
-    int imm = Binary2Decimal(cpu->ex->fInst.immISB.to_string(), 12);
+    int imm = Binary2Decimal(cpu->ex->fInst.immJU.to_string(), 12);
     cpu->currAddrI += val + imm;
 
     int val2 = cpu->currAddrI;

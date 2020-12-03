@@ -7,6 +7,7 @@
 #include <cmath>
 #include <memory>
 #include <bitset>
+#include<algorithm>
 
 // Holds the data between the pipeline stages
 template<typename T>
