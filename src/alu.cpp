@@ -103,13 +103,12 @@ void CPU::ALU::SW() {
 
     cpu->byteAmount = 4; // 32 bits for a word
     int imm = Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12);
-    std::cout << "imm in int: " << imm << std::endl;
+    std::cout << "imm (Decimal): " << imm << std::endl;
     size_t addrs =  +  cpu->ex->intInst.rs1.getData() + imm;
     cpu->currAddrD = addrs;
 
-    std::cout << "Current address: " << imm << std::endl;
-
-    cpu->ex->intInst.rd.setData(cpu->ex->intInst.rs2.getData());
+    std::cout << "Current address: " << addrs << std::endl;
+    std::cout << "isRead: " << cpu->ex->isRead() << std::endl;
     cpu->processData(); // Storing word to memory
 }
 

@@ -355,10 +355,13 @@ public:
     void processData() {
         if(!(port2->isBusy())){
             std::cout << "Creating memory request to Addr: " << currAddrD << " for 4 bytes on Tick: " << currTick() << std:: endl;
-            if(ex->isRead())
+            if(ex->isRead()){
+                std::cout << "lw" << std::endl;
                 port2->sendReq(new Packet(true, currAddrD, byteAmount));
+            }
             else{
                 if(!ex->getIsFloat()){
+                    std::cout << "sw" << std::endl;
                     int val = ex->intInst.rs2.getData();
                     port2->sendReq(new Packet(false, currAddrD, (uint8_t *)(&val), byteAmount));
                 } else {

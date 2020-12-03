@@ -23,12 +23,16 @@ void DRAM::process(){
 
 void DRAM::recvReq(PacketPtr pkt) {
      std::cout << "DRAM received a request on Tick:" << currTick() << std::endl;
-     if (pkt->isRead())
+     if (pkt->isRead()){
+         std::cout << "fetch" << std::endl;
           // get data and load it into the packet
           getDataAtAddr(pkt->getAddr(), pkt->getBuffer(), pkt->getSize());
-     else
+      }
+     else{
+            std::cout << "store" << std::endl;
           // get data from packet and store it in memory
           setDataAddr(pkt->getAddr(), pkt->getBuffer(), pkt->getSize());
+      }
      request = pkt; // store active request so we can retrieve it later
      schedule(e, currTick() + responceLatency);   // schedule response event
 }

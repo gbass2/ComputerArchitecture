@@ -195,8 +195,10 @@ void CPU::Send::sendData() {
         // Passing execute to store
         cpu->s->intInst = cpu->ex->intInst;
 
+        cout << "read: " << cpu->d->isRead() << endl;
         // Passing decode to execute
         cpu->ex->intInst = cpu->d->intInst;
+        cout << "read: " << cpu->ex->isRead() << endl;
 
         // Passing fetch to decode
         cpu->d->intInst = cpu->f->intInst;
@@ -252,9 +254,10 @@ void CPU::Decode::findInstructionType(){
     } else if(intInst.opcode.to_string() == "1100010"){  // SB
          intInst.type = "S";
          intInst.set = 10; // 10 sim ticks
-         setRead(1);
+         setRead(0);
          setMemAccess(1);
          setFloat(0);
+         cout << "Kill me " << endl;
     } else if(intInst.opcode.to_string() == "1100100"){  // ADDI
          intInst.type = "I";
          intInst.set = 10; // 10 sim ticks
