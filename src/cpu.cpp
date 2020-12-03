@@ -234,18 +234,17 @@ void CPU::Send::sendData() {
 void CPU::Decode::findInstructionType(){
      // base 10 multiply 20 float 50
     if(intInst.opcode.to_string() == "1110110"){ // LUI
-        cout << "LUI" << endl;
         intInst.type = "U";
         intInst.set = 10; // 10 sim ticks
         setRead(1);
         setMemAccess(1);
         setFloat(0);
    } else if(intInst.opcode.to_string() == "1110100") {  // AUIPC
-       cout << "AUIPC" << endkl
          intInst.type = "U";
          intInst.set = 10; // 10 sim ticks
          setFloat(0);
     } else if(intInst.opcode.to_string() == "1111011"){  // JAL
+        cout << "JAL" << endl;
          intInst.type = "J";
          intInst.set = 10; // 10 sim ticks
          setFloat(0);
@@ -254,6 +253,7 @@ void CPU::Decode::findInstructionType(){
          intInst.set = 10; // 10 sim ticks
          setFloat(0);
     } else if(intInst.opcode.to_string() == "1100011"){  // BEQ
+        cout << "BEQ" << endl;
          intInst.type = "B";
          intInst.set = 10; // 10 sim ticks
          setFloat(0);
@@ -304,8 +304,9 @@ void CPU::recvResp(PacketPtr pkt){
 
         if(f->isBusy() && f->isRead()){      // only true for fetch stage
             // Reading from memory in binary
-            std::bitset<32> instruction = *(uint32_t *)(pkt->getBuffer());
-            std::cout << getName() << " read in binary: " << instruction << std::endl;
+            cout << "inst in decimal: "  <<  *(uint32_t *)(pkt->getBuffer()) << endl;
+            bitset<32> instruction = *(uint32_t *)(pkt->getBuffer());
+            cout << getName() << " read in binary: " << instruction << endl;
             f->intInst.currentInstruction = instruction;
 
             if(currAddrI < endAddrI){
