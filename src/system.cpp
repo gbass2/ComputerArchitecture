@@ -21,7 +21,7 @@ void System::schedule(Event *e, Tick t){ // Schedules an event into MEQ
     if(!(e->isScheduled())){
         e->schedule(t);
 
-        if(e->getPriority() == 1) {
+        if(e->getPriority()) {
             MEQ.push_front(e);
             return;
         } else{

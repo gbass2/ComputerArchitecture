@@ -91,12 +91,8 @@ private:
             virtual void process() override {
                 dec->decodeInstruction();
 
-                // if(cpu->stall->getIsStalled() == false){
-                    // cpu->reg->setRegiserAccess(0);
                 if(dec->cpu->currAddrI < dec->cpu->endAddrI)
                     dec->cpu->ex->e->exEvent();
-                // }
-
             }
             virtual const char* description() override {return "Decode";}
             void decodeEvent(){
@@ -130,7 +126,7 @@ private:
             virtual void process() override {
                 ex->executeInstruction();
 
-                if((ex->cpu->currAddrI < ex->cpu->endAddrI) && ((ex->isMemAccess() && ex->isRead()) || !ex->isMemAccess()))
+                if((ex->cpu->currAddrI < ex->cpu->endAddrI) && (((ex->isMemAccess() && ex->isRead())) || !ex->isMemAccess()))
                     ex->cpu->s->e->storeEvent();
             }
             virtual const char* description() override {return "Execute";}
@@ -213,13 +209,13 @@ public:
         // friend class CPU; // Allows CPU class to access these private variables
 
     public:
-        ALU(CPU *c) : Event(1), cpu(c) {}
+        ALU(CPU *c) : Event(0), cpu(c) {}
         virtual void process() override {
             cpu->a->aluOperations();
         }
         void aluEvent(){
             std::cout << "scheduling Alu on Tick " << cpu->currTick() << std::endl;
-            cpu->schedule(cpu->a, cpu->currTick() + cpu->clkTick + 1); // Scheduling new event
+            cpu->schedule(cpu->a, cpu->currTick() + 1); // Scheduling new event
         }
 
         virtual const char* description() override { return "ALU"; }
@@ -236,6 +232,7 @@ public:
         void LW();
         void BLT();
         void LUI();
+        void AUIPC();
         void FLW();
         void ADD();
         void RET();
@@ -325,8 +322,9 @@ public:
     Stall *stall;
     ALU *a;
     Send *send;
-    // Register bank for the cpu
-    RegisterBank *reg;
+
+    RegisterBank *reg; // Variable to access RegisterBank
+
     // Ports to access memory
     RequestInstEvent *e1;   // Used to create a request event for instruction memory
     RequestDataEvent *e2;   // Used to create a request event for data memory
@@ -360,49 +358,17 @@ public:
                 port2->sendReq(new Packet(true, currAddrD, byteAmount));
             else{
                 if(!ex->getIsFloat()){
-                    port2->sendReq(new Packet(false, currAddrD, (uint8_t *)&ex->intInst.rs2.getData(), byteAmount));
+                    int val = ex->intInst.rs2.getData();
+                    port2->sendReq(new Packet(false, currAddrD, (uint8_t *)(&val), byteAmount));
                 } else {
-                    port2->sendReq(new Packet(false, currAddrD, (uint8_t *)&ex->fInst.rs2.getData(), byteAmount));
+                    int val = ex->fInst.rs2.getData();
+                    port2->sendReq(new Packet(false, currAddrD, (uint8_t *)(&val), byteAmount));
                 }
-                ex->setBusy(0);
             }
         }
-
-        // Schedules another memory request. We dont want to do this arbitrarily every clock cycle
-        // if(currAddrD < endAddrD){
-        //     std::cout << "Attempting to schedule CPU Data Clock Event at time" << currTick() << std::endl;
-        //     schedule(e2, currTick() + clkTick);
-        // }
     }
 
-    void recvResp(PacketPtr pkt){
-        std::cout << getName() << " received packet response from memory on Tick: " << currTick() << std::endl;
-        // std::cout << getName() << " read: " << *(float *)(pkt->getBuffer()) << std::endl;
-        // Reading from memory in decimal
-        // std::cout << getName() << " read in decimal: " << *(uint32_t *)(pkt->getBuffer()) << std::endl;
-
-        if(f->isBusy() && f->isRead()){      // only true for fetch stage
-            // Reading from memory in binary
-            std::bitset<32> instruction = *(uint32_t *)(pkt->getBuffer());
-            std::cout << getName() << " read in binary: " << instruction << std::endl;
-            f->intInst.currentInstruction = instruction;
-            f->setBusy(0);
-
-            if(currAddrI < endAddrI){
-                send->sendEvent();   // Scheduling send data
-                d->e->decodeEvent(); // Scheduling decode
-                f->e->fetchEvent();  // Scheduling fetch
-            }
-        } else if(ex->isBusy() && ex->isRead()){
-            // Reading int from data memory
-            if(!ex->getIsFloat())
-                ex->intInst.rd.setData(*(int *)(pkt->getBuffer())); // Loading into rd. The store stage will get the data and store it in the rpoper location
-
-            // Reading float from memory
-            else
-                ex->fInst.rd.set(*(float *)(pkt->getBuffer()));
-        }
-    }
+    void recvResp(PacketPtr pkt);
     MasterPort *getPort1() { return port1; } // Returns the
     MasterPort *getPort2() { return port2; }
 
@@ -412,6 +378,10 @@ public:
     }
     ALU *getALU() { return a; }
     void findInstType();
+    void setStackFrame(int stackBegin, int stackEnd){
+        reg->intRegisters[01000].setData(stackBegin); // Setting the frame ptr
+        reg->intRegisters[00010].setData(stackEnd); // Setting stack ptr
+    }
 };
 
 #endif

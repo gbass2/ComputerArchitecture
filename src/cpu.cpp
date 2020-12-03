@@ -55,10 +55,10 @@ void CPU::Decode::decodeInstruction() {
             intInst.rd.setName(bitset<5>(instruction.substr(7,5)));
             intInst.funct3 = bitset<3>(instruction.substr(12,3));
             intInst.rs1.setName(bitset<5>(instruction.substr(15,5)));
-            intInst.immISB = bitset<20>(instruction.substr(20,12));
+            intInst.immISB = bitset<12>(instruction.substr(20,12));
         } else if(intInst.type == "S"){
             intInst.opcode =  bitset<7>(instruction.substr(0,7));
-            intInst.immISB = bitset<20>(instruction.substr(7,5) + instruction.substr(25,7));
+            intInst.immISB = bitset<12>(instruction.substr(7,5) + instruction.substr(25,7));
             intInst.funct3 = bitset<3>(instruction.substr(12,3));
             intInst.rs1.setName(bitset<5>(instruction.substr(15,5)));
             intInst.rs2.setName(bitset<5>(instruction.substr(20,5)));
@@ -68,7 +68,7 @@ void CPU::Decode::decodeInstruction() {
             intInst.immJU =  bitset<20>(instruction.substr(12,20));
         } else if(intInst.type == "B"){
             intInst.opcode = bitset<7>(instruction.substr(0,7));
-            intInst.immISB =  bitset<20>(instruction.substr(8,4) + instruction.substr(25,6) + instruction.substr(7,1) + instruction.substr(31,1));
+            intInst.immISB =  bitset<12>(instruction.substr(8,4) + instruction.substr(25,6) + instruction.substr(7,1) + instruction.substr(31,1));
             intInst.funct3 = bitset<3>(instruction.substr(12,3));
             intInst.rs1.setName(bitset<5>(instruction.substr(15,5)));
             intInst.rs2.setName(bitset<5>(instruction.substr(20,5)));
@@ -90,10 +90,10 @@ void CPU::Decode::decodeInstruction() {
                 fInst.rd.setName(bitset<5>(instruction.substr(7,5)));
                 fInst.funct3 = bitset<3>(instruction.substr(12,3));
                 fInst.rs1.setName(bitset<5>(instruction.substr(15,5)));
-                fInst.immISB = bitset<20>(instruction.substr(20,12));
+                fInst.immISB = bitset<12>(instruction.substr(20,12));
             } else if(fInst.type == "S"){
                 fInst.opcode =  bitset<7>(instruction.substr(0,7));
-                fInst.immISB = bitset<20>(instruction.substr(7,5) + instruction.substr(25,7));
+                fInst.immISB = bitset<12>(instruction.substr(7,5) + instruction.substr(25,7));
                 fInst.funct3 = bitset<3>(instruction.substr(12,3));
                 fInst.rs1.setName(bitset<5>(instruction.substr(15,5)));
                 fInst.rs2.setName(bitset<5>(instruction.substr(20,5)));
@@ -103,7 +103,7 @@ void CPU::Decode::decodeInstruction() {
                 fInst.immJU =  bitset<20>(instruction.substr(12,20));
             } else if(fInst.type == "B"){
                 fInst.opcode = bitset<7>(instruction.substr(0,7));
-                fInst.immISB =  bitset<20>(instruction.substr(8,4) + instruction.substr(25,7) + instruction.substr(7,1) + instruction.substr(31,1));
+                fInst.immISB =  bitset<12>(instruction.substr(8,4) + instruction.substr(25,7) + instruction.substr(7,1) + instruction.substr(31,1));
                 fInst.funct3 = bitset<3>(instruction.substr(12,3));
                 fInst.rs1.setName(bitset<5>(instruction.substr(15,5)));
                 fInst.rs2.setName(bitset<5>(instruction.substr(20,5)));
@@ -118,9 +118,7 @@ void CPU::Decode::decodeInstruction() {
         // If so then stall, come back and access registers values
         // See hazard table for how long to stall
         // ---------------------------
-
-    cpu->reg->setRead(1);
-    cpu->reg->scheduleRegisterEvent();
+        cpu->d->setBusy(0);
 }
 
 // Prints the execute stage
@@ -128,20 +126,16 @@ void CPU::Execute::executeInstruction() {
     cout << endl << "Processing Execute Stage for " << cpu->getName() << endl;
 
     setBusy(1);
-
-    cpu->a->aluEvent();
-
-    // If load or store then call processData from the alu function
-
-    // If store to memory then create a memory write inside the alu
+    cpu->a->process();
+    // Add the latencies in for the instructions. RV32I is 10 ticks, RV32M is 20 ticks, RV32F si 50 ticks
 }
 
 // Stores the data from execute into destination register
 void CPU::Store::storeInstruction() {
     cout << endl << "Processing Store Stage for " << cpu->getName() << endl;
-
     cpu->reg->setRead(0);
-    cpu->reg->scheduleRegisterEvent();
+    cpu->reg->process();
+    cpu->s->setBusy(0); // Setting store stage to not busy
 }
 
 void CPU::Stall::stallCPU() {
@@ -248,3 +242,30 @@ void CPU::Decode::findInstructionType(){
          setFloat(1);
     }
 }
+
+void CPU::recvResp(PacketPtr pkt){
+        std::cout << getName() << " received packet response from memory on Tick: " << currTick() << std::endl;
+
+        if(f->isBusy() && f->isRead()){      // only true for fetch stage
+            // Reading from memory in binary
+            std::bitset<32> instruction = *(uint32_t *)(pkt->getBuffer());
+            std::cout << getName() << " read in binary: " << instruction << std::endl;
+            f->intInst.currentInstruction = instruction;
+
+            if(currAddrI < endAddrI){
+                send->sendEvent();   // Scheduling send data
+                d->e->decodeEvent(); // Scheduling decode
+                f->e->fetchEvent();  // Scheduling fetch
+            }
+        } else if(ex->isBusy() && ex->isRead()){
+            // Reading int from data memory
+            if(!ex->getIsFloat())
+                ex->intInst.rd.setData(*(int *)(pkt->getBuffer())); // Loading into rd. The store stage will get the data and store it in the rpoper location
+
+            // Reading float from memory
+            else
+                ex->fInst.rd.setData(*(float *)(pkt->getBuffer()));
+        }
+            f->setBusy(0);  // Setting fetch stage to not busy
+            ex->setBusy(0); // Setting execute stage to not busy
+    }
