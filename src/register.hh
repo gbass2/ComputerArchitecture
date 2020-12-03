@@ -19,8 +19,8 @@ protected:
     std::bitset<5> name; // Register name in binary
 
 public:
-    Register(T *_data, char regType) : data{_data}, regType{regType} {}
-    Register() :  regType{'\0'}, name{0} {}
+    Register(std::bitset<5> _name) : data{0}, regType{'\0'}, name{_name} {}
+    Register() :  data{0}, regType{'\0'}, name{0} {}
 
     T getData() const { return data; }
     void setData(int _data) { data = _data; } // Set the data in int
@@ -30,7 +30,6 @@ public:
 
     char getRegType() { return regType;} // Not currently used
     void setRegType(char regType) { this->regType = regType; } // Not currently used
-
 };
 
 // Holds the bank of integer and floating point registers
