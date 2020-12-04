@@ -107,7 +107,9 @@ void CPU::ALU::SW() {
     size_t addrs =  +  cpu->ex->intInst.rs1.getData() + imm;
     cpu->currAddrD = addrs;
 
+     cpu->ex->intInst.rs2.setData(5);
     std::cout << "Current address: " << addrs << std::endl;
+    cpu->ex->intInst.data = cpu->ex->intInst.rs2.getData();
     cpu->processData(); // Storing word to memory
 }
 
@@ -191,7 +193,7 @@ void CPU::ALU::FSW() {
     size_t addrs =  +  cpu->ex->fInst.rs1.getData() + imm;
     cpu->currAddrD = addrs;
 
-    cpu->ex->intInst.rd.setData(cpu->ex->fInst.rs2.getData());
+    cpu->ex->fInst.data = cpu->ex->fInst.rs2.getData();
     cpu->processData(); // Storing word to memory
 }
 

@@ -360,11 +360,10 @@ public:
             }
             else{
                 if(!ex->getIsFloat()){
-                    int val = ex->intInst.rs2.getData();
-                    port2->sendReq(new Packet(false, currAddrD, (uint8_t *)(&val), byteAmount));
+                    std::cout << "data in processData: " << ex->intInst.data << std::endl;
+                    port2->sendReq(new Packet(false, currAddrD, (uint8_t *)(&ex->intInst.data), byteAmount));
                 } else {
-                    int val = ex->fInst.rs2.getData();
-                    port2->sendReq(new Packet(false, currAddrD, (uint8_t *)(&val), byteAmount));
+                    port2->sendReq(new Packet(false, currAddrD, (uint8_t *)(&ex->fInst.data), byteAmount));
                 }
             }
         }
