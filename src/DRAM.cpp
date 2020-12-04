@@ -26,10 +26,14 @@ void DRAM::recvReq(PacketPtr pkt) {
      if (pkt->isRead())
           // get data and load it into the packet
           getDataAtAddr(pkt->getAddr(), pkt->getBuffer(), pkt->getSize());
-     else
+     else{
           // get data from packet and store it in memory
           setDataAddr(pkt->getAddr(), pkt->getBuffer(), pkt->getSize());
+      }
      request = pkt; // store active request so we can retrieve it later
+     std::cout << "request-----" << std::endl;
+     request->printHeader();
+     std::cout << "addrs: " << request->getAddr() << std::endl;
      schedule(e, currTick() + responceLatency);   // schedule response event
 }
 

@@ -7,7 +7,7 @@
 #include <cmath>
 #include <memory>
 #include <bitset>
-#include<algorithm>
+#include <algorithm>
 
 // Holds the data between the pipeline stages
 template<typename T>
@@ -16,7 +16,8 @@ struct Instruction{
 
     std::bitset<3> funct3;
     std::bitset<7> opcode, funct7;
-    std::bitset<20> funct2, funct5;
+    std::bitset<2> funct2;
+    std::bitset<5> funct5;
     std::bitset<12> immISB;
     std::bitset<20> immJU;
     std::bitset<32> currentInstruction; // The 32 bit instruction

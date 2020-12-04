@@ -13,17 +13,14 @@ std::string GetBinary32( float value );
 //
 // // Determines what alu operation needs to be done
 void CPU::ALU::aluOperations() {
-    std::cout << "Processing ALU Operation" << std::endl;
 
     if(!cpu->ex->getIsFloat()){ // Calling the functions to execute the integer instructions
         if(cpu->ex->intInst.opcode.to_string() == "1100100") {      // addi/mv + slli
             if(cpu->ex->intInst.funct3.to_string() == "000") {      // addi/mv
                 ADDI();
-                cpu->ex->setBusy(0); // Setting execute stage to not busy
             }
             else if(cpu->ex->intInst.funct3.to_string() == "001") { // slli
                 SLLI();
-                cpu->ex->setBusy(0); // Setting execute stage to not busy
             }
         }
         else if(cpu->ex->intInst.opcode.to_string() == "1100010") { // sw
@@ -31,42 +28,40 @@ void CPU::ALU::aluOperations() {
         }
         else if(cpu->ex->intInst.opcode.to_string() == "1111011") { // j
             J();
-            cpu->ex->setBusy(0); // Setting execute stage to not busy
         }
         else if(cpu->ex->intInst.opcode.to_string() == "1100000") { // lw
             LW();
         }
         else if(cpu->ex->intInst.opcode.to_string() == "1100011") { // blt
             BLT();
-            cpu->ex->setBusy(0); // Setting execute stage to not busy
         }
         else if(cpu->ex->intInst.opcode.to_string() == "1110110") { // lui
             LUI();
-            cpu->ex->setBusy(0); // Setting execute stage to not busy
         }
         else if(cpu->ex->intInst.opcode.to_string() == "1110100"){
             AUIPC();
-            cpu->ex->setBusy(0); // Setting execute stage to not busy
         }
         else if(cpu->ex->intInst.opcode.to_string() == "1100110") { // add
             ADD();
-            cpu->ex->setBusy(0); // Setting execute stage to not busy
         }
         else if(cpu->ex->intInst.opcode.to_string() == "1110011") { // ret/jalr
             JALR();
-            cpu->ex->setBusy(0); // Setting execute stage to not busy
         }
     } else { // Calling the functions to execute the fp instructions
         if(cpu->ex->fInst.opcode.to_string() == "1100101") {
             FADDS();
-            cpu->ex->setBusy(0); // Setting execute stage to not busy
         }
         else if(cpu->ex->fInst.funct3.to_string() == "1110010") { // fadd.s
             FSW();
         }
         else if(cpu->ex->fInst.opcode.to_string() == "1110000") { // flw
+                        std::cout << "FLW" << std::endl;
                 FLW();
         }
+    }
+    if(!cpu->ex->isMemAccess()){
+        std::cout << "# Set Busy to False" << std::endl;
+        cpu->ex->setBusy(0); // Setting execute stage to not busy
     }
 }
 
@@ -95,21 +90,23 @@ void CPU::ALU::LW() {
 
 void CPU::ALU::SW() {
     std::cout << "imm: " << cpu->ex->intInst.immISB << std::endl;
-    std::cout << "opcode: " << cpu->ex->intInst.opcode << std::endl;
-    std::cout << "funct3: " << cpu->ex->intInst.funct3 << std::endl;
     std::cout << "rs1: " << cpu->ex->intInst.rs1.getData() << std::endl;
     std::cout << "rs2: " << cpu->ex->intInst.rs2.getData() << std::endl;
 
 
     cpu->byteAmount = 4; // 32 bits for a word
     int imm = Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12);
-    std::cout << "imm (Decimal): " << imm << std::endl;
     size_t addrs =  +  cpu->ex->intInst.rs1.getData() + imm;
     cpu->currAddrD = addrs;
 
-     cpu->ex->intInst.rs2.setData(5);
+    cpu->ex->intInst.rs2.setData(5);
     std::cout << "Current address: " << addrs << std::endl;
-    cpu->ex->intInst.data = cpu->ex->intInst.rs2.getData();
+
+    if(cpu->ex->intInst.rs2.getName().to_string() == "00001")
+            cpu->ex->intInst.data = cpu->currAddrI;
+    else
+        cpu->ex->intInst.data = cpu->ex->intInst.rs2.getData();
+
     cpu->processData(); // Storing word to memory
 }
 

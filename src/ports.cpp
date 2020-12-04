@@ -12,8 +12,10 @@ void SlavePort::unbind() {
 }
 // passing messages via packets
 void SlavePort::sendResp(PacketPtr pkt) {
+     std::cout << "SendResp-----" << std::endl;
+     pkt->printHeader();
      pkt->popHeader();             // Pop off because we have already routed back
-                                   // to that master port
+     std::cout << "popHeader()" << std::endl; // to that master port
      mport->recvResp(pkt);         // purely virtual
 }
 
@@ -33,6 +35,7 @@ void MasterPort::unbind(){
 void MasterPort::sendReq(PacketPtr pkt){
     std::cout << "master port------- " << std::endl;
      pkt->appendHeader(this);      // Appending MasterPorts ID to header
+     std::cout << "SendReq-----" << std::endl;
      pkt->printHeader();
      sport->recvReq(pkt);          // purely virtual
 }
