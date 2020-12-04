@@ -31,6 +31,7 @@ void MasterPort::unbind(){
 }
 
 void MasterPort::sendReq(PacketPtr pkt){
+    std::cout << "master port------- " << std::endl;
      pkt->appendHeader(this);      // Appending MasterPorts ID to header
      pkt->printHeader();
      sport->recvReq(pkt);          // purely virtual
