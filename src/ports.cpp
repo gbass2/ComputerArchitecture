@@ -1,4 +1,5 @@
 #include "ports.hh"
+#include <iostream>
 // connects master port to a specific slave port
 void SlavePort::bind(MasterPort *_mport) {
      mport = _mport;
@@ -31,5 +32,6 @@ void MasterPort::unbind(){
 
 void MasterPort::sendReq(PacketPtr pkt){
      pkt->appendHeader(this);      // Appending MasterPorts ID to header
+     pkt->printHeader();
      sport->recvReq(pkt);          // purely virtual
 }
