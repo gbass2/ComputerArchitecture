@@ -24,7 +24,7 @@ int main(){
 
     DRAM * ram = new DRAM(sys, AddrRange(0x200, 0x13FF), 20);    // Data memory. 20 = response time
     DRAM * Iram1 = new DRAM(sys, AddrRange(0, 0x93), 20);         // Instruction memory for cpu0. 20 = response time
-    DRAM * Iram2 = new DRAM(sys, AddrRange(0x100, 0x193), 20);         // Instruction memory for cpu0. 20 = response time
+    DRAM * Iram2 = new DRAM(sys, AddrRange(0x100, 0x193), 20);         // Instruction memory for cpu1. 20 = response time
     Membus * bus = new Membus(sys, 5);                           //  5 = forwarding time
 
     // Binding the device's ports to the bus
