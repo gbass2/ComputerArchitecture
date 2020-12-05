@@ -327,9 +327,9 @@ void CPU::recvResp(PacketPtr pkt){
             f->intInst.currentInstruction = instruction;
 
             if(currAddrI < endAddrI){
+                send->sendEvent();   // Scheduling send data
                 // For a jump dont schedule until the execute of the jump
                 if(!(instruction.to_string().substr(0,7) == "1111011" || instruction.to_string().substr(0,7) == "1110011" || instruction.to_string().substr(0,7) == "1110100")){
-                    send->sendEvent();   // Scheduling send data
                     d->e->decodeEvent(); // Scheduling decode
                     f->e->fetchEvent();  // Scheduling fetch
                 }
