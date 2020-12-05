@@ -38,10 +38,10 @@ void Membus::forwardPackets() {    // a delay in the membus for processing
      // is sent to the queue
      while(!(packetsWaitingForForward.empty()) && (packetsWaitingForForward.front().first = curr)) {
           fwdQType tmp = packetsWaitingForForward.front();
-          std::cout << "membus---------" << std::endl;
+          // std::cout << "membus---------" << std::endl;
           packetsWaitingForForward.pop_front();
           packetsWaitingForMemPorts.push_back(tmp.second);
-          std::cout << "pkts waiting to be fwd: " << packetsWaitingForMemPorts.size() << std::endl;
+          // std::cout << "pkts waiting to be fwd: " << packetsWaitingForMemPorts.size() << std::endl;
      }
 
      if (!(packetsWaitingForForward.empty())) {

@@ -67,12 +67,14 @@ void CPU::ALU::aluOperations() {
 
 void CPU::ALU::ADDI() {
     // rd = rs1 + imm
-    int val1, val2;
+    int val, val2;
 
-    val1 = cpu->ex->intInst.rs1.getData();    // rs1
+    val = cpu->ex->intInst.rs1.getData();    // rs1
     val2 =  Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12); // immediate
 
-    cpu->ex->intInst.rd.setData(val1 + val2); // Adding an int to an immediate value
+    std::cout << "imm: " << val2<< std::endl;
+
+    cpu->ex->intInst.rd.setData(val + val2); // Adding an int to an immediate value
 }
 
 void CPU::ALU::SLLI() {   // Logical left shift (zeros are shifted into the lower bits) PAGE 14
@@ -85,6 +87,10 @@ void CPU::ALU::LW() {
     size_t addrs =  +  cpu->ex->intInst.rs1.getData() + imm;
     cpu->currAddrD = addrs;
 
+    std::cout << "rs1 name: " << cpu->ex->intInst.rd.getName() << std::endl;
+    std::cout << "rd name: " << cpu->ex->intInst.rd.getName() << std::endl;
+    std::cout << "Current address: " << addrs << std::endl;
+
     cpu->processData(); // Loading word from memory
 }
 
@@ -94,8 +100,6 @@ void CPU::ALU::SW() {
     size_t addrs =  +  cpu->ex->intInst.rs1.getData() + imm;
     cpu->currAddrD = addrs;
 
-    std::cout << "Current address: " << addrs << std::endl;
-
     if(cpu->ex->intInst.rs2.getName().to_string() == "00001"){
         int tmp = cpu->currAddrI;
         cpu->ex->intInst.rs2.setData(tmp);
@@ -103,9 +107,10 @@ void CPU::ALU::SW() {
 
     cpu->ex->intInst.data = cpu->ex->intInst.rs2.getData();
 
-    std::cout << "imm: " << cpu->ex->intInst.immISB << std::endl;
-    std::cout << "rs1: " << cpu->ex->intInst.rs1.getData() << std::endl;
-    std::cout << "rs2: " << cpu->ex->intInst.rs2.getData() << std::endl;
+    std::cout << "imm: " << imm << std::endl;
+    std::cout << "Current address: " << addrs << std::endl;
+    std::cout << "rs1 name: " << cpu->ex->intInst.rs1.getName() << std::endl;
+    std::cout << "rd name: " << cpu->ex->intInst.rd.getName() << std::endl;
 
     cpu->processData(); // Storing word to memory
 }
@@ -114,15 +119,20 @@ void CPU::ALU::LUI() {
     std::string imm = cpu->ex->intInst.immJU.to_string() + "000000000000";
     int val = Binary2Decimal(imm, 32);
 
+    std::cout << "imm: " << imm << std::endl;
+
     cpu->ex->intInst.rd.setData(val); // Loading upper 20 bits to rd with lower 12 bits 0
 }
 
 void CPU::ALU::AUIPC() {
     std::string imm = cpu->ex->intInst.immJU.to_string() + "000000000000";
     int offset = Binary2Decimal(imm, 32);
+    std::cout << "offset: " << offset << std::endl;
 
+    std::cout << "Current Address (Before): " << cpu->currAddrI << std::endl;
     cpu->currAddrI += offset; // Adding offset to pc
     int val2 = cpu->currAddrI;
+    std::cout << "Current Address (After): " << cpu->currAddrI << std::endl;
 
     cpu->ex->intInst.rd.setData(val2); // Saving the current address in rd
 }
@@ -130,6 +140,9 @@ void CPU::ALU::AUIPC() {
 void CPU::ALU::ADD() {
     int val1 = cpu->ex->intInst.rs1.getData();    // rs1
     int val2 = cpu->ex->intInst.rs2.getData();    // rs2
+    std::cout << "rs1 name: " << cpu->ex->intInst.rd.getName() << std::endl;
+    std::cout << "rs2 name: " << cpu->ex->intInst.rd.getName() << std::endl;
+    std::cout << "rd name: " << cpu->ex->intInst.rd.getName() << std::endl;
 
     cpu->ex->intInst.rd.setData(val1 + val2); // Adding 2 int values
 }
@@ -139,6 +152,8 @@ void CPU::ALU::BLT() {  // Branch Less Than
 
     val1 = cpu->ex->intInst.rs1.getData();    // rs1
     val2 = cpu->ex->intInst.rs2.getData();    // rs2
+    std::cout << "rs1 name: " << cpu->ex->intInst.rd.getName() << std::endl;
+    std::cout << "rs2 name: " << cpu->ex->intInst.rd.getName() << std::endl;
 
     if(val1 < val2){
         int val3 = Binary2Decimal(cpu->ex->intInst.immJU.to_string(), 12);
@@ -148,18 +163,24 @@ void CPU::ALU::BLT() {  // Branch Less Than
 
 void CPU::ALU::J() {
      // Jumping back to an address
-     int val = Binary2Decimal(cpu->ex->intInst.immJU.to_string(), 12);
-     cpu->currAddrI += val;
-     int val2 = cpu->currAddrI;
+     int imm = Binary2Decimal(cpu->ex->intInst.immJU.to_string(), 12);
+     std::cout << "Current Address (Before): " << cpu->currAddrI << std::endl;
+     cpu->currAddrI += imm;
+     std::cout << "Current Address (After): " << cpu->currAddrI << std::endl;
+     int val = cpu->currAddrI;
 
+     std::cout << "imm: " << imm << std::endl;
      // Storing address in rd
-     cpu->ex->intInst.rd.setData(val2);
+     cpu->ex->intInst.rd.setData(val);
 }
 
 void CPU::ALU::JALR() {
     int val = cpu->ex->intInst.rs1.getData();    // rs1
     int imm = Binary2Decimal(cpu->ex->fInst.immJU.to_string(), 12);
+    std::cout << "Current Address (Before): " << cpu->currAddrI << std::endl;
     cpu->currAddrI += val + imm;
+    std::cout << "Current Address (After): " << cpu->currAddrI << std::endl;
+    std::cout << "imm: " << val << std::endl;
 
     int val2 = cpu->currAddrI;
     cpu->ex->intInst.rd.setData(val2);
@@ -171,6 +192,9 @@ void CPU::ALU::FADDS() {
 
     val1 = cpu->ex->fInst.rs1.getData();    // rs1
     val2 = cpu->ex->fInst.rs2.getData();    // rs2
+    std::cout << "rs1 name: " << cpu->ex->fInst.rd.getName() << std::endl;
+    std::cout << "rs2 name: " << cpu->ex->fInst.rd.getName() << std::endl;
+    std::cout << "rd name: " << cpu->ex->fInst.rd.getName() << std::endl;
 
     cpu->ex->fInst.rd.setData(val1 + val2); // Adding 2 float values
 }
@@ -181,6 +205,10 @@ void CPU::ALU::FLW() {
     size_t addrs =  +  cpu->ex->fInst.rs1.getData() + imm;
     cpu->currAddrD = addrs;
 
+    std::cout << "rs1 name: " << cpu->ex->intInst.rd.getName() << std::endl;
+    std::cout << "rd name: " << cpu->ex->intInst.rd.getName() << std::endl;
+    std::cout << "Current address: " << addrs << std::endl;
+
     cpu->processData(); // Loading word from memory
 }
 
@@ -189,6 +217,11 @@ void CPU::ALU::FSW() {
     int imm = Binary2Decimal(cpu->ex->fInst.immISB.to_string(), 12);
     size_t addrs =  +  cpu->ex->fInst.rs1.getData() + imm;
     cpu->currAddrD = addrs;
+
+    std::cout << "imm: " << imm << std::endl;
+    std::cout << "Current address: " << addrs << std::endl;
+    std::cout << "rs1 name: " << cpu->ex->intInst.rd.getName() << std::endl;
+    std::cout << "rd name: " << cpu->ex->intInst.rd.getName() << std::endl;
 
     cpu->ex->fInst.data = cpu->ex->fInst.rs2.getData();
     cpu->processData(); // Storing word to memory

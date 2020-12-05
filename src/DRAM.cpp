@@ -31,17 +31,17 @@ void DRAM::recvReq(PacketPtr pkt) {
           setDataAddr(pkt->getAddr(), pkt->getBuffer(), pkt->getSize());
       }
      request = pkt; // store active request so we can retrieve it later
-     std::cout << "request-----" << std::endl;
-     request->printHeader();
-     std::cout << "addrs: " << request->getAddr() << std::endl;
+     // std::cout << "request-----" << std::endl;
+     // request->printHeader();
+     // std::cout << "addrs: " << request->getAddr() << std::endl;
      schedule(e, currTick() + responceLatency);   // schedule response event
 }
 
 // In the case that we have a packet, the packet will have a buffer associated
 // with it and size
 void DRAM::setDataAddr(Addr ad, uint8_t * buff, size_t len){
-    std::cout << "set data at addrs " << ad << " data: " << *(int *)(buff) << std::endl;
-     // assert((ad >= addrs.first) && ((ad+len) <= addrs.second + 1));
+    // std::cout << "set data at addrs " << ad << " data: " << *(int *)(buff) << std::endl;
+     assert((ad >= addrs.first) && ((ad+len) <= addrs.second + 1));
      Addr offset = ad - addrs.first;    // Calcs offest in memory that the
                                         // packet is reading
      std::memcpy((memory + offset), buff, len);   // pointer in our memory for DRAM
