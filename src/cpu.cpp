@@ -186,6 +186,7 @@ void CPU::Execute::executeInstruction() {
 // Stores the data from execute into destination register
 void CPU::Store::storeInstruction() {
     cout << endl << "Processing Store Stage for " << cpu->getName() << endl;
+    cout << "rd: "  << cpu->s->intInst.rd.getData() << endl << endl;
     cpu->reg->setRead(0);
     cpu->reg->process();
     cpu->s->setBusy(0); // Setting store stage to not busy

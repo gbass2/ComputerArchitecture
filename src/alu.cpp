@@ -89,23 +89,23 @@ void CPU::ALU::LW() {
 }
 
 void CPU::ALU::SW() {
-    std::cout << "imm: " << cpu->ex->intInst.immISB << std::endl;
-    std::cout << "rs1: " << cpu->ex->intInst.rs1.getData() << std::endl;
-    std::cout << "rs2: " << cpu->ex->intInst.rs2.getData() << std::endl;
-
-
     cpu->byteAmount = 4; // 32 bits for a word
     int imm = Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12);
     size_t addrs =  +  cpu->ex->intInst.rs1.getData() + imm;
     cpu->currAddrD = addrs;
 
-    cpu->ex->intInst.rs2.setData(5);
     std::cout << "Current address: " << addrs << std::endl;
 
-    if(cpu->ex->intInst.rs2.getName().to_string() == "00001")
-            cpu->ex->intInst.data = cpu->currAddrI;
-    else
-        cpu->ex->intInst.data = cpu->ex->intInst.rs2.getData();
+    if(cpu->ex->intInst.rs2.getName().to_string() == "00001"){
+        int tmp = cpu->currAddrI;
+        cpu->ex->intInst.rs2.setData(tmp);
+    }
+
+    cpu->ex->intInst.data = cpu->ex->intInst.rs2.getData();
+
+    std::cout << "imm: " << cpu->ex->intInst.immISB << std::endl;
+    std::cout << "rs1: " << cpu->ex->intInst.rs1.getData() << std::endl;
+    std::cout << "rs2: " << cpu->ex->intInst.rs2.getData() << std::endl;
 
     cpu->processData(); // Storing word to memory
 }
