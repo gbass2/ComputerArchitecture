@@ -118,7 +118,9 @@ void RegisterBank::process(){
             // Storing Rd
             name = cpu->s->intInst.rd.getName();    // 5bit value
             nameInInt = stoi(name.to_string());
-            intRegisters[nameInInt] = cpu->s->intInst.rd;
+
+            if(cpu->s->intInst.rd.getName() != 0) // Store rd if the register is not the zeros register
+                intRegisters[nameInInt] = cpu->s->intInst.rd;
         } else { // For a floating point write
             // Storing Rd
             name = cpu->s->fInst.rd.getName();

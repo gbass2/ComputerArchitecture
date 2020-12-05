@@ -225,20 +225,18 @@ public:
         std::deque<size_t> getJump() { return jump; }
         size_t getFirstJump() { return jump.front(); }
         void aluOperations();
+        void ADD();
         void ADDI();
-        void SLLI();
-        void SW();
+        void SLLI(); void SRLI(); void SRAI(); void SLTI(); void SLTIU();
+        void XORI(); void ORI(); void ANDI();
+        void SB(); void SH(); void SW();
+        void JAL();   void JALR();
+        void LB();  void LH(); void LW(); void LBU(); void LBH();
+        void BEQ(); void BNE(); void BGE(); void BLT(); void BLTU(); void BGEU();
+        void LUI(); void AUIPC();
+        void FLW();
         void FSW();
         void FADDS();
-        void J();
-        void LW();
-        void BLT();
-        void LUI();
-        void AUIPC();
-        void FLW();
-        void ADD();
-        void RET();
-        void JALR();
     };
 
     // For creating a send data event to pass data through the pipeline
@@ -359,11 +357,20 @@ public:
             if(ex->isRead()){
                 port2->sendReq(new Packet(true, currAddrD, byteAmount));
             }
-            else{
+            else{ // Stroing to memory
                 if(!ex->getIsFloat()){
                     std::cout << "data in processData: " << ex->intInst.data << std::endl;
-                    port2->sendReq(new Packet(false, currAddrD, (uint8_t *)(&ex->intInst.data), byteAmount));
-                } else {
+                    if(byteAmount == 1){ // Storing a byte
+                        int8_t val = ex->intInst.data;
+                        port2->sendReq(new Packet(false, currAddrD, (uint8_t *)(&val), byteAmount));
+                    } else if(byteAmount == 2){ // Storing half word
+                        int16_t val = ex->intInst.data;
+                        port2->sendReq(new Packet(false, currAddrD, (uint8_t *)(&val), byteAmount));
+                    } else if(byteAmount == 4){ // Storing word
+                        int32_t val = ex->intInst.data;
+                        port2->sendReq(new Packet(false, currAddrD, (uint8_t *)(&val), byteAmount));
+                    }
+                } else { // Store floating point
                     port2->sendReq(new Packet(false, currAddrD, (uint8_t *)(&ex->fInst.data), byteAmount));
                 }
             }

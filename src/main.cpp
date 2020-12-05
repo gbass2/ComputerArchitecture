@@ -11,14 +11,16 @@ void setupSimulator(CPU *cpu, DRAM *ram1, DRAM *ram2);
 int main(){
     auto sys = std::make_shared<System>();
 
-    size_t stackEnd = 0x2FF;
-    size_t dramBegin = 0x200;
+    size_t stackEnd0 = 0x2FF;
+    size_t stackBegin0 = 0x200;
+    size_t stackEnd1 = 0x3FF;
+    size_t stackBegin1 = 0x300;
     size_t dramEnd = 0x13FF;
-    std::cout <<  "stack end: " << stackEnd << std::endl;
-    std::cout << "stack begin: " << dramBegin << std::endl;
+    std::cout <<  "stack end: " << stackEnd0 << std::endl;
+    std::cout << "stack begin: " << stackBegin0 << std::endl;
 
-    CPU *cpu0 = new CPU(sys, "cpu0", 0, 0x93, dramBegin, dramEnd); // Passes in the device name, the starting and end addrs for instruction memory, andd the stating and end addrs for data memory
-    CPU *cpu1 = new CPU(sys, "cpu1", 0x100, 0x193, dramBegin, dramEnd); // Passes in the device name, the starting and end addrs for instruction memory, andd the stating and end addrs for data memory
+    CPU *cpu0 = new CPU(sys, "cpu0", 0, 0x93, stackBegin0, dramEnd); // Passes in the device name, the starting and end addrs for instruction memory, andd the stating and end addrs for data memory
+    CPU *cpu1 = new CPU(sys, "cpu1", 0x100, 0x193, stackBegin1, dramEnd); // Passes in the device name, the starting and end addrs for instruction memory, andd the stating and end addrs for data memory
 
     RunSim *sim = new RunSim(sys);
 
@@ -30,8 +32,10 @@ int main(){
     // Binding the device's ports to the bus
     Iram1->getPort()->bind(bus->getUnboundMemSidePort());    // Binding Instruction memory (cpu0) to membus
     cpu0->getPort1()->bind(bus->getUnboundCPUSidePort());   // Binding cpu0 instruction port (port2) to membus
+
     Iram2->getPort()->bind(bus->getUnboundMemSidePort());    // Binding Instruction memory (cpu1) to membus
     cpu1->getPort1()->bind(bus->getUnboundCPUSidePort());   // Binding cpu1 instruction port (port2) to membus
+
     ram->getPort()->bind(bus->getUnboundMemSidePort());     // Binding instruction memory membus
     cpu0->getPort2()->bind(bus->getUnboundCPUSidePort());   // Binding cpu0 data port (port1) to membus
     cpu1->getPort2()->bind(bus->getUnboundCPUSidePort());   // Binding cpu1 data port (port1) to membus
@@ -44,7 +48,8 @@ int main(){
     }
 
     // Setting the frame ptr to the starting value of the stack and the stack ptr to the ending point of the stack
-    cpu0->setRegister(dramBegin, stackEnd);
+    cpu0->setRegister(stackBegin0, stackEnd0);
+    cpu1->setRegister(stackBegin1, stackEnd1);
 
     setupSimulator(cpu0, Iram1, Iram2);
     cpu0->initialize();       // Sets up the first event. Which is a fetch event

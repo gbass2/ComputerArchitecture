@@ -327,17 +327,28 @@ void CPU::recvResp(PacketPtr pkt){
             f->intInst.currentInstruction = instruction;
 
             if(currAddrI < endAddrI){
-                send->sendEvent();   // Scheduling send data
-                d->e->decodeEvent(); // Scheduling decode
-                f->e->fetchEvent();  // Scheduling fetch
+                // For a jump dont schedule until the execute of the jump
+                if(!(instruction.to_string().substr(0,7) == "1111011" || instruction.to_string().substr(0,7) == "1110011" || instruction.to_string().substr(0,7) == "1110100")){
+                    send->sendEvent();   // Scheduling send data
+                    d->e->decodeEvent(); // Scheduling decode
+                    f->e->fetchEvent();  // Scheduling fetch
+                }
             }
             f->setBusy(0);  // Setting fetch stage to not busy
         } else if(ex->isBusy() && ex->isRead()){
             // Reading int from data memory
-            cout << "Data Memory Read" << endl;
-            if(!ex->getIsFloat())
-                ex->intInst.rd.setData(*(int *)(pkt->getBuffer())); // Loading into rd. The store stage will get the data and store it in the rpoper location
+            cout << "Dasta Memory Read" << endl;
+            if(!ex->getIsFloat()){
+                int val = (*(int *)(pkt->getBuffer())); // Loading into rd. The store stage will get the data and store it in the proper location
 
+                if(ex->intInst.funct3.to_string() == "101"){ // LBH Zero Extend
+                    val = val << 16;
+                }
+                else if(ex->intInst.funct3.to_string() == "100"){ // LBU Zero extend
+                    val = val << 24;
+                }
+                ex->intInst.rd.setData(val);
+            }
             // Reading float from memory
             else
                 ex->fInst.rd.setData(*(float *)(pkt->getBuffer()));
