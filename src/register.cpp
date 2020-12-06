@@ -102,13 +102,12 @@ void RegisterBank::process(){
             nameInInt = stoi(name.to_string());
 
             if(cpu->ex->fInst.opcode.to_string() == "1110000"  ||  cpu->ex->fInst.opcode.to_string() == "1110010" ){ // If flw or fsw we need rs1 to be form the integer register bank
-                cpu->ex->intInst.rs1.setData(fpRegisters[nameInInt].getData());
-                std::cout << "rs1 data: " << fpRegisters[nameInInt].getData() << std::endl;
+                cpu->ex->fInst.rs1.setData(intRegisters[nameInInt].getData());
+                std::cout << "rs1 data: " << intRegisters[nameInInt].getData() << std::endl;
             } else {
                 cpu->ex->fInst.rs1.setData(fpRegisters[nameInInt].getData());
                 std::cout << "rs1 data: " << fpRegisters[nameInInt].getData() << std::endl;
             }
-            std::cout << "here" << std::endl;
 
             // Retrieving Rs2
             name = cpu->ex->fInst.rs2.getName();
@@ -128,6 +127,9 @@ void RegisterBank::process(){
             name = cpu->s->intInst.rd.getName();    // 5bit value
             nameInInt = stoi(name.to_string());
 
+            std::cout << "rd name: " << name << std::endl;
+            std::cout << "rd val: " << cpu->s->intInst.rd.getData() << std::endl;
+
             if(!cpu->s->intInst.rd.getName().none()) // Store rd if the register is not the zeros register
                 intRegisters[nameInInt] = cpu->s->intInst.rd;
         } else { // For a floating point write
@@ -135,7 +137,8 @@ void RegisterBank::process(){
             name = cpu->s->fInst.rd.getName();
             nameInInt = stoi(name.to_string());
             fpRegisters[nameInInt].setData(cpu->s->fInst.rd.getData());
-            fpRegisters[nameInInt].setName(name);
+            std::cout << "rd name: " << name << std::endl;
+            std::cout << "rd val: " << fpRegisters[nameInInt].getData() << std::endl;
         }
     }
 }

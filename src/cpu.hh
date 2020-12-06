@@ -48,7 +48,7 @@ protected:
     bool isFloat;
 public:
     Instruction<int> intInst;
-    Instruction<int> fInst;
+    Instruction<float> fInst;
 
     Pipeline(): busy(0), read(1), memAccess(0), isFloat(0){}
     void setBusy(bool _busy) { busy = _busy; }

@@ -114,6 +114,7 @@ void CPU::Decode::decodeInstruction() {
                 fInst.opcode =  bitset<7>(instruction.substr(0,7));
                 fInst.rd.setName(bitset<5>(instruction.substr(7,5)));
                 fInst.rd.setName(reverse(fInst.rd.getName())); // reversing the because the instruction reads left to right and the risc v doc reads right to left
+                cout << "rd: " << fInst.rd.getName() << endl;
                 fInst.funct3 = bitset<3>(instruction.substr(12,3));
                 fInst.rs1.setName(bitset<5>(instruction.substr(15,5)));
                 fInst.rs1.setName(reverse(fInst.rs1.getName())); // reversing the because the instruction reads left to right and the risc v doc reads right to left
@@ -189,8 +190,6 @@ void CPU::Execute::executeInstruction() {
 // Stores the data from execute into destination register
 void CPU::Store::storeInstruction() {
     cout << endl << "Processing Store Stage for " << cpu->getName() << endl;
-    cout << "rd name: "  << cpu->s->intInst.rd.getName() << endl;
-    cout << "rd data: "  << cpu->s->intInst.rd.getData() << endl << endl;
 
     cpu->reg->setRead(0);
     cpu->reg->process();
@@ -308,6 +307,7 @@ void CPU::Decode::findInstructionType(){
          fInst.type = "S";
          fInst.set = 50; // 50 sim ticks
          setMemAccess(1);
+         setRead(0);
          setFloat(1);
     } else if(intInst.opcode.to_string() == "1100001"){  // FMADD.S
          fInst.type = "R4";
@@ -351,8 +351,10 @@ void CPU::recvResp(PacketPtr pkt){
                 ex->intInst.rd.setData(val);
             }
             // Reading float from memory
-            else
+            else{
+                cout << "Loaded value: " << *(float *)(pkt->getBuffer()) << endl;
                 ex->fInst.rd.setData(*(float *)(pkt->getBuffer()));
+            }
 
             ex->setBusy(0); // Setting execute stage to not busy
         } else {
