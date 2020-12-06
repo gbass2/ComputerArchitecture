@@ -83,6 +83,9 @@ void CPU::ALU::aluOperations() {
         else if(cpu->ex->intInst.opcode.to_string() == "1100110") { // Add
             ADD();
         }
+        else
+            std::cout << "NOP in execute" << std::endl;
+
     } else { // Floating Point Operations
         if(cpu->ex->fInst.opcode.to_string() == "1100101") {
             FADDS();
@@ -105,7 +108,7 @@ void CPU::ALU::ADDI() {
     int val, val2;
 
     val = cpu->ex->intInst.rs1.getData();    // rs1
-    val2 =  Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12); // immediate
+    val2 =  Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12); // Immidate value
 
     std::cout << "imm: " << val2<< std::endl;
 
@@ -113,7 +116,7 @@ void CPU::ALU::ADDI() {
 }
 
 void CPU::ALU::SLLI() {   // Logical left shift (zeros are shifted into the lower bits) PAGE 14
-    int val = cpu->ex->intInst.immJU.to_ulong(); // imm
+    int val = cpu->ex->intInst.immJU.to_ulong();  // Immidate value
     int val2 = cpu->ex->intInst.rs1.getData();    // rs1
     int val3 = val2 << val;
 
@@ -125,7 +128,7 @@ void CPU::ALU::SLLI() {   // Logical left shift (zeros are shifted into the lowe
 }
 
 void CPU::ALU::SRLI() {   // Logical right shift (zeros are shifted into the upper bits)
-    int val = cpu->ex->intInst.immJU.to_ulong(); // imm
+    int val = cpu->ex->intInst.immJU.to_ulong();  // Immidate value
     int val2 = cpu->ex->intInst.rs1.getData();    // rs1
     int val3 = val2 >> val;
 
@@ -152,7 +155,7 @@ void CPU::ALU::SRAI() {   // Logical right shift (zeros are shifted into the upp
 
 void CPU::ALU::LB() { // Load Byte
     cpu->byteAmount = 1; // 8 bits for loading a byte
-    int imm = Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12);
+    int imm = Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12); // Immidate value
     size_t addrs =  +  cpu->ex->intInst.rs1.getData() + imm;
     cpu->currAddrD = addrs;
 
@@ -165,7 +168,7 @@ void CPU::ALU::LB() { // Load Byte
 
 void CPU::ALU::LH() { // Load Half Word
     cpu->byteAmount = 2; //  16 bits for half word
-    int imm = Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12);
+    int imm = Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12); // Immidate value
     size_t addrs =  +  cpu->ex->intInst.rs1.getData() + imm;
     cpu->currAddrD = addrs;
 
@@ -178,7 +181,7 @@ void CPU::ALU::LH() { // Load Half Word
 
 void CPU::ALU::LW() { // Load Word
     cpu->byteAmount = 4; // 32 bits for a word
-    int imm = Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12);
+    int imm = Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12); // Immidate value
     size_t addrs =  +  cpu->ex->intInst.rs1.getData() + imm;
     cpu->currAddrD = addrs;
 
@@ -191,7 +194,7 @@ void CPU::ALU::LW() { // Load Word
 
 void CPU::ALU::LBU() { // Load Byte and zero extend it
     cpu->byteAmount = 1; // 8 bits for loading a byte
-    int imm = Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12);
+    int imm = Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12); // Immidate value
     size_t addrs =  +  cpu->ex->intInst.rs1.getData() + imm;
     cpu->currAddrD = addrs;
 
@@ -204,7 +207,7 @@ void CPU::ALU::LBU() { // Load Byte and zero extend it
 //
 void CPU::ALU::LBH() { // Load Half Word and zero extend it
     cpu->byteAmount = 2; // 16 bits for half word
-    int imm = Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12);
+    int imm = Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12); // Immidate value
     size_t addrs =  +  cpu->ex->intInst.rs1.getData() + imm;
     cpu->currAddrD = addrs;
 
@@ -217,7 +220,7 @@ void CPU::ALU::LBH() { // Load Half Word and zero extend it
 
 void CPU::ALU::SB() { // Storing byte
     cpu->byteAmount = 1; // Specify an 8 bit value to be stored
-    int imm = Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12);
+    int imm = Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12); // Immidate value
     size_t addrs =  +  cpu->ex->intInst.rs1.getData() + imm;
     cpu->currAddrD = addrs;
 
@@ -238,7 +241,7 @@ void CPU::ALU::SB() { // Storing byte
 
 void CPU::ALU::SH() { // Storing half word
     cpu->byteAmount = 2; // Specify 16 bit value to be stored
-    int imm = Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12);
+    int imm = Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12); // Immidate value
     size_t addrs =  +  cpu->ex->intInst.rs1.getData() + imm;
     cpu->currAddrD = addrs;
 
@@ -259,7 +262,7 @@ void CPU::ALU::SH() { // Storing half word
 
 void CPU::ALU::SW() { // Storing Word
     cpu->byteAmount = 4; // Specify 32 bit value to be stored
-    int imm = Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12);
+    int imm = Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12); // Immidate value
     size_t addrs =  +  cpu->ex->intInst.rs1.getData() + imm;
     cpu->currAddrD = addrs;
 
@@ -286,7 +289,7 @@ void CPU::ALU::LUI() {
 }
 
 void CPU::ALU::AUIPC() {
-    int offset = cpu->ex->intInst.immJU.to_ulong() << 12;
+    int offset = cpu->ex->intInst.immJU.to_ulong() << 12; // Immidate value
     std::cout << "offset: " << offset << std::endl;
 
     std::cout << "Current Address (Before): " << cpu->currAddrI << std::endl;
@@ -295,6 +298,10 @@ void CPU::ALU::AUIPC() {
     std::cout << "Current Address (After): " << cpu->currAddrI << std::endl;
 
     cpu->ex->intInst.rd.setData(val2); // Saving the current address in rd
+
+    // The PC changes so the pipeline stages need to be flushed
+    cpu->f->intInst.flush();
+    cpu->d->intInst.flush();
 }
 
 void CPU::ALU::ADD() {
@@ -316,8 +323,12 @@ void CPU::ALU::BEQ(){ // Branch Equal
     std::cout << "rs2 name: " << cpu->ex->intInst.rd.getName() << std::endl;
 
     if(val == val2){
-        int val3 = Binary2Decimal(cpu->ex->intInst.immJU.to_string(), 12);
+        int val3 = Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12); // Immidate value
         cpu->currAddrI += val3;
+
+        // The PC changes so the pipeline stages need to be flushed
+        cpu->f->intInst.flush();
+        cpu->d->intInst.flush();
     }
 }
 
@@ -330,8 +341,12 @@ void CPU::ALU::BNE(){ // Branch Not Equal
     std::cout << "rs2 name: " << cpu->ex->intInst.rd.getName() << std::endl;
 
     if(val != val2){
-        int val3 = Binary2Decimal(cpu->ex->intInst.immJU.to_string(), 12);
+        int val3 = Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12); // Immidate value
         cpu->currAddrI += val3;
+
+        // The PC changes so the pipeline stages need to be flushed
+        cpu->f->intInst.flush();
+        cpu->d->intInst.flush();
     }
 }
 
@@ -340,12 +355,18 @@ void CPU::ALU::BLT() {  // Branch Rs1 Less Than Rs2
 
     val = cpu->ex->intInst.rs1.getData();    // rs1
     val2 = cpu->ex->intInst.rs2.getData();    // rs2
+    std::cout << "val: " << val << std::endl;
+    std::cout << "val2: " << val2 << std::endl;
     std::cout << "rs1 name: " << cpu->ex->intInst.rd.getName() << std::endl;
     std::cout << "rs2 name: " << cpu->ex->intInst.rd.getName() << std::endl;
 
     if(val < val2){
-        int val3 = Binary2Decimal(cpu->ex->intInst.immJU.to_string(), 12);
+        int val3 = Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12); // Immidate value
         cpu->currAddrI += val3;
+
+        // The PC changes so the pipeline stages need to be flushed
+        cpu->f->intInst.flush();
+        cpu->d->intInst.flush();
     }
 }
 
@@ -358,8 +379,12 @@ void CPU::ALU::BLTU() {  // Branch Rs1 Less Than Rs2 Unsigned
     std::cout << "rs2 name: " << cpu->ex->intInst.rd.getName() << std::endl;
 
     if(abs(val) < abs(val2)){
-        int val3 = Binary2Decimal(cpu->ex->intInst.immJU.to_string(), 12);
+        int val3 = Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12); // Immidate value
         cpu->currAddrI += val3;
+
+        // The PC changes so the pipeline stages need to be flushed
+        cpu->f->intInst.flush();
+        cpu->d->intInst.flush();
     }
 }
 
@@ -372,8 +397,12 @@ void CPU::ALU::BGE() {  // Branch Rs1 greater than Rs2
     std::cout << "rs2 name: " << cpu->ex->intInst.rd.getName() << std::endl;
 
     if(val > val2){
-        int val3 = Binary2Decimal(cpu->ex->intInst.immJU.to_string(), 12);
+        int val3 = Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12); // Immidate value
         cpu->currAddrI += val3;
+
+        // The PC changes so the pipeline stages need to be flushed
+        cpu->f->intInst.flush();
+        cpu->d->intInst.flush();
     }
 }
 
@@ -386,14 +415,20 @@ void CPU::ALU::BGEU() {  // Branch Rs1 greater than Rs2 Unsigned
     std::cout << "rs2 name: " << cpu->ex->intInst.rd.getName() << std::endl;
 
     if(abs(val) > abs(val2)){
-        int val3 = Binary2Decimal(cpu->ex->intInst.immJU.to_string(), 12);
+        int val3 = Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12); // Immidate value
         cpu->currAddrI += val3;
+
+        // The PC changes so the pipeline stages need to be flushed
+        cpu->f->intInst.flush();
+        cpu->d->intInst.flush();
     }
 }
 
 void CPU::ALU::JAL() {
      // Jumping back to an address
-     int imm = Binary2Decimal(cpu->ex->intInst.immJU.to_string(), 12);
+     std::cout << "JAL" << std::endl;
+     std::cout << "imm in bits: " << cpu->ex->intInst.immJU << std::endl;
+     int imm = Binary2Decimal(cpu->ex->intInst.immJU.to_string() + "0", 21); // Immidate value 0000 0000 0000 0010 0000
      std::cout << "imm: " << imm << std::endl;
      std::cout << "Current Address (Before): " << cpu->currAddrI << std::endl;
      cpu->currAddrI = imm;
@@ -402,11 +437,15 @@ void CPU::ALU::JAL() {
 
      // Storing address in rd
      cpu->ex->intInst.rd.setData(val);
+
+     // The PC changes so the pipeline stages need to be flushed
+     cpu->f->intInst.flush();
+     cpu->d->intInst.flush();
 }
 
 void CPU::ALU::JALR() {
     int val = cpu->ex->intInst.rs1.getData();    // rs1
-    int imm = Binary2Decimal(cpu->ex->fInst.immJU.to_string(), 12);
+    int imm = Binary2Decimal(cpu->ex->fInst.immJU.to_string() + "0", 21); // Immidate value
     std::cout << "Current Address (Before): " << cpu->currAddrI << std::endl;
     cpu->currAddrI += val + imm;
     std::cout << "Current Address (After): " << cpu->currAddrI << std::endl;
@@ -414,6 +453,10 @@ void CPU::ALU::JALR() {
 
     int val2 = cpu->currAddrI;
     cpu->ex->intInst.rd.setData(val2);
+
+    // The PC changes so the pipeline stages need to be flushed
+    cpu->f->intInst.flush();
+    cpu->d->intInst.flush();
 }
 
 void CPU::ALU::FADDS() {
@@ -431,7 +474,7 @@ void CPU::ALU::FADDS() {
 
 void CPU::ALU::FLW() {
     cpu->byteAmount = 4; // 32 bits for a word
-    int imm = Binary2Decimal(cpu->ex->fInst.immISB.to_string(), 12);
+    int imm = Binary2Decimal(cpu->ex->fInst.immISB.to_string(), 12); // Immidate value
     size_t addrs =  +  cpu->ex->fInst.rs1.getData() + imm;
     cpu->currAddrD = addrs;
 
@@ -444,7 +487,7 @@ void CPU::ALU::FLW() {
 
 void CPU::ALU::FSW() {
     cpu->byteAmount = 4; // 32 bits for a word
-    int imm = Binary2Decimal(cpu->ex->fInst.immISB.to_string(), 12);
+    int imm = Binary2Decimal(cpu->ex->fInst.immISB.to_string(), 12); // Immidate value
     size_t addrs =  +  cpu->ex->fInst.rs1.getData() + imm;
     cpu->currAddrD = addrs;
 
@@ -543,61 +586,3 @@ int Binary2Decimal(std::string binary, int significantBits){
     }
   }
 }
-
-// // Convert the 32-bit binary encoding into hexadecimal
-// int Binary2Hex( std::string Binary )
-// {
-//     std::bitset<32> set(Binary);
-//     int hex = set.to_ulong();
-//
-//     return hex;
-// }
-//
-// // Convert the 32-bit binary into the decimal
-// float GetFloat32( std::string Binary )
-// {
-//     int HexNumber = Binary2Hex( Binary );
-//
-//     bool negative  = !!(HexNumber & 0x80000000);
-//     int  exponent  =   (HexNumber & 0x7f800000) >> 23;
-//     int sign = negative ? -1 : 1;
-//
-//     // Subtract 127 from the exponent
-//     exponent -= 127;
-//
-//     // Convert the mantissa into decimal using the
-//     // last 23 bits
-//     int power = -1;
-//     float total = 0.0;
-//     for ( int i = 0; i < 23; i++ )
-//     {
-//         int c = Binary[ i + 9 ] - '0';
-//         total += (float) c * (float) pow( 2.0, power );
-//         power--;
-//     }
-//     total += 1.0;
-//
-//     float value = sign * (float) pow( 2.0, exponent ) * total;
-//
-//     return value;
-// }
-//
-// // Get 32-bit IEEE 754 format of the decimal value
-// std::string GetBinary32( float value )
-// {
-//     union
-//     {
-//          float input;   // assumes sizeof(float) == sizeof(int)
-//          int   output;
-//     }    data;
-//
-//     data.input = value;
-//
-//     std::bitset<sizeof(float) * CHAR_BIT>   bits(data.output);
-//
-//     std::string mystring = bits.to_string<char,
-//                                           std::char_traits<char>,
-//                                           std::allocator<char> >();
-//
-//     return mystring;
-// }

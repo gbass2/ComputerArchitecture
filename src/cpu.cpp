@@ -91,12 +91,13 @@ void CPU::Decode::decodeInstruction() {
             intInst.rs2.setName(reverse(intInst.rs2.getName())); // reversing the because the instruction reads left to right and the risc v doc reads right to left
         } else if(intInst.type == "J"){
             intInst.opcode = bitset<7>(instruction.substr(0,7));
-            intInst.rd.setName(bitset<5>(instruction.substr(15,5)));
+            intInst.rd.setName(bitset<5>(instruction.substr(7,5)));
             intInst.immJU = bitset<20>(instruction.substr(21,10) + instruction.substr(20,1) + instruction.substr(12,8) + instruction.substr(31,1));
             intInst.immJU = reverse(intInst.immJU);  // reversing the because the instruction reads left to right and the risc v doc reads right to left
         } else {
-            cout << "ERROR Code 1234: No Integer Instruction Type." << endl;
-            assert(0);
+            // cout << "ERROR Code 1234: No Integer Instruction Type." << endl;
+            // assert(0);
+            cout << "NOP in decode" << endl;
         }
     } else {
             if(fInst.type == "R"){
@@ -143,7 +144,7 @@ void CPU::Decode::decodeInstruction() {
                 fInst.rs2.setName(reverse(fInst.rs2.getName())); // reversing the because the instruction reads left tion reads left to right and the risc v doc reads right to left
             } else if(fInst.type == "J"){
                 fInst.opcode = bitset<7>(instruction.substr(0,7));
-                fInst.rd.setName(bitset<5>(instruction.substr(15,5)));
+                fInst.rd.setName(bitset<5>(instruction.substr(7,5)));
                 fInst.immJU = bitset<20>(instruction.substr(21,10) + instruction.substr(20,1) + instruction.substr(12,8) + instruction.substr(31,1));
             } else if(fInst.type == "R4"){
                 fInst.opcode = bitset<7>(instruction.substr(0,7));
@@ -158,8 +159,9 @@ void CPU::Decode::decodeInstruction() {
                 fInst.rs3.setName(bitset<5>(instruction.substr(27,5)));
                 fInst.rs3.setName(reverse(fInst.rs1.getName())); // reversing the because the instruction reads left to right and the risc v doc reads right to left
             } else {
-                cout << "ERROR Code 1234: No Floating Point Instruction Type." << endl;
-                assert(0);
+                // cout << "ERROR Code 1234: No Floating Point Instruction Type." << endl;
+                // assert(0);
+                cout << "NOP in decode" << endl;
             }
     }
 
@@ -186,9 +188,13 @@ void CPU::Execute::executeInstruction() {
 // Stores the data from execute into destination register
 void CPU::Store::storeInstruction() {
     cout << endl << "Processing Store Stage for " << cpu->getName() << endl;
-    cout << "rd: "  << cpu->s->intInst.rd.getData() << endl << endl;
-    cpu->reg->setRead(0);
-    cpu->reg->process();
+    cout << "rd name: "  << cpu->s->intInst.rd.getName() << endl;
+    cout << "rd data: "  << cpu->s->intInst.rd.getData() << endl << endl;
+
+    if(!(intInst.rd.getName().none())){ // If the register to be stored is not zero
+        cpu->reg->setRead(0);
+        cpu->reg->process();
+    }
     cpu->s->setBusy(0); // Setting store stage to not busy
 }
 
@@ -257,7 +263,6 @@ void CPU::Decode::findInstructionType(){
          intInst.set = 10; // 10 sim ticks
          setFloat(0);
     } else if(intInst.opcode.to_string() == "1111011"){  // JAL
-        cout << "JAL" << endl;
          intInst.type = "J";
          intInst.set = 10; // 10 sim ticks
          setFloat(0);
@@ -266,7 +271,6 @@ void CPU::Decode::findInstructionType(){
          intInst.set = 10; // 10 sim ticks
          setFloat(0);
     } else if(intInst.opcode.to_string() == "1100011"){  // BEQ
-        cout << "BEQ" << endl;
          intInst.type = "B";
          intInst.set = 10; // 10 sim ticks
          setFloat(0);
@@ -328,16 +332,12 @@ void CPU::recvResp(PacketPtr pkt){
 
             if(currAddrI < endAddrI){
                 send->sendEvent();   // Scheduling send data
-                // For a jump dont schedule until the execute of the jump
-                if(!(instruction.to_string().substr(0,7) == "1111011" || instruction.to_string().substr(0,7) == "1110011" || instruction.to_string().substr(0,7) == "1110100")){
-                    d->e->decodeEvent(); // Scheduling decode
-                    f->e->fetchEvent();  // Scheduling fetch
-                }
+                d->e->decodeEvent(); // Scheduling decode
+                f->e->fetchEvent();  // Scheduling fetch
             }
             f->setBusy(0);  // Setting fetch stage to not busy
         } else if(ex->isBusy() && ex->isRead()){
             // Reading int from data memory
-            cout << "Dasta Memory Read" << endl;
             if(!ex->getIsFloat()){
                 int val = (*(int *)(pkt->getBuffer())); // Loading into rd. The store stage will get the data and store it in the proper location
 
@@ -355,10 +355,11 @@ void CPU::recvResp(PacketPtr pkt){
 
             ex->setBusy(0); // Setting execute stage to not busy
         } else {
-            cout << "Stored Data to Memory" << std::endl;
+            cout << "Successfully Stored Data to Memory" << std::endl;
             ex->setBusy(0); // Setting execute stage to not busy
         }
             delete pkt;
+
     }
 
 template<size_t N>

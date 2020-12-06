@@ -21,10 +21,22 @@ struct Instruction{
     std::bitset<12> immISB;
     std::bitset<20> immJU;
     std::bitset<32> currentInstruction; // The 32 bit instruction
-    T data;
 
+    T data;
     std::string type; // Type of instruction
     size_t set; // the latency involved based on what instruction set is being processed
+
+    void flush(){ // flush/clear the pipeline stages if jumped or branch was taken
+        currentInstruction.reset();
+        funct2.reset();
+        funct3.reset();
+        funct5.reset();
+        funct7.reset();
+        opcode.reset();
+        immISB.reset();
+        immJU.reset();
+        rd.setName(0);
+    }
 };
 
 // Base pipeline stage class
@@ -126,7 +138,7 @@ private:
         public:
             ExecuteEvent(Execute *_ex) : Event(), ex(_ex) {}
             virtual void process() override {
-                ex->executeInstruction();
+                    ex->executeInstruction();
 
                 if((ex->cpu->currAddrI < ex->cpu->endAddrI) && (((ex->isMemAccess() && ex->isRead())) || !ex->isMemAccess()))
                     ex->cpu->s->e->storeEvent();

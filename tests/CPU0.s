@@ -7,7 +7,7 @@ main:                                   # Addr 0x0
 	sw	a0, -12(s0)						# imm[11:5] rs2 rs1 010 imm[4:0] 0100011	# 1111111 01010 01000 010 10100 0100011		# Stores word from a0 into memory address(s0 - 12)
 	sw	a0, -16(s0)						# imm[11:5] rs2 rs1 010 imm[4:0] 0100011	# 1111111 01010 01000 010 10000 0100011		# Stores word from a0 into memory address(s0 - 16)
 	j	.LBB0_1							# imm[20|10:1|11|19:12] rd       1101111	# 0 0000010000 000000000 00000 1101111		# Return from subroutine (return to normal code)
-.LBB0_1:                                # Addr 0x20=32									# For loop statement
+.LBB0_1:                                # Addr 0x20=32=0000010000 0									# For loop statement
 	lw	a0, -16(s0)						# imm[11:0]		rs1 010 rd       0000011	# 111111110000 01000 010 01010 0000011		# Load old value from STACK. Load double word from memory address (s0 - 16) into a0		# for(i = 0; rs1 < rs2; i++)
 	addi	a1, zero, 255				# imm[11:0]     rs1	000 rd 		 0010011	# 000011111111 00000 000 01011 0010011		# a1 = x0 + 255
 	blt	a1, a0, .LBB0_4			 		# imm[12|10:5]  rs2 rs1 100 imm[4:1|11] 1100011		#0000100 01010 01011 100 00000 1100011		# Branch if rs1 < rs2 Exit: exits the loop if condition is met
@@ -16,7 +16,7 @@ main:                                   # Addr 0x0
 	lui	a0, %hi(1024)					# imm[31:12]			rd		 0110111	# 00000000000000000000 01010 0110111		Location 48
 	addi	a0, a0, %lo(1024)			# imm[11:0]     rs1	000 rd 		 0010011	# 010000000000 01010 000 01010 0010011
 	lw	a1, -16(s0)						# imm[11:0]		rs1 010 rd       0000011	# 111111110000 01000 010 01011 0000011
-	slli	a1, a1, 2					# 0000000 shamt rs1 001 rd		 0010011	# 0000000 00010 01011 001 01011 0010011
+	slli	a1, a1, 2					# 0000000 shamt rs1 001 rd		 0010011	# 0000000 00010 01011 001 01011
 	add	a0, a0, a1						# 0000000 rs2   rs1 000 rd		 0110011	# 0000000 01011 01010 000 01010 0110011
 	flw	ft0, 0(a0)						# imm[11:0] 	rs1 010 rd		 0000111	# 000000000000 01010 010 00000 0000111
 	lui	a0, %hi(2048)					# imm[31:12]			rd		 0110111	# 00000000000000000000 01010 0110111
