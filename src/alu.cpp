@@ -13,6 +13,7 @@ std::string GetBinary32( float value );
 
 // Determines what alu operation needs to be done based on the opcode and the width of the instruction
 void CPU::ALU::aluOperations() {
+    std::cout << "opcode: " << cpu->ex->intInst.opcode << " funct3: " << cpu->ex->intInst.funct3 << std::endl;
     // Integer Operations
     if(!cpu->ex->getIsFloat()){
         if(cpu->ex->intInst.opcode.to_string() == "1100100") {      // addi/mv + slli
@@ -20,15 +21,15 @@ void CPU::ALU::aluOperations() {
                 ADDI();
             //else if(cpu->ex->intInst.funct3.to_string() == "010")
             //     SLTI();
-            // else if(cpu->ex->intInst.funct3.to_string() == "011")
-            //     SLTIU();
-            // else if(cpu->ex->intInst.funct3.to_string() == "100")
-            //     XORI();
             // else if(cpu->ex->intInst.funct3.to_string() == "110")
+            //     SLTIU();
+            // else if(cpu->ex->intInst.funct3.to_string() == "001")
+            //     XORI();
+            // else if(cpu->ex->intInst.funct3.to_string() == "011")
             //     ORI();
             // else if(cpu->ex->intInst.funct3.to_string() == "111")
             //     ANDI();
-            else if(cpu->ex->intInst.funct3.to_string() == "001") // Locgial Shift Left
+            else if(cpu->ex->intInst.funct3.to_string() == "100") // Locgial Shift Left
                 SLLI();
             else if(cpu->ex->intInst.funct3.to_string() == "101") // Logical Right Shift
                 SRLI();
@@ -36,7 +37,7 @@ void CPU::ALU::aluOperations() {
         else if(cpu->ex->intInst.opcode.to_string() == "1100010") { // Store
             if(cpu->ex->intInst.funct3.to_string() == "000")
                 SB();
-            else if(cpu->ex->intInst.funct3.to_string() == "001")
+            else if(cpu->ex->intInst.funct3.to_string() == "100")
                 SH();
             else if(cpu->ex->intInst.funct3.to_string() == "010")
                 SW();
@@ -44,13 +45,13 @@ void CPU::ALU::aluOperations() {
         else if(cpu->ex->intInst.opcode.to_string() == "1100000") { // Load
             if(cpu->ex->intInst.funct3.to_string() == "000")
                 LB();
-            else if(cpu->ex->intInst.funct3.to_string() == "001")
+            else if(cpu->ex->intInst.funct3.to_string() == "100")
                 LH();
             else if(cpu->ex->intInst.funct3.to_string() == "010")
                 LW();
-            else if(cpu->ex->intInst.funct3.to_string() == "100")
+            else if(cpu->ex->intInst.funct3.to_string() == "001")
                 LBU();
-            else if(cpu->ex->intInst.funct3.to_string() == "100")
+            else if(cpu->ex->intInst.funct3.to_string() == "101")
                 LBH();
         }
         else if(cpu->ex->intInst.opcode.to_string() == "1111011") { // Jump and Link
@@ -62,13 +63,13 @@ void CPU::ALU::aluOperations() {
         else if(cpu->ex->intInst.opcode.to_string() == "1100011") { // Branch
             if(cpu->ex->intInst.funct3.to_string() == "000")
                 BEQ();
-            else if(cpu->ex->intInst.funct3.to_string() == "001")
-                BNE();
             else if(cpu->ex->intInst.funct3.to_string() == "100")
-                BGE();
-            else if(cpu->ex->intInst.funct3.to_string() == "101")
+                BNE();
+            else if(cpu->ex->intInst.funct3.to_string() == "001")
                 BLT();
-            else if(cpu->ex->intInst.funct3.to_string() == "110")
+            else if(cpu->ex->intInst.funct3.to_string() == "101")
+                BGE();
+            else if(cpu->ex->intInst.funct3.to_string() == "011")
                 BLTU();
             else if(cpu->ex->intInst.funct3.to_string() == "111")
                 BGEU();
@@ -159,7 +160,7 @@ void CPU::ALU::LB() { // Load Byte
     size_t addrs =  +  cpu->ex->intInst.rs1.getData() + imm;
     cpu->currAddrD = addrs;
 
-    std::cout << "rs1 name: " << cpu->ex->intInst.rd.getName() << std::endl;
+    std::cout << "rs1 name: " << cpu->ex->intInst.rs1.getName() << std::endl;
     std::cout << "rd name: " << cpu->ex->intInst.rd.getName() << std::endl;
     std::cout << "Current address: " << addrs << std::endl;
 
@@ -172,7 +173,7 @@ void CPU::ALU::LH() { // Load Half Word
     size_t addrs =  +  cpu->ex->intInst.rs1.getData() + imm;
     cpu->currAddrD = addrs;
 
-    std::cout << "rs1 name: " << cpu->ex->intInst.rd.getName() << std::endl;
+    std::cout << "rs1 name: " << cpu->ex->intInst.rs1.getName() << std::endl;
     std::cout << "rd name: " << cpu->ex->intInst.rd.getName() << std::endl;
     std::cout << "Current address: " << addrs << std::endl;
 
@@ -180,12 +181,13 @@ void CPU::ALU::LH() { // Load Half Word
 }
 
 void CPU::ALU::LW() { // Load Word
+    std::cout << "LW" << std::endl;
     cpu->byteAmount = 4; // 32 bits for a word
     int imm = Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12); // Immidate value
     size_t addrs =  +  cpu->ex->intInst.rs1.getData() + imm;
     cpu->currAddrD = addrs;
 
-    std::cout << "rs1 name: " << cpu->ex->intInst.rd.getName() << std::endl;
+    std::cout << "rs1 name: " << cpu->ex->intInst.rs1.getName() << std::endl;
     std::cout << "rd name: " << cpu->ex->intInst.rd.getName() << std::endl;
     std::cout << "Current address: " << addrs << std::endl;
 
@@ -319,8 +321,8 @@ void CPU::ALU::BEQ(){ // Branch Equal
 
     val = cpu->ex->intInst.rs1.getData();     // rs1
     val2 = cpu->ex->intInst.rs2.getData();    // rs2
-    std::cout << "rs1 name: " << cpu->ex->intInst.rd.getName() << std::endl;
-    std::cout << "rs2 name: " << cpu->ex->intInst.rd.getName() << std::endl;
+    std::cout << "rs1 name: " << cpu->ex->intInst.rs1.getName() << std::endl;
+    std::cout << "rs2 name: " << cpu->ex->intInst.rs2.getName() << std::endl;
 
     if(val == val2){
         int val3 = Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12); // Immidate value
@@ -337,8 +339,8 @@ void CPU::ALU::BNE(){ // Branch Not Equal
 
     val = cpu->ex->intInst.rs1.getData();     // rs1
     val2 = cpu->ex->intInst.rs2.getData();    // rs2
-    std::cout << "rs1 name: " << cpu->ex->intInst.rd.getName() << std::endl;
-    std::cout << "rs2 name: " << cpu->ex->intInst.rd.getName() << std::endl;
+    std::cout << "rs1 name: " << cpu->ex->intInst.rs1.getName() << std::endl;
+    std::cout << "rs2 name: " << cpu->ex->intInst.rs2.getName() << std::endl;
 
     if(val != val2){
         int val3 = Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12); // Immidate value
@@ -351,14 +353,15 @@ void CPU::ALU::BNE(){ // Branch Not Equal
 }
 
 void CPU::ALU::BLT() {  // Branch Rs1 Less Than Rs2
+    std::cout << "BLT" << std::endl;
     int val, val2;
 
     val = cpu->ex->intInst.rs1.getData();    // rs1
     val2 = cpu->ex->intInst.rs2.getData();    // rs2
     std::cout << "val: " << val << std::endl;
     std::cout << "val2: " << val2 << std::endl;
-    std::cout << "rs1 name: " << cpu->ex->intInst.rd.getName() << std::endl;
-    std::cout << "rs2 name: " << cpu->ex->intInst.rd.getName() << std::endl;
+    std::cout << "rs1 name: " << cpu->ex->intInst.rs1.getName() << std::endl;
+    std::cout << "rs2 name: " << cpu->ex->intInst.rs2.getName() << std::endl;
 
     if(val < val2){
         int val3 = Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12); // Immidate value
@@ -375,8 +378,8 @@ void CPU::ALU::BLTU() {  // Branch Rs1 Less Than Rs2 Unsigned
 
     val = cpu->ex->intInst.rs1.getData();    // rs1
     val2 = cpu->ex->intInst.rs2.getData();    // rs2
-    std::cout << "rs1 name: " << cpu->ex->intInst.rd.getName() << std::endl;
-    std::cout << "rs2 name: " << cpu->ex->intInst.rd.getName() << std::endl;
+    std::cout << "rs1 name: " << cpu->ex->intInst.rs1.getName() << std::endl;
+    std::cout << "rs2 name: " << cpu->ex->intInst.rs2.getName() << std::endl;
 
     if(abs(val) < abs(val2)){
         int val3 = Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12); // Immidate value
@@ -393,8 +396,8 @@ void CPU::ALU::BGE() {  // Branch Rs1 greater than Rs2
 
     val = cpu->ex->intInst.rs1.getData();    // rs1
     val2 = cpu->ex->intInst.rs2.getData();    // rs2
-    std::cout << "rs1 name: " << cpu->ex->intInst.rd.getName() << std::endl;
-    std::cout << "rs2 name: " << cpu->ex->intInst.rd.getName() << std::endl;
+    std::cout << "rs1 name: " << cpu->ex->intInst.rs1.getName() << std::endl;
+    std::cout << "rs2 name: " << cpu->ex->intInst.rs2.getName() << std::endl;
 
     if(val > val2){
         int val3 = Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12); // Immidate value
@@ -411,8 +414,8 @@ void CPU::ALU::BGEU() {  // Branch Rs1 greater than Rs2 Unsigned
 
     val = cpu->ex->intInst.rs1.getData();    // rs1
     val2 = cpu->ex->intInst.rs2.getData();    // rs2
-    std::cout << "rs1 name: " << cpu->ex->intInst.rd.getName() << std::endl;
-    std::cout << "rs2 name: " << cpu->ex->intInst.rd.getName() << std::endl;
+    std::cout << "rs1 name: " << cpu->ex->intInst.rs1.getName() << std::endl;
+    std::cout << "rs2 name: " << cpu->ex->intInst.rs2.getName() << std::endl;
 
     if(abs(val) > abs(val2)){
         int val3 = Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12); // Immidate value

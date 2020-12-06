@@ -71,6 +71,7 @@ void CPU::Decode::decodeInstruction() {
             intInst.immISB = reverse(intInst.immISB); // reversing the because the instruction reads left to right and the risc v doc reads right to left
             intInst.funct3 = bitset<3>(instruction.substr(12,3));
             intInst.rs1.setName(bitset<5>(instruction.substr(15,5)));
+
             intInst.rs2.setName(bitset<5>(instruction.substr(20,5)));
             intInst.rs1.setName(reverse(intInst.rs1.getName())); // reversing the because the instruction reads left to right and the risc v doc reads right to left
             intInst.rs2.setName(reverse(intInst.rs2.getName())); // reversing the because the instruction reads left to right and the risc v doc reads right to left
@@ -191,10 +192,9 @@ void CPU::Store::storeInstruction() {
     cout << "rd name: "  << cpu->s->intInst.rd.getName() << endl;
     cout << "rd data: "  << cpu->s->intInst.rd.getData() << endl << endl;
 
-    if(!(intInst.rd.getName().none())){ // If the register to be stored is not zero
-        cpu->reg->setRead(0);
-        cpu->reg->process();
-    }
+    cpu->reg->setRead(0);
+    cpu->reg->process();
+
     cpu->s->setBusy(0); // Setting store stage to not busy
 }
 
@@ -340,6 +340,7 @@ void CPU::recvResp(PacketPtr pkt){
             // Reading int from data memory
             if(!ex->getIsFloat()){
                 int val = (*(int *)(pkt->getBuffer())); // Loading into rd. The store stage will get the data and store it in the proper location
+                cout << "Loaded value: " << val << endl;
 
                 if(ex->intInst.funct3.to_string() == "101"){ // LBH Zero Extend
                     val = val << 16;

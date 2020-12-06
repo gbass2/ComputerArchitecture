@@ -95,23 +95,32 @@ void RegisterBank::process(){
             name = cpu->ex->intInst.rs3.getName();
             nameInInt = stoi(name.to_string());
             cpu->ex->intInst.rs3 = intRegisters[nameInInt];
-            std::cout << "rs3 data: " << intRegisters[nameInInt].getData() << std::endl;
 
         } else if((cpu->ex->getIsFloat())){ // For a floating point read
             // Retrieving Rs1
             name = cpu->ex->fInst.rs1.getName();
             nameInInt = stoi(name.to_string());
-            cpu->ex->fInst.rs1.setData(fpRegisters[nameInInt].getData());
+
+            if(cpu->ex->fInst.opcode.to_string() == "1110000"  ||  cpu->ex->fInst.opcode.to_string() == "1110010" ){ // If flw or fsw we need rs1 to be form the integer register bank
+                cpu->ex->intInst.rs1.setData(fpRegisters[nameInInt].getData());
+                std::cout << "rs1 data: " << fpRegisters[nameInInt].getData() << std::endl;
+            } else {
+                cpu->ex->fInst.rs1.setData(fpRegisters[nameInInt].getData());
+                std::cout << "rs1 data: " << fpRegisters[nameInInt].getData() << std::endl;
+            }
+            std::cout << "here" << std::endl;
 
             // Retrieving Rs2
             name = cpu->ex->fInst.rs2.getName();
             nameInInt = stoi(name.to_string());
             cpu->ex->fInst.rs2.setData(fpRegisters[nameInInt].getData());
+            std::cout << "rs2 data: " << fpRegisters[nameInInt].getData() << std::endl;
 
             // Retrieving Rs3
             name = cpu->ex->fInst.rs3.getName();
             nameInInt = stoi(name.to_string());
             cpu->ex->fInst.rs3.setData(fpRegisters[nameInInt].getData());
+            std::cout << "rs3 data: " << fpRegisters[nameInInt].getData() << std::endl;
         }
     } else { // Write to register
         if(!(cpu->s->getIsFloat())){ // For a int write
@@ -119,7 +128,7 @@ void RegisterBank::process(){
             name = cpu->s->intInst.rd.getName();    // 5bit value
             nameInInt = stoi(name.to_string());
 
-            if(cpu->s->intInst.rd.getName() != 0) // Store rd if the register is not the zeros register
+            if(!cpu->s->intInst.rd.getName().none()) // Store rd if the register is not the zeros register
                 intRegisters[nameInInt] = cpu->s->intInst.rd;
         } else { // For a floating point write
             // Storing Rd
