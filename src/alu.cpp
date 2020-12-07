@@ -14,7 +14,6 @@ std::string GetBinary32( float value );
 // Determines what alu operation needs to be done based on the opcode and the width of the instruction
 void CPU::ALU::aluOperations() {
     std::cout << "opcode: " << cpu->ex->intInst.opcode << " funct3: " << cpu->ex->intInst.funct3 << std::endl;
-    std::cout << "isFloat()" << cpu->ex->getIsFloat() << std::endl;
     // Integer Operations
     if(!cpu->ex->getIsFloat()){
         if(cpu->ex->intInst.opcode.to_string() == "1100100") {      // addi/mv + slli
@@ -429,10 +428,11 @@ void CPU::ALU::BLT() {  // Branch Rs1 Less Than Rs2
     std::cout << "val2: " << val2 << std::endl;
     std::cout << "rs1 name: " << cpu->ex->intInst.rs1.getName() << std::endl;
     std::cout << "rs2 name: " << cpu->ex->intInst.rs2.getName() << std::endl;
+    std::cout << "[keyword] imm: " <<  Binary2Decimal(cpu->ex->intInst.immISB.to_string() + "0", 13) << std::endl;
 
     if(val < val2){
-        int val3 = Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12); // Immidate value
-        cpu->currAddrI += val3;
+        int val3 = Binary2Decimal(cpu->ex->intInst.immISB.to_string() + "0", 13); // Immidate value
+        cpu->currAddrI = val3;
 
         // The PC changes so the pipeline stages need to be flushed
         cpu->f->intInst.flush();
