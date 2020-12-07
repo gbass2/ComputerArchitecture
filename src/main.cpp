@@ -18,7 +18,7 @@ int main(){
     size_t dramEnd = 0x13FF;
 
     CPU *cpu0 = new CPU(sys, "cpu0", 0, 0x093, stackBegin0, dramEnd); // Passes in the device name, the starting and end addrs for instruction memory, andd the stating and end addrs for data memory
-    CPU *cpu1 = new CPU(sys, "cpu1", 0x100, 0x193, stackBegin1, dramEnd); // Passes in the device name, the starting and end addrs for instruction memory, andd the stating and end addrs for data memory
+    CPU *cpu1 = new CPU(sys, "cpu1", 0x100, 0x193, stackBegin0, dramEnd); // Passes in the device name, the starting and end addrs for instruction memory, andd the stating and end addrs for data memory
 
     RunSim *sim = new RunSim(sys);
 
@@ -39,7 +39,7 @@ int main(){
     cpu1->getPort2()->bind(bus->getUnboundCPUSidePort());   // Binding cpu1 data port (port1) to membus
 
     // Fill DRAM with random floating point values. 0x400 - 0xFFF
-    for (auto i = ram->getAddrRange().first + 0x200; i < ram->getAddrRange().second - 0x400; i+=4){
+    for (auto i = ram->getAddrRange().first + 0x200; i < ram->getAddrRange().second; i+=4){
          float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
          uint32_t val = *(uint32_t *)(&r);
          ram->writeWordAtAddr(i, val);
@@ -107,10 +107,10 @@ void setupSimulator(DRAM *ram1, DRAM *ram2){ // Sets up the instruction memory w
     ram2->writeWordAtAddr(272, 0b11001000101000000000000000000000); // 6
     ram2->writeWordAtAddr(276, 0b11000100010101000010010101111111); // 7
     ram2->writeWordAtAddr(280, 0b11000100000101000010010101111111); // 8
-    ram1->writeWordAtAddr(284, 0b11110110000000000000000000100100); // 9
+    ram2->writeWordAtAddr(284, 0b11110110000000000000000000100100); // 9
     ram2->writeWordAtAddr(288, 0b11000000101001000010000011111111); // 11
     ram2->writeWordAtAddr(292, 0b11001001101000000000111111110000); // 12
-    ram2->writeWordAtAddr(296, 0b11000110000000111010010100011000); // 13
+    ram2->writeWordAtAddr(296, 0b11000110000000111010010100001100); // 13
     ram2->writeWordAtAddr(300, 0b11110110000000000000000001100100); // 14
     ram2->writeWordAtAddr(304, 0b11101100101000000000000000000000); // 16
     ram2->writeWordAtAddr(308, 0b11001000101000001010000000000010); // 17
@@ -122,7 +122,7 @@ void setupSimulator(DRAM *ram1, DRAM *ram2){ // Sets up the instruction memory w
     ram2->writeWordAtAddr(332, 0b11001000101000001010000000000001); // 23
     ram2->writeWordAtAddr(336, 0b11001100101000001010110100000000); // 24
     ram2->writeWordAtAddr(340, 0b11100001000001001010000000000000); // 25
-    ram2->writeWordAtAddr(344, 0b11001010000011100000100000000000); // 26
+    ram2->writeWordAtAddr(344, 0b11001010000011100000100000010000); // 26
     ram2->writeWordAtAddr(348, 0b11101100101010000000000000000000); // 27
     ram2->writeWordAtAddr(352, 0b11001000101000001010000000000000); // 28
     ram2->writeWordAtAddr(356, 0b11001100101000001010110100000000); // 29

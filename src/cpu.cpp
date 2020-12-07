@@ -364,8 +364,7 @@ void CPU::recvResp(PacketPtr pkt){
             cout << "Successfully Stored Data to Memory" << std::endl;
             ex->setBusy(0); // Setting execute stage to not busy
         }
-            delete pkt;
-
+        delete pkt;
     }
 
 template<size_t N>
