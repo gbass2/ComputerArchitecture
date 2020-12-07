@@ -330,11 +330,13 @@ void CPU::recvResp(PacketPtr pkt){
             cout << getName() << " read in binary: " << instruction << endl;
             f->intInst.currentInstruction = instruction;
 
+            send->sendEvent();   // Scheduling send data
             if(currAddrI < endAddrI){
-                send->sendEvent();   // Scheduling send data
                 d->e->decodeEvent(); // Scheduling decode
                 f->e->fetchEvent();  // Scheduling fetch
-            }
+            } else
+                d->e->decodeEvent(); // Scheduling decode
+
             f->setBusy(0);  // Setting fetch stage to not busy
         } else if(ex->isBusy() && ex->isRead()){
             // Reading int from data memory

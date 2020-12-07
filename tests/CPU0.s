@@ -1,7 +1,7 @@
 main:                                   # Addr 0x0
 	addi	sp, sp, -16					# imm[11:0]     rs1	000 rd 		 0010011	# 111111110000 00010 000 00010  0010011		# Allocate 16 bytes to the STACK			# x2 = sp = -16
 	sw	ra, 12(sp)						# imm[11:5] rs2 rs1 010 imm[4:0] 0100011	# 0000000 00001 00010 010 01100 0100011		# Saves return address on STACK into memory address (sp + 12)
-	sw	s0, 8(sp)						# imm[11:5] rs2 rs1 010 imm[4:0] 0100011	# 0001000 01000 00010 010 01000 0100011		# Saves Saved Register on STACK into memory address (sp + 8)
+	sw	s0, 8(sp)						# imm[11:5] rs2 rs1 010 imm[4:0] 0100011	# 0000000 01000 00010 010 01000 0100011		# Saves Saved Register on STACK into memory address (sp + 8)
 	addi	s0, sp, 16					# imm[11:0]     rs1	000 rd 		 0010011	# 000000010000 00010 000 01000  0010011		# Adds value in stack pointer (sp) to 16 and stores the sum in s0						# s0 = sp + 16
 	mv	a0, zero						# 000000000000   rs1	000 rd 	 0010011	# 000000000000 00000 000 01010  0010011		# Adds x0 + 0 to a0							# a0 = 0
 	sw	a0, -12(s0)						# imm[11:5] rs2 rs1 010 imm[4:0] 0100011	# 1111111 01010 01000 010 10100 0100011		# Stores word from a0 into memory address(s0 - 12)
@@ -40,49 +40,3 @@ main:                                   # Addr 0x0
 	lw	ra, 12(sp)						# imm[11:0]		rs1 010 rd       0000011	# 000000001100 00010 010 00001 0000011
 	addi	sp, sp, 16					# imm[11:0]     rs1	000 rd 		 0010011	# 000000010000 00010 000 00010 0010011
 	ret									# imm[11:0] 	rs1 000 rd		 1100111	# 000000000000 00001 000 00000 1100111
-
-
-
-
-	main:                                   # Addr 0x0
-		addi	sp, sp, -16
-		sw	ra, 12(sp)
-		sw	s0, 8(sp)
-		addi	s0, sp, 16
-		mv	a0, zero
-		sw	a0, -12(s0)
-		sw	a0, -16(s0)
-		j	.LBB0_1
-	.LBB0_1:                                # Addr 0x20
-		lw	a0, -16(s0)
-		addi	a1, zero, 255
-		blt	a1, a0, .LBB0_4
-		j	.LBB0_2
-	.LBB0_2:                                # Addr 0x30
-		lui	a0, %hi(1024)
-		addi	a0, a0, %lo(1024)
-		lw	a1, -16(s0)
-		slli	a1, a1, 2
-		add	a0, a0, a1
-		flw	ft0, 0(a0)
-		lui	a0, %hi(2048)
-		addi	a0, a0, %lo(2048)
-		add	a0, a0, a1
-		flw	ft1, 0(a0)
-		fadd.s	ft0, ft0, ft1
-		lui	a0, %hi(3072)
-		addi	a0, a0, %lo(3072)
-		add	a0, a0, a1
-		fsw	ft0, 0(a0)
-		j	.LBB0_3
-	.LBB0_3:                                # Addr 0x70
-		lw	a0, -16(s0)
-		addi	a0, a0, 1
-		sw	a0, -16(s0)
-		j	.LBB0_1
-	.LBB0_4:								# Addr 0x80
-		lw	a0, -12(s0)
-		lw	s0, 8(sp)
-		lw	ra, 12(sp)
-		addi	sp, sp, 16
-		ret

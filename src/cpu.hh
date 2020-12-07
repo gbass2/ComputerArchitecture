@@ -105,8 +105,8 @@ private:
             virtual void process() override {
                 dec->decodeInstruction();
 
-                if(dec->cpu->currAddrI < dec->cpu->endAddrI)
-                    dec->cpu->ex->e->exEvent();
+                dec->cpu->ex->e->exEvent(); // Schedule execute event
+
             }
             virtual const char* description() override {return "Decode";}
             void decodeEvent(){
@@ -138,9 +138,13 @@ private:
         public:
             ExecuteEvent(Execute *_ex) : Event(), ex(_ex) {}
             virtual void process() override {
-                    ex->executeInstruction();
+                ex->executeInstruction();
 
-                if((ex->cpu->currAddrI < ex->cpu->endAddrI) && (((ex->isMemAccess() && ex->isRead())) || !ex->isMemAccess()))
+                if(ex->cpu->currAddrI > ex->cpu->endAddrI)
+                    ex->cpu->send->sendEvent();   // Scheduling send data because a fetch was not scheduled
+
+
+                if((((ex->isMemAccess() && ex->isRead())) || !ex->isMemAccess()))
                     ex->cpu->s->e->storeEvent();
             }
             virtual const char* description() override {return "Execute";}

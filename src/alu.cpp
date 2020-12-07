@@ -334,7 +334,7 @@ void CPU::ALU::SW() { // Storing Word
     cpu->currAddrD = addrs;
 
     if(cpu->ex->intInst.rs2.getName().to_string() == "00001"){
-        int tmp = cpu->currAddrI;
+        int tmp = cpu->currAddrI - 8;
         cpu->ex->intInst.rs2.setData(tmp);
     }
 
@@ -514,12 +514,17 @@ void CPU::ALU::JAL() {
 }
 
 void CPU::ALU::JALR() {
+    std::cout << "rs1 name:" << cpu->ex->intInst.rs1.getName() << std::endl;
+
     int val = cpu->ex->intInst.rs1.getData();    // rs1
     int imm = Binary2Decimal(cpu->ex->fInst.immJU.to_string() + "0", 21); // Immidate value
+    std::cout << "imm: " << imm << std::endl;
+    std::bitset<32> addrs = val + imm;
+    addrs[0] = 0;
+
     std::cout << "Current Address (Before): " << cpu->currAddrI << std::endl;
-    cpu->currAddrI += val + imm;
+    cpu->currAddrI = addrs.to_ulong();
     std::cout << "Current Address (After): " << cpu->currAddrI << std::endl;
-    std::cout << "imm: " << val << std::endl;
 
     int val2 = cpu->currAddrI;
     cpu->ex->intInst.rd.setData(val2);
@@ -527,6 +532,8 @@ void CPU::ALU::JALR() {
     // The PC changes so the pipeline stages need to be flushed
     cpu->f->intInst.flush();
     cpu->d->intInst.flush();
+
+    cpu->send->sendEvent();
 }
 
 void CPU::ALU::FADDS() {
