@@ -253,6 +253,7 @@ public:
         void FLW();
         void FSW();
         void FADDS();
+        void FSUBS();
     };
 
     // For creating a send data event to pass data through the pipeline

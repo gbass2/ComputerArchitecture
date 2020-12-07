@@ -110,6 +110,7 @@ void CPU::Decode::decodeInstruction() {
                 fInst.rs2.setName(bitset<5>(instruction.substr(20,5)));
                 fInst.rs1.setName(reverse(fInst.rs1.getName())); // reversing the because the instruction reads left to right and the risc v doc reads right to left
                 fInst.rs2.setName(reverse(fInst.rs2.getName())); // reversing the because the instruction reads left to right and the risc v doc reads right to left
+                fInst.funct7 = bitset<7>(instruction.substr(25,7));
             } else if(fInst.type == "I"){
                 fInst.opcode =  bitset<7>(instruction.substr(0,7));
                 fInst.rd.setName(bitset<5>(instruction.substr(7,5)));

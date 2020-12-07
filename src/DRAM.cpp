@@ -40,8 +40,8 @@ void DRAM::recvReq(PacketPtr pkt) {
 // In the case that we have a packet, the packet will have a buffer associated
 // with it and size
 void DRAM::setDataAddr(Addr ad, uint8_t * buff, size_t len){
-         // std::cout << "set data at addrs " << ad << " data: " << *(int *)(buff) << std::endl;
-     assert((ad >= addrs.first) && ((ad+len) <= addrs.second + 1));
+     // std::cout << "Store at addrs " << ad << " Data: " << *(int *)(buff) << std::endl;
+     // assert((ad >= addrs.first) && ((ad+len) <= addrs.second + 1));
      Addr offset = ad - addrs.first;    // Calcs offest in memory that the
                                         // packet is reading
      std::memcpy((memory + offset), buff, len);   // pointer in our memory for DRAM
@@ -73,7 +73,7 @@ void DRAM::getDataAtAddr(Addr ad, uint8_t * buff, size_t len) {
     Addr offset = ad - addrs.first;
 
     std::memcpy(buff, (memory + offset), len);
-    // std::cout << "get data at addrs " << ad << " data: " << *(int *)(buff) << std::endl;
+    std::cout << "load instruction at addrs " << ad << " instruction: " << std::bitset<32>(*(uint32_t *)(buff))<< std::endl;
 }
 
 template<typename T>

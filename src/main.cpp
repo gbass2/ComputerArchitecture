@@ -50,8 +50,8 @@ int main(){
     cpu1->setRegister(stackBegin1, stackEnd1);
 
     setupSimulator(Iram1, Iram2);
-    cpu0->initialize();       // Sets up the first event. Which is a fetch event
-    // cpu1->initialize();       // Sets up the first event. Which is a fetch event
+    // cpu0->initialize();       // Sets up the first event. Which is a fetch event
+    cpu1->initialize();       // Sets up the first event. Which is a fetch event
     sim->runSimulation();     // Runs the instructions
 
     return 0;
@@ -68,11 +68,11 @@ void setupSimulator(DRAM *ram1, DRAM *ram2){ // Sets up the instruction memory w
     ram1->writeWordAtAddr(16, 0b11001000101000000000000000000000); // 6
     ram1->writeWordAtAddr(20, 0b11000100010101000010010101111111); // 7
     ram1->writeWordAtAddr(24, 0b11000100000101000010010101111111); // 8
-    ram1->writeWordAtAddr(28, 0b11110110000000000000000001000000); // 9
+    ram1->writeWordAtAddr(28, 0b11110110000000000000000000100000); // 9
     ram1->writeWordAtAddr(32, 0b11000000101001000010000011111111); // 11
     ram1->writeWordAtAddr(36, 0b11001001101000000000111111110000); // 12
-    ram1->writeWordAtAddr(40, 0b11000110000000111010010100010000); // 13
-    ram1->writeWordAtAddr(44, 0b11110110000000000000000011000000); // 14
+    ram1->writeWordAtAddr(40, 0b11000110000000111010010100001000); // 13
+    ram1->writeWordAtAddr(44, 0b11110110000000000000000001100000); // 14
     ram1->writeWordAtAddr(48, 0b11101100101000000000000000000000); // 16
     ram1->writeWordAtAddr(52, 0b11001000101000001010000000000010); // 17
     ram1->writeWordAtAddr(56, 0b11000001101001000010000011111111); // 18
@@ -88,11 +88,11 @@ void setupSimulator(DRAM *ram1, DRAM *ram2){ // Sets up the instruction memory w
     ram1->writeWordAtAddr(96, 0b11001000101000001010000000000011); // 28
     ram1->writeWordAtAddr(100, 0b11001100101000001010110100000000); // 29
     ram1->writeWordAtAddr(104, 0b11100100000001001010000000000000); // 30
-    ram1->writeWordAtAddr(108, 0b11110110000000000000000011100000); // 31
+    ram1->writeWordAtAddr(108, 0b11110110000000000000000001110000); // 31
     ram1->writeWordAtAddr(112, 0b11000000101001000010000011111111); // 33
     ram1->writeWordAtAddr(116, 0b11001000101000001010100000000000); // 34
     ram1->writeWordAtAddr(120, 0b11000100000101000010010101111111); // 35
-    ram1->writeWordAtAddr(124, 0b11110110000000000000000001000000); // 36
+    ram1->writeWordAtAddr(124, 0b11110110000000000000000000100000); // 36
     ram1->writeWordAtAddr(128, 0b11000000101001000010001011111111); // 38
     ram1->writeWordAtAddr(132, 0b11000000001001001000000100000000); // 39
     ram1->writeWordAtAddr(136, 0b11000001000001001000001100000000); // 40
@@ -107,11 +107,11 @@ void setupSimulator(DRAM *ram1, DRAM *ram2){ // Sets up the instruction memory w
     ram2->writeWordAtAddr(272, 0b11001000101000000000000000000000); // 6
     ram2->writeWordAtAddr(276, 0b11000100010101000010010101111111); // 7
     ram2->writeWordAtAddr(280, 0b11000100000101000010010101111111); // 8
-    ram2->writeWordAtAddr(284, 0b11110110000000000000000001000000); // 9
+    ram1->writeWordAtAddr(284, 0b11110110000000000000000000100100); // 9
     ram2->writeWordAtAddr(288, 0b11000000101001000010000011111111); // 11
     ram2->writeWordAtAddr(292, 0b11001001101000000000111111110000); // 12
-    ram2->writeWordAtAddr(296, 0b11000110000000111010010100010000); // 13
-    ram2->writeWordAtAddr(300, 0b11110110000000000000000011000000); // 14
+    ram2->writeWordAtAddr(296, 0b11000110000000111010010100011000); // 13
+    ram2->writeWordAtAddr(300, 0b11110110000000000000000001100100); // 14
     ram2->writeWordAtAddr(304, 0b11101100101000000000000000000000); // 16
     ram2->writeWordAtAddr(308, 0b11001000101000001010000000000010); // 17
     ram2->writeWordAtAddr(312, 0b11000001101001000010000011111111); // 18
@@ -123,15 +123,15 @@ void setupSimulator(DRAM *ram1, DRAM *ram2){ // Sets up the instruction memory w
     ram2->writeWordAtAddr(336, 0b11001100101000001010110100000000); // 24
     ram2->writeWordAtAddr(340, 0b11100001000001001010000000000000); // 25
     ram2->writeWordAtAddr(344, 0b11001010000011100000100000000000); // 26
-    ram2->writeWordAtAddr(348, 0b11101100101000000000000000000000); // 27
-    ram2->writeWordAtAddr(352, 0b11001000101000001010000000000011); // 28
+    ram2->writeWordAtAddr(348, 0b11101100101010000000000000000000); // 27
+    ram2->writeWordAtAddr(352, 0b11001000101000001010000000000000); // 28
     ram2->writeWordAtAddr(356, 0b11001100101000001010110100000000); // 29
     ram2->writeWordAtAddr(340, 0b11100100000001001010000000000000); // 30
-    ram2->writeWordAtAddr(344, 0b11110110000000000000000011100000); // 31
+    ram2->writeWordAtAddr(344, 0b11110110000000000000000001110100); // 31
     ram2->writeWordAtAddr(348, 0b11000000101001000010000011111111); // 33
     ram2->writeWordAtAddr(352, 0b11001000101000001010100000000000); // 34
     ram2->writeWordAtAddr(356, 0b11000100000101000010010101111111); // 35
-    ram2->writeWordAtAddr(360, 0b11110110000000000000000001000000); // 36
+    ram2->writeWordAtAddr(360, 0b11110110000000000000000000001100); // 36
     ram2->writeWordAtAddr(364, 0b11000000101001000010001011111111); // 38
     ram2->writeWordAtAddr(368, 0b11000000001001001000000100000000); // 39
     ram2->writeWordAtAddr(372, 0b11000001000001001000001100000000); // 40

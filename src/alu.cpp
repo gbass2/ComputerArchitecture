@@ -82,22 +82,29 @@ void CPU::ALU::aluOperations() {
             AUIPC();
         }
         else if(cpu->ex->intInst.opcode.to_string() == "1100110") { // Add
-            ADD();
+            if(cpu->ex->fInst.funct7.to_string() == "0000000")
+                ADD();
         }
         else
             std::cout << "NOP in execute" << std::endl;
 
     } else { // Floating Point Operations
         if(cpu->ex->fInst.opcode.to_string() == "1100101") {  // fadd.s
-            std::cout << "FADDS()" << std::endl;
-            FADDS();
+            if(cpu->ex->fInst.funct7.to_string() == "0000000"){
+                std::cout << "FADDS" << std::endl;
+                FADDS();
+            }
+            else if(cpu->ex->fInst.funct7.to_string() == "0000100") {
+                std::cout << "FSUBS" << std::endl;
+                FSUBS();
+            }
         }
         else if(cpu->ex->fInst.opcode.to_string() == "1110010") { // fsw
-            std::cout << "FSW()" << std::endl;
+            std::cout << "FSW" << std::endl;
             FSW();
         }
         else if(cpu->ex->fInst.opcode.to_string() == "1110000") { // flw
-            std::cout << "FLW()" << std::endl;
+            std::cout << "FLW" << std::endl;
             FLW();
         }
     }
@@ -428,10 +435,10 @@ void CPU::ALU::BLT() {  // Branch Rs1 Less Than Rs2
     std::cout << "val2: " << val2 << std::endl;
     std::cout << "rs1 name: " << cpu->ex->intInst.rs1.getName() << std::endl;
     std::cout << "rs2 name: " << cpu->ex->intInst.rs2.getName() << std::endl;
-    std::cout << "[keyword] imm: " <<  Binary2Decimal(cpu->ex->intInst.immISB.to_string() + "0", 13) << std::endl;
+    std::cout << "[keyword] imm: " << cpu->ex->intInst.immISB.to_ulong() << std::endl;
 
     if(val < val2){
-        int val3 = Binary2Decimal(cpu->ex->intInst.immISB.to_string() + "0", 13); // Immidate value
+        int val3 = cpu->ex->intInst.immISB.to_ulong();
         cpu->currAddrI = val3;
 
         // The PC changes so the pipeline stages need to be flushed
@@ -498,7 +505,7 @@ void CPU::ALU::JAL() {
      // Jumping back to an address
      std::cout << "JAL" << std::endl;
      std::cout << "imm in bits: " << cpu->ex->intInst.immJU << std::endl;
-     int imm = Binary2Decimal(cpu->ex->intInst.immJU.to_string() + "0", 21); // Immidate value 0000 0000 0000 0010 0000
+     int imm = cpu->ex->intInst.immJU.to_ulong();
      std::cout << "imm: " << imm << std::endl;
      std::cout << "Current Address (Before): " << cpu->currAddrI << std::endl;
      cpu->currAddrI = imm;
@@ -517,7 +524,7 @@ void CPU::ALU::JALR() {
     std::cout << "rs1 name:" << cpu->ex->intInst.rs1.getName() << std::endl;
 
     int val = cpu->ex->intInst.rs1.getData();    // rs1
-    int imm = Binary2Decimal(cpu->ex->fInst.immJU.to_string() + "0", 21); // Immidate value
+    int imm = cpu->ex->intInst.immJU.to_ulong();
     std::cout << "imm: " << imm << std::endl;
     std::bitset<32> addrs = val + imm;
     addrs[0] = 0;
@@ -547,6 +554,19 @@ void CPU::ALU::FADDS() {
     std::cout << "rd name: " << cpu->ex->fInst.rd.getName() << std::endl;
 
     cpu->ex->fInst.rd.setData(val1 + val2); // Adding 2 float values
+}
+
+void CPU::ALU::FSUBS() {
+    // rd = rs1 + rs2
+    float val1, val2;
+
+    val1 = cpu->ex->fInst.rs1.getData();    // rs1
+    val2 = cpu->ex->fInst.rs2.getData();    // rs2
+    std::cout << "rs1 name: " << cpu->ex->fInst.rs1.getName() << std::endl;
+    std::cout << "rs2 name: " << cpu->ex->fInst.rs2.getName() << std::endl;
+    std::cout << "rd name: " << cpu->ex->fInst.rd.getName() << std::endl;
+
+    cpu->ex->fInst.rd.setData(val2 - val1); // Subtracting 2 float values
 }
 
 void CPU::ALU::FLW() {
