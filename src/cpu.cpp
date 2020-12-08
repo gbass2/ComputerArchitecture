@@ -5,7 +5,7 @@ using namespace std;
 template<size_t N>
 bitset<N> reverse(const bitset<N> &bit_set);
 
-CPU::CPU(std::shared_ptr<System> s1, const char* name, size_t start1, size_t end1, size_t start2, size_t end2, size_t _memLatency) :
+CPU::CPU(std::shared_ptr<System> s1, const char* name, size_t start1, size_t end1, size_t start2, size_t end2) :
     SimObject(s1, name),
     f(new Fetch(this)),
     d(new Decode(this)),
@@ -20,7 +20,6 @@ CPU::CPU(std::shared_ptr<System> s1, const char* name, size_t start1, size_t end
     port1(new RequestInstPort(this)),
     port2(new RequestDataPort(this)),
     clkTick(10),
-    memLatency(_memLatency),
     currAddrI(start1),
     currAddrD(start2),
     endAddrI(end1),
@@ -168,7 +167,8 @@ void CPU::Decode::decodeInstruction() {
             }
     }
 
-    release->releaseEvent();
+    if(cpu->currAddrI < cpu->endAddrI)
+        release->releaseEvent();
 }
 
 // Prints the execute stage
@@ -321,12 +321,14 @@ void CPU::Decode::findInstructionType(){
 
 void CPU::recvResp(PacketPtr pkt){
         std::cout << getName() << " received packet response from memory on Tick: " << currTick() << std::endl;
-        pkt->printHeader();
 
-        if((f->isBusy() && f->isRead()) && !ex->isBusy()){      // only true for fetch stage
+        cout << "f isBusy: " << f->isBusy() << endl;
+        cout << "f isRead: " << f->isRead() << endl;
+        cout << "ex isRead: " << ex->isRead() << endl;
+        if((f->isBusy() && f->isRead())){      // only true for fetch stage
             // Reading from memory in binary
             bitset<32> instruction = *(uint32_t *)(pkt->getBuffer());
-            cout << getName() << " read in binary: " << instruction << endl;
+            cout << getName() << " read in binary: " << instruction << endl;        // cpu0 read in binary: 01010101010
             f->intInst.currentInstruction = instruction;
 
             f->release->releaseEvent();
@@ -339,7 +341,7 @@ void CPU::recvResp(PacketPtr pkt){
             //     d->e->decodeEvent(); // Scheduling decode
 
             // f->setBusy(0);  // Setting fetch stage to not busy
-        } else if(ex->isBusy() && ex->isRead()){
+        } else if(ex->isBusy() && ex->isRead()){        // only true for execute
             // Reading int from data memory
             if(!ex->getIsFloat()){
                 int val = (*(int *)(pkt->getBuffer())); // Loading into rd. The store stage will get the data and store it in the proper location
@@ -351,20 +353,22 @@ void CPU::recvResp(PacketPtr pkt){
                 else if(ex->intInst.funct3.to_string() == "100"){ // LBU Zero extend
                     val = val << 24;
                 }
+
                 ex->intInst.rd.setData(val);
-                ex->release->releaseEvent();
+                // ex->release->releaseEvent();
+
             }
             // Reading float from memory
             else{
                 cout << "Loaded value: " << *(float *)(pkt->getBuffer()) << endl;
                 ex->fInst.rd.setData(*(float *)(pkt->getBuffer()));
-                ex->release->releaseEvent();
+                // ex->release->releaseEvent();
             }
 
-            // ex->setBusy(0); // Setting execute stage to not busy
+            ex->setBusy(0); // Setting execute stage to not busy
         } else {
             cout << "Successfully Stored " << (*(int *)(pkt->getBuffer())) << " to Memory" << std::endl;
-            // ex->setBusy(0); // Setting execute stage to not busy
+            ex->setBusy(0); // Setting execute stage to not busy
         }
         delete pkt;
     }

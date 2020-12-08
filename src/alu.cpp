@@ -110,9 +110,13 @@ void CPU::ALU::aluOperations() {
     }
     if(!cpu->ex->isMemAccess()){
         // // std::cout << "# Set Busy to False" << std::endl;
-        // cpu->ex->setBusy(0); // Setting execute stage to not busy if the operation does not access the memory
-        cpu->ex->release->releaseEvent();
+        cpu->ex->setBusy(0); // Setting execute stage to not busy if the operation does not access the memory
+
     }
+
+    // Scheduling execute release unless the program is done
+    if(cpu->currAddrI < cpu->endAddrI)
+        cpu->ex->release->releaseEvent();
 }
 
 void CPU::ALU::ADDI() {
@@ -329,6 +333,7 @@ void CPU::ALU::SH() { // Storing half word
 }
 
 void CPU::ALU::SW() { // Storing Word
+    std::cout << "SW" << std::endl;
     cpu->byteAmount = 4; // Specify 32 bit value to be stored
     int imm;
 

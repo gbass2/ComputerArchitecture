@@ -18,8 +18,8 @@ int main(){
     size_t dramEnd = 0x13FF;
     size_t memLatency = 20;
 
-    CPU *cpu0 = new CPU(sys, "cpu0", 0, 0x093, stackBegin0, dramEnd, memLatency); // Passes in the device name, the starting and end addrs for instruction memory, andd the stating and end addrs for data memory
-    CPU *cpu1 = new CPU(sys, "cpu1", 0x100, 0x193, stackBegin0, dramEnd, memLatency); // Passes in the device name, the starting and end addrs for instruction memory, andd the stating and end addrs for data memory
+    CPU *cpu0 = new CPU(sys, "cpu0", 0, 0x093, stackBegin0, dramEnd); // Passes in the device name, the starting and end addrs for instruction memory, andd the stating and end addrs for data memory
+    CPU *cpu1 = new CPU(sys, "cpu1", 0x100, 0x193, stackBegin0, dramEnd); // Passes in the device name, the starting and end addrs for instruction memory, andd the stating and end addrs for data memory
 
     RunSim *sim = new RunSim(sys);
 

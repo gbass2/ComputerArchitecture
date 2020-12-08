@@ -7,6 +7,8 @@
 #include <cmath>
 #include <memory>
 #include <bitset>
+#include <cstring>
+#include <cassert>
 #include <algorithm>
 
 // Holds the data between the pipeline stages
@@ -91,22 +93,26 @@ private:
         public:
             ReleaseEvent(Fetch *_f) : Event(), fetch(_f) {}
             virtual void process() override {
-                // Passing the instruction of fetch to decode for int instruction
-                fetch->cpu->d->intInst = fetch->intInst;
-                // Passing the instruction of fetch to decode for float instruction
-                fetch->cpu->d->fInst = fetch->fInst;
+                if(fetch->cpu->ex->isBusy())                                // If execute is busy then Reschedule
+                    fetch->cpu->schedule(this, fetch->cpu->currTick() + 10);
+                else {                                                      // If not then send data to decode and schedule and schedule decode and fetch
+                    // Passing the instruction of fetch to decode for int instruction
+                    fetch->cpu->d->intInst = fetch->intInst;
+                    // Passing the instruction of fetch to decode for float instruction
+                    fetch->cpu->d->fInst = fetch->fInst;
 
-                fetch->cpu->d->setRead(fetch->isRead());
-                fetch->cpu->d->setMemAccess(fetch->isMemAccess());
-                fetch->cpu->d->setFloat(fetch->getIsFloat());
+                    fetch->cpu->d->setRead(fetch->isRead());
+                    fetch->cpu->d->setMemAccess(fetch->isMemAccess());
+                    fetch->cpu->d->setFloat(fetch->getIsFloat());
 
-                // create a fetch event after data is released
-                if(fetch->cpu->currAddrI < fetch->cpu->endAddrI){
-                    fetch->cpu->d->e->decodeEvent();
-                    fetch->e->fetchEvent(); // Scheduling fetch
+                    // create a fetch event after data is released
+                    if(fetch->cpu->currAddrI < fetch->cpu->endAddrI){
+                        // fetch->cpu->d->e->decodeEvent();
+                        fetch->e->fetchEvent(); // Scheduling fetch
+                    }
+
+                    fetch->setBusy(0);
                 }
-
-                fetch->setBusy(0);
             }
             virtual const char* description() override {return "Fetch Release Event";}
             void releaseEvent() {
@@ -139,9 +145,6 @@ private:
             DecodeEvent(Decode *_d) : Event(), dec(_d) {}
             virtual void process() override {
                 dec->decodeInstruction();
-
-                // dec->cpu->ex->e->exEvent(); // Schedule execute event
-
             }
             virtual const char* description() override {return "Decode";}
             void decodeEvent(){
@@ -157,20 +160,24 @@ private:
         public:
             ReleaseEvent(Decode *_d) : Event(), d(_d) {}
             virtual void process() override {
-                // Passing the instruction of decode to execute for int instruction
-                d->cpu->ex->intInst = d->intInst;
-                // Passing the instruction of decode to execute for float instruction
-                d->cpu->ex->fInst = d->fInst;
 
-                d->cpu->ex->setRead(d->isRead());
-                d->cpu->ex->setMemAccess(d->isMemAccess());
-                d->cpu->ex->setFloat(d->getIsFloat());
-                d->cpu->ex->setLatency(d->getLatency());
+                if(d->cpu->ex->isBusy())                                // If execute is busy then Reschedule
+                    d->cpu->schedule(this, d->cpu->currTick() + 10);
+                else {                                                  // If not then send data to execute and schedule an execute
+                    d->cpu->ex->intInst = d->intInst;                   // Passing the instruction of decode to execute for int instruction
 
-                // create a decode event after data is released
-                // d->cpu->ex->e->exEvent(); // Scheduling execute
+                    d->cpu->ex->fInst = d->fInst;                       // Passing the instruction of decode to execute for float instruction
 
-                d->setBusy(0);
+                    d->cpu->ex->setRead(d->isRead());
+                    d->cpu->ex->setMemAccess(d->isMemAccess());
+                    d->cpu->ex->setFloat(d->getIsFloat());
+                    d->cpu->ex->setLatency(d->getLatency());
+
+
+                    d->cpu->ex->e->exEvent(); // create an execute event after data is released
+
+                    d->setBusy(0);
+                }
             }
             virtual const char* description() override {return "Decode Release Event";}
             void releaseEvent() {
@@ -205,18 +212,12 @@ private:
             virtual void process() override {
                 ex->executeInstruction();
 
-                if(ex->cpu->currAddrI > ex->cpu->endAddrI)
-                    ex->cpu->send->sendEvent();   // Scheduling send data because a fetch was not scheduled
-
-
-                // if((((ex->isMemAccess() && ex->isRead())) || !ex->isMemAccess()))
-                //     ex->cpu->s->e->storeEvent();
             }
             virtual const char* description() override {return "Execute";}
             void exEvent(){
                 std::cout << "Scheduling Execute Event on Tick: " << ex->cpu->currTick() << std::endl;
                 size_t n = ex->cpu->currTick();
-                size_t eventTime = (n >= 0 ? ((n + 10 - 1) / 10) * 10 : (n / 10) * 10) + ex->cpu->memLatency + 1;
+                size_t eventTime = (n >= 0 ? ((n + 10 - 1) / 10) * 10 : (n / 10) * 10) + 1;
                 ex->cpu->schedule(ex->e, eventTime); // Scheduling new event
             }
         };
@@ -226,26 +227,34 @@ private:
         public:
             ReleaseEvent(Execute *_ex) : Event(), ex(_ex) {}
             virtual void process() override {
-                // Passing the instruction of execute to store for int instruction
-                ex->cpu->s->intInst = ex->intInst;
-                // Passing the instruction of execute to store for float instruction
-                ex->cpu->s->fInst = ex->fInst;
 
-                ex->cpu->s->setRead(ex->cpu->ex->isRead());
-                ex->cpu->s->setMemAccess(ex->cpu->ex->isMemAccess());
-                ex->cpu->s->setFloat(ex->cpu->ex->getIsFloat());
+                if(!ex->isMemAccess()) // If we dont need to access memory then we can go ahead and send data
+                    ex->setBusy(0);
 
-                // create a store after data is released
-                if((ex->isMemAccess() && ex->isRead()) || !ex->isMemAccess())
-                    ex->cpu->s->e->storeEvent();
 
-                ex->setBusy(0);
+                // If not busy pass data to store and create a store event
+                if(!ex->isBusy()){
+                    // Passing the instruction of execute to store for int instruction
+                    ex->cpu->s->intInst = ex->intInst;
+                    // Passing the instruction of execute to store for float instruction
+                    ex->cpu->s->fInst = ex->fInst;
+
+                    ex->cpu->s->setRead(ex->cpu->ex->isRead());
+                    ex->cpu->s->setMemAccess(ex->cpu->ex->isMemAccess());
+                    ex->cpu->s->setFloat(ex->cpu->ex->getIsFloat());
+
+                    // create a store after data is released
+                    if((ex->isMemAccess() && ex->isRead()) || !ex->isMemAccess()){
+                        ex->cpu->s->e->storeEvent();
+                    }
+                } else
+                    ex->cpu->schedule(this, ex->cpu->currTick() + 10); // Reschedule if busy for current tick + 10
             }
             virtual const char* description() override {return "Execute Release Event";}
             void releaseEvent() {
                 std::cout << "Scheduling Execute Release Event on Tick: " << ex->cpu->currTick() << std::endl;
                 size_t n = ex->cpu->currTick();
-                size_t eventTime = (n >= 0 ? (n / 10) * 10 : ((n - 10 + 1) / 10) * 10) + ex->cpu->memLatency + ex->getLatency() + 6; // Schedule a release event after the memory has finished it's events and after the alu latency
+                size_t eventTime = (n >= 0 ? (n / 10) * 10 : ((n - 10 + 1) / 10) * 10) + 6; // Schedule a release event after the memory has finished it's events and after the alu latency
                 ex->cpu->schedule(this, eventTime); // Scheduling new event
             }
 
@@ -276,7 +285,7 @@ private:
         void storeEvent(){
             std::cout << "Scheduling Store on Tick: " << s->cpu->currTick() << std::endl;
             size_t n = s->cpu->currTick();
-            size_t eventTime = (n >= 0 ? ((n + 10 - 1) / 10) * 10 : (n / 10) * 10) + s->cpu->memLatency + 1;
+            size_t eventTime = (n >= 0 ? ((n + 10 - 1) / 10) * 10 : (n / 10) * 10) + 1;
             s->cpu->schedule(s->e, eventTime); // Scheduling new event
         }
     };
@@ -446,7 +455,6 @@ public:
 
     size_t cycles = 1;
     Tick clkTick;       // How far in advance that the event is going to be scheduled
-    size_t memLatency;
     size_t currAddrI;   // Current address for the instruction Memory
     size_t currAddrD;   // Current address for the data Memory
     size_t endAddrI;    // End address for the Instruction Memory
@@ -455,7 +463,7 @@ public:
     friend RegisterBank;
 
 public:
-    CPU(std::shared_ptr<System> s1, const char* name, size_t start1, size_t end1, size_t start2, size_t end2, size_t _memLatency);
+    CPU(std::shared_ptr<System> s1, const char* name, size_t start1, size_t end1, size_t start2, size_t end2);
     ~CPU();
     void processInst() {
         if(!(port1->isBusy())){
