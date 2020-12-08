@@ -6,6 +6,7 @@
 #include <cinttypes>
 #include <iostream>
 #include<cstring>
+#include <string>
 
 typedef size_t Addr;
 typedef std::pair<Addr, Addr> AddrRange;
@@ -19,17 +20,20 @@ private:
     std::deque<MasterPort *> header; // Routing scheme. Keeps track of the ports passed through
     Addr dst; // Destination/Address
     size_t size; // Size of the packet
+    std::string name;
 public:
-    Packet(bool read, Addr _dst, size_t _size):
+    Packet(bool read, Addr _dst, size_t _size, std::string _name):
         _isRead(read),
         buffer(new uint8_t[_size]),
         dst(_dst),
-        size(_size) {}
-    Packet(bool read, Addr _dst, uint8_t* _buffer,  size_t _size):
+        size(_size),
+        name(_name) {}
+    Packet(bool read, Addr _dst, uint8_t* _buffer,  size_t _size, std::string _name):
         _isRead(read),
         buffer(new uint8_t[_size]),
         dst(_dst),
-        size(_size) { std::memcpy(buffer, _buffer, size); }
+        size(_size),
+        name(_name) { std::memcpy(buffer, _buffer, size); }
 
     ~Packet() {
         header.clear();
@@ -39,6 +43,7 @@ public:
     bool isRead() { return _isRead; }
     size_t getSize() { return size; }
     Addr getAddr() { return dst; } // Getting address
+    std::string getName() { return name; }
 
     // Modifying header. When pass from one device to another we are going to append to the header where we came from
     void appendHeader(MasterPort *port) { header.push_back(port); }

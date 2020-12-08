@@ -6,7 +6,7 @@ using namespace std;
 
 // Main function for running the simulation
 void RunSim::runSimulation(){
-    double numInstructions = 37; // Remove once ret is implemented
+    double numInstructions = 37;
 
     while(!(sysMain->getMEQ().empty())){
         // Counting the cycles

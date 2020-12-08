@@ -294,7 +294,7 @@ void CPU::Decode::findInstructionType(){
          setFloat(0);
     } else if(intInst.opcode.to_string() == "1100110"){  // MUL
          intInst.type = "R";
-         setLatency(10); // 20 sim ticks
+         setLatency(20); // 20 sim ticks
          setFloat(0);
     } else if(intInst.opcode.to_string() == "1110000"){  // FLW
          fInst.type = "I";
@@ -322,47 +322,31 @@ void CPU::Decode::findInstructionType(){
 void CPU::recvResp(PacketPtr pkt){
         std::cout << getName() << " received packet response from memory on Tick: " << currTick() << std::endl;
 
-        cout << "f isBusy: " << f->isBusy() << endl;
-        cout << "f isRead: " << f->isRead() << endl;
-        cout << "ex isRead: " << ex->isRead() << endl;
-        if((f->isBusy() && f->isRead())){      // only true for fetch stage
+        // Temp: Execute for load data should NOT be passing through this if statement
+        if((pkt->getName() == "fetch" && pkt->isRead())){         // only true for fetch stage
             // Reading from memory in binary
             bitset<32> instruction = *(uint32_t *)(pkt->getBuffer());
-            cout << getName() << " read in binary: " << instruction << endl;        // cpu0 read in binary: 01010101010
+            cout << getName() << " read in binary: " << instruction << endl;    // example: cpu0 read in binary: 01010101010
             f->intInst.currentInstruction = instruction;
 
             f->release->releaseEvent();
-
-            // send->sendEvent();   // Scheduling send data
-            // if(currAddrI < endAddrI){
-            //     d->e->decodeEvent(); // Scheduling decode
-            //     f->e->fetchEvent();  // Scheduling fetch
-            // } else
-            //     d->e->decodeEvent(); // Scheduling decode
-
-            // f->setBusy(0);  // Setting fetch stage to not busy
-        } else if(ex->isBusy() && ex->isRead()){        // only true for execute
+        } else if(pkt->getName() == "execute" && pkt->isRead()){        // only true for execute
             // Reading int from data memory
             if(!ex->getIsFloat()){
                 int val = (*(int *)(pkt->getBuffer())); // Loading into rd. The store stage will get the data and store it in the proper location
                 cout << "Loaded value: " << val << endl;
 
-                if(ex->intInst.funct3.to_string() == "101"){ // LBH Zero Extend
+                if(ex->intInst.funct3.to_string() == "101")        // LBH Zero Extend
                     val = val << 16;
-                }
-                else if(ex->intInst.funct3.to_string() == "100"){ // LBU Zero extend
+                else if(ex->intInst.funct3.to_string() == "100")   // LBU Zero extend
                     val = val << 24;
-                }
 
                 ex->intInst.rd.setData(val);
-                // ex->release->releaseEvent();
-
             }
             // Reading float from memory
             else{
                 cout << "Loaded value: " << *(float *)(pkt->getBuffer()) << endl;
                 ex->fInst.rd.setData(*(float *)(pkt->getBuffer()));
-                // ex->release->releaseEvent();
             }
 
             ex->setBusy(0); // Setting execute stage to not busy
@@ -371,11 +355,12 @@ void CPU::recvResp(PacketPtr pkt){
             ex->setBusy(0); // Setting execute stage to not busy
         }
         delete pkt;
-    }
+}
 
 template<size_t N>
 bitset<N> reverse(const bitset<N> &bit_set) {
   std::bitset<N> reversed;
+  // reverses bitset
   for (int i = 0, j = N - 1; i < N; i++, j--) {
     reversed[j] = bit_set[i];
   }
