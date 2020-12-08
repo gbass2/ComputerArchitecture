@@ -45,7 +45,7 @@ void DRAM::setDataAddr(Addr ad, uint8_t * buff, size_t len){
                                         // packet is reading
      std::memcpy((memory + offset), buff, len);   // pointer in our memory for DRAM
      std::memcpy(buff, (memory + offset), len);
-     std::cout << "Store data at addrs " << ad << " data: " << *(int *)(buff)<< std::endl;
+     // std::cout << "Store data at addrs " << ad << " data: " << *(int *)(buff)<< std::endl;
 }
 // Helper Functions
 template<typename T>     // allows the function to use multiple different types

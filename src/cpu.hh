@@ -24,7 +24,7 @@ struct Instruction{
 
     T data;
     std::string type; // Type of instruction
-    size_t set; // the latency involved based on what instruction set is being processed
+    size_t latency; // the latency involved based on what instruction set is being processed
 
     void flush(){ // flush/clear the pipeline stages if jumped or branch was taken
         currentInstruction.reset();
@@ -82,13 +82,43 @@ private:
                     fetch->cpu->schedule(fetch->e, eventTime); // Scheduling new event
                 }
         };
+        class ReleaseEvent : public Event{
+        private:
+            Fetch *fetch;
+        public:
+            ReleaseEvent(Fetch *_f) : Event(), fetch(_f) {}
+            virtual void process() override {
+                // Passing the instruction of fetch to decode for int instruction
+                fetch->cpu->d->intInst = fetch->intInst;
+                // Passing the instruction of fetch to decode for float instruction
+                fetch->cpu->d->fInst = fetch->fInst;
+
+                fetch->cpu->d->setRead(fetch->isRead());
+                fetch->cpu->d->setMemAccess(fetch->isMemAccess());
+                fetch->cpu->d->setFloat(fetch->getIsFloat());
+
+                // create a fetch event after data is released
+                if(fetch->cpu->currAddrI < fetch->cpu->endAddrI)
+                    fetch->e->fetchEvent(); // Scheduling fetch
+
+                fetch->setBusy(0);
+            }
+            virtual const char* description() override {return "Fetch Release Event";}
+            void relaseEvent() {
+                std::cout << "Scheduling Fetch Release Event on Tick: " << fetch->cpu->currTick() << std::endl;
+                size_t n = fetch->cpu->currTick();
+                size_t eventTime = (n >= 0 ? (n / 10) * 10 : ((n - 10 + 1) / 10) * 10) + 6;
+                fetch->cpu->schedule(this, eventTime); // Scheduling new event
+            }
+
+        };
         CPU *cpu;
         FetchEvent *e; // Access the FetchEvent class from Fetch or outside Fetch
-
+        ReleaseEvent *release;  // Release the data
 
         friend class CPU; // Allows CPU class to access these private variables
     public:
-        Fetch(CPU *c) : cpu(c), e(new FetchEvent(this)) {}
+        Fetch(CPU *c) : cpu(c), e(new FetchEvent(this)), release(new ReleaseEvent(this)) {}
         void fetchInstruction();
     };
 
@@ -105,24 +135,53 @@ private:
             virtual void process() override {
                 dec->decodeInstruction();
 
-                dec->cpu->ex->e->exEvent(); // Schedule execute event
+                // dec->cpu->ex->e->exEvent(); // Schedule execute event
 
             }
             virtual const char* description() override {return "Decode";}
             void decodeEvent(){
-                std::cout << "Scheduling Decode Event on Tick " << dec->cpu->currTick() << std::endl;
+                std::cout << "Scheduling Decode Event on Tick: " << dec->cpu->currTick() << std::endl;
                 size_t n = dec->cpu->currTick();
                 size_t eventTime = (n >= 0 ? ((n + 10 - 1) / 10) * 10 : (n / 10) * 10) + 1;
                 dec->cpu->schedule(dec->e, eventTime); // Scheduling new event
             }
         };
-        CPU *cpu;
-        DecodeEvent *e; // Access the DecodeEvent class from Decode or outside Decode
+        class ReleaseEvent : public Event{
+        private:
+            Decode *d;
+        public:
+            ReleaseEvent(Decode *_d) : Event(), d(_d) {}
+            virtual void process() override {
+                // Passing the instruction of decode to execute for int instruction
+                d->cpu->ex->intInst = d->intInst;
+                // Passing the instruction of decode to execute for float instruction
+                d->cpu->ex->fInst = d->fInst;
 
-        friend class CPU; // Allows CPU class to access these private variables
+                d->cpu->ex->setRead(d->isRead());
+                d->cpu->ex->setMemAccess(d->isMemAccess());
+                d->cpu->ex->setFloat(d->getIsFloat());
+
+                // create a decode event after data is released
+                d->e->decodeEvent(); // Scheduling decode
+
+                d->setBusy(0);
+            }
+            virtual const char* description() override {return "Decode Release Event";}
+            void relaseEvent() {
+                std::cout << "Scheduling Decode Release Event on Tick: " << d->cpu->currTick() << std::endl;
+                size_t n = d->cpu->currTick();
+                size_t eventTime = (n >= 0 ? (n / 10) * 10 : ((n - 10 + 1) / 10) * 10) + 6;
+                d->cpu->schedule(this, eventTime); // Scheduling new event
+            }
+
+        };
+        CPU *cpu;
+        DecodeEvent *e;     // Access the DecodeEvent class from Decode or outside Decode
+        ReleaseEvent *release;  // Release the data
+        friend class CPU;   // Allows CPU class to access these private variables
 
     public:
-        Decode(CPU *c) : cpu(c), e(new DecodeEvent(this)) {}
+        Decode(CPU *c) : cpu(c), e(new DecodeEvent(this)), release(new ReleaseEvent(this)) {}
         void decodeInstruction();
         void findInstructionType();
     };
@@ -144,23 +203,54 @@ private:
                     ex->cpu->send->sendEvent();   // Scheduling send data because a fetch was not scheduled
 
 
-                if((((ex->isMemAccess() && ex->isRead())) || !ex->isMemAccess()))
-                    ex->cpu->s->e->storeEvent();
+                // if((((ex->isMemAccess() && ex->isRead())) || !ex->isMemAccess()))
+                //     ex->cpu->s->e->storeEvent();
             }
             virtual const char* description() override {return "Execute";}
             void exEvent(){
-                std::cout << "Scheduling Execute Event on Tick " << ex->cpu->currTick() << std::endl;
+                std::cout << "Scheduling Execute Event on Tick: " << ex->cpu->currTick() << std::endl;
                 size_t n = ex->cpu->currTick();
                 size_t eventTime = (n >= 0 ? ((n + 10 - 1) / 10) * 10 : (n / 10) * 10) + ex->cpu->memLatency + 1;
                 ex->cpu->schedule(ex->e, eventTime); // Scheduling new event
             }
         };
+        class ReleaseEvent : public Event{
+        private:
+            Execute *ex;
+        public:
+            ReleaseEvent(Execute *_ex) : Event(), ex(_ex) {}
+            virtual void process() override {
+                // Passing the instruction of execute to store for int instruction
+                ex->cpu->s->intInst = ex->intInst;
+                // Passing the instruction of execute to store for float instruction
+                ex->cpu->s->fInst = ex->fInst;
+
+                ex->cpu->s->setRead(ex->cpu->ex->isRead());
+                ex->cpu->s->setMemAccess(ex->cpu->ex->isMemAccess());
+                ex->cpu->s->setFloat(ex->cpu->ex->getIsFloat());
+
+                // create a store after data is released
+                if((ex->isMemAccess() && ex->isRead()) || !ex->isMemAccess())
+                    ex->cpu->s->e->storeEvent();
+
+                ex->setBusy(0);
+            }
+            virtual const char* description() override {return "Execute Release Event";}
+            void relaseEvent() {
+                std::cout << "Scheduling Execute Release Event on Tick: " << ex->cpu->currTick() << std::endl;
+                size_t n = ex->cpu->currTick();
+                size_t eventTime = (n >= 0 ? (n / 10) * 10 : ((n - 10 + 1) / 10) * 10) + 6;
+                ex->cpu->schedule(this, eventTime); // Scheduling new event
+            }
+
+        };
         CPU *cpu;
-        ExecuteEvent *e; // Access the ExecuteEvent class from Execute or outside Execute
-        friend class CPU; // Allows CPU class to access these private variables
+        ExecuteEvent *e;        // Access the ExecuteEvent class from Execute or outside Execute
+        ReleaseEvent *release;  // Release the data from execute after a latency from the alu operation
+        friend class CPU;       // Allows CPU class to access these private variables
 
     public:
-        Execute(CPU *c) : cpu(c), e(new ExecuteEvent(this)) {}
+        Execute(CPU *c) : cpu(c), e(new ExecuteEvent(this)), release(new ReleaseEvent(this)) {}
         void executeInstruction();
     };
 
@@ -178,14 +268,14 @@ private:
         }
         virtual const char* description() override {return "Store";}
         void storeEvent(){
-            std::cout << "Scheduling Store on Tick " << s->cpu->currTick() << std::endl;
+            std::cout << "Scheduling Store on Tick: " << s->cpu->currTick() << std::endl;
             size_t n = s->cpu->currTick();
             size_t eventTime = (n >= 0 ? ((n + 10 - 1) / 10) * 10 : (n / 10) * 10) + s->cpu->memLatency + 1;
             s->cpu->schedule(s->e, eventTime); // Scheduling new event
         }
     };
     CPU *cpu;
-    StoreEvent *e; // Access the StoreEvent class from Store or outside Store
+    StoreEvent *e;    // Access the StoreEvent class from Store or outside Store
     friend class CPU; // Allows CPU class to access these private variables
 
 public:
@@ -209,7 +299,7 @@ public:
         }
         virtual const char* description() override { return "Stall"; }
         void stallEvent(){
-            std::cout << "Scheduling stall on Tick " << cpu->currTick() << std::endl;
+            std::cout << "Scheduling stall on Tick: " << cpu->currTick() << std::endl;
             std::cout << "Stalling for " << stallAmount << " ticks\n" << std::endl;
             cpu->schedule(cpu->stall, cpu->currTick() + 1); // Scheduling new event
         }
@@ -232,7 +322,7 @@ public:
             cpu->a->aluOperations();
         }
         void aluEvent(){
-            std::cout << "scheduling Alu on Tick " << cpu->currTick() << std::endl;
+            std::cout << "Scheduling Alu on Tick: " << cpu->currTick() << std::endl;
             cpu->schedule(cpu->a, cpu->currTick() + 1); // Scheduling new event
         }
 
@@ -267,7 +357,7 @@ public:
         }
         virtual const char* description() override { return "Send Data"; }
         void sendEvent(){
-            std::cout << "scheduling Send Data on Tick " << cpu->currTick() << std::endl;
+            std::cout << "Scheduling Send Data on Tick: " << cpu->currTick() << std::endl;
             size_t n = cpu->currTick();
             size_t eventTime = (n >= 0 ? (n / 10) * 10 : ((n - 10 + 1) / 10) * 10) + 6;
             cpu->schedule(cpu->send, eventTime); // Scheduling new event
@@ -349,13 +439,13 @@ public:
     RequestDataPort *port2; // Used to access the request port for data memory
 
     size_t cycles = 1;
-    Tick clkTick; // How far in advance that the event is going to be scheduled
+    Tick clkTick;       // How far in advance that the event is going to be scheduled
     size_t memLatency;
-    size_t currAddrI; // Current address for the instruction Memory
-    size_t currAddrD; // Current address for the data Memory
-    size_t endAddrI; // End address for the Instruction Memory
-    size_t endAddrD; // End address for the data Memory
-    size_t byteAmount; // Amount of bytes need from memory
+    size_t currAddrI;   // Current address for the instruction Memory
+    size_t currAddrD;   // Current address for the data Memory
+    size_t endAddrI;    // End address for the Instruction Memory
+    size_t endAddrD;    // End address for the data Memory
+    size_t byteAmount;  // Amount of bytes need from memory
     friend RegisterBank;
 
 public:
@@ -406,8 +496,8 @@ public:
     ALU *getALU() { return a; }
     void findInstType();
     void setRegister(int stackBegin, int stackEnd){
-        reg->intRegisters[1000].setData(stackBegin); // Setting the frame ptr
-        reg->intRegisters[10].setData(stackEnd); // Setting stack ptr
+        reg->intRegisters[1000].setData(stackBegin);  // Setting the frame ptr
+        reg->intRegisters[10].setData(stackEnd);      // Setting stack ptr
     }
 };
 

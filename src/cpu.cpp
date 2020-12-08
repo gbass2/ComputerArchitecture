@@ -1,4 +1,4 @@
-#include "cpu.hh"
+.latency#include "cpu.hh"
 
 using namespace std;
 
@@ -104,12 +104,12 @@ void CPU::Decode::decodeInstruction() {
             if(fInst.type == "R"){
                 fInst.opcode = bitset<7>(instruction.substr(0,7));
                 fInst.rd.setName(bitset<5>(instruction.substr(7,5)));
-                fInst.rd.setName(reverse(fInst.rd.getName())); // reversing the because the instruction reads left to right and the risc v doc reads right to left
+                fInst.rd.setName(reverse(fInst.rd.getName()));    // reversing the because the instruction reads left to right and the risc v doc reads right to left
                 fInst.funct3 = bitset<3>(instruction.substr(12,3));
                 fInst.rs1.setName(bitset<5>(instruction.substr(15,5)));
                 fInst.rs2.setName(bitset<5>(instruction.substr(20,5)));
-                fInst.rs1.setName(reverse(fInst.rs1.getName())); // reversing the because the instruction reads left to right and the risc v doc reads right to left
-                fInst.rs2.setName(reverse(fInst.rs2.getName())); // reversing the because the instruction reads left to right and the risc v doc reads right to left
+                fInst.rs1.setName(reverse(fInst.rs1.getName()));  // reversing the because the instruction reads left to right and the risc v doc reads right to left
+                fInst.rs2.setName(reverse(fInst.rs2.getName()));  // reversing the because the instruction reads left to right and the risc v doc reads right to left
                 fInst.funct7 = bitset<7>(instruction.substr(25,7));
             } else if(fInst.type == "I"){
                 fInst.opcode =  bitset<7>(instruction.substr(0,7));
@@ -257,68 +257,68 @@ void CPU::Decode::findInstructionType(){
      // base 10 multiply 20 float 50
     if(intInst.opcode.to_string() == "1110110"){ // LUI
         intInst.type = "U";
-        intInst.set = 10; // 10 sim ticks
+        intInst.latency= 10; // 10 sim ticks
         setRead(1);
         setFloat(0);
    } else if(intInst.opcode.to_string() == "1110100") {  // AUIPC
          intInst.type = "U";
-         intInst.set = 10; // 10 sim ticks
+         intInst.latency= 10; // 10 sim ticks
          setFloat(0);
     } else if(intInst.opcode.to_string() == "1111011"){  // JAL
          intInst.type = "J";
-         intInst.set = 10; // 10 sim ticks
+         intInst.latency= 10; // 10 sim ticks
          setFloat(0);
     } else if(intInst.opcode.to_string() == "1110011"){  // JALR
          intInst.type = "I";
-         intInst.set = 10; // 10 sim ticks
+         intInst.latency= 10; // 10 sim ticks
          setFloat(0);
     } else if(intInst.opcode.to_string() == "1100011"){  // BEQ
          intInst.type = "B";
-         intInst.set = 10; // 10 sim ticks
+         intInst.latency= 10; // 10 sim ticks
          setFloat(0);
     } else if(intInst.opcode.to_string() == "1100000"){  // LB
          intInst.type = "I";
-         intInst.set = 10; // 10 sim ticks
+         intInst.latency= 10; // 10 sim ticks
          setRead(1);
          setMemAccess(1);
          setFloat(0);
     } else if(intInst.opcode.to_string() == "1100010"){  // SB
          intInst.type = "S";
-         intInst.set = 10; // 10 sim ticks
+         intInst.latency= 10; // 10 sim ticks
          setRead(0);
          setMemAccess(1);
          setFloat(0);
     } else if(intInst.opcode.to_string() == "1100100"){  // ADDI
          intInst.type = "I";
-         intInst.set = 10; // 10 sim ticks
+         intInst.latency= 10; // 10 sim ticks
          setFloat(0);
     } else if(intInst.opcode.to_string() == "1100110" && intInst.funct3.to_string() == "111"){  // ADD
          intInst.type = "R";
-         intInst.set = 10; // 10 sim ticks
+         intInst.latency= 10; // 10 sim ticks
          setFloat(0);
     } else if(intInst.opcode.to_string() == "1100110"){  // MUL
          intInst.type = "R";
-         intInst.set = 20; // 20 sim ticks
+         intInst.latency= 20; // 20 sim ticks
          setFloat(0);
     } else if(intInst.opcode.to_string() == "1110000"){  // FLW
          fInst.type = "I";
-         fInst.set = 50; // 50 sim ticks
+         fInst.latency= 50; // 50 sim ticks
          setRead(1);
          setMemAccess(1);
          setFloat(1);
     } else if(intInst.opcode.to_string() == "1110010"){  // FSW
          fInst.type = "S";
-         fInst.set = 50; // 50 sim ticks
+         fInst.latency= 50; // 50 sim ticks
          setMemAccess(1);
          setRead(0);
          setFloat(1);
     } else if(intInst.opcode.to_string() == "1100001"){  // FMADD.S
          fInst.type = "R4";
-         fInst.set = 50; // 50 sim ticks
+         fInst.latency= 50; // 50 sim ticks
          setFloat(1);
     } else if(intInst.opcode.to_string() == "1100101"){  // FADD.S
          fInst.type = "R";
-         fInst.set = 50; // 50 sim ticks
+         fInst.latency = 50; // 50 sim ticks
          setFloat(1);
     }
 }
@@ -333,14 +333,17 @@ void CPU::recvResp(PacketPtr pkt){
             cout << getName() << " read in binary: " << instruction << endl;
             f->intInst.currentInstruction = instruction;
 
-            send->sendEvent();   // Scheduling send data
-            if(currAddrI < endAddrI){
-                d->e->decodeEvent(); // Scheduling decode
-                f->e->fetchEvent();  // Scheduling fetch
-            } else
-                d->e->decodeEvent(); // Scheduling decode
+            d->release->relaseEvent();
+            f->release->relaseEvent();
 
-            f->setBusy(0);  // Setting fetch stage to not busy
+            // send->sendEvent();   // Scheduling send data
+            // if(currAddrI < endAddrI){
+            //     d->e->decodeEvent(); // Scheduling decode
+            //     f->e->fetchEvent();  // Scheduling fetch
+            // } else
+            //     d->e->decodeEvent(); // Scheduling decode
+
+            // f->setBusy(0);  // Setting fetch stage to not busy
         } else if(ex->isBusy() && ex->isRead()){
             // Reading int from data memory
             if(!ex->getIsFloat()){
@@ -361,10 +364,10 @@ void CPU::recvResp(PacketPtr pkt){
                 ex->fInst.rd.setData(*(float *)(pkt->getBuffer()));
             }
 
-            ex->setBusy(0); // Setting execute stage to not busy
+            // ex->setBusy(0); // Setting execute stage to not busy
         } else {
             cout << "Successfully Stored " << (*(int *)(pkt->getBuffer())) << " to Memory" << std::endl;
-            ex->setBusy(0); // Setting execute stage to not busy
+            // ex->setBusy(0); // Setting execute stage to not busy
         }
         delete pkt;
     }
