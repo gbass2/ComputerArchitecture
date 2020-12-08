@@ -24,7 +24,6 @@ struct Instruction{
 
     T data;
     std::string type; // Type of instruction
-    size_t latency; // the latency involved based on what instruction set is being processed
 
     void flush(){ // flush/clear the pipeline stages if jumped or branch was taken
         currentInstruction.reset();
@@ -46,19 +45,23 @@ protected:
     bool read; // Memory read or write
     bool memAccess; // Memory access or not for the execute stage
     bool isFloat;
+    size_t latency; // the latency involved based on what instruction set is being processed
+
 public:
     Instruction<int> intInst;
     Instruction<float> fInst;
 
-    Pipeline(): busy(0), read(1), memAccess(0), isFloat(0){}
+    Pipeline(): busy(0), read(1), memAccess(0), isFloat(0), latency(0) {}
     void setBusy(bool _busy) { busy = _busy; }
     void setRead(bool _read) { read = _read; }
     void setMemAccess(bool _memAccess) { memAccess = _memAccess; }
     void setFloat(bool _isFloat) { isFloat = _isFloat; }
+    void setLatency(size_t _latency) { latency = _latency; }
     bool isBusy() { return busy; }
     bool isRead() { return read; }
     bool isMemAccess() { return memAccess; }
     bool getIsFloat() { return isFloat; }
+    size_t getLatency() { return latency; }
 };
 
 class CPU : public SimObject{
@@ -98,13 +101,15 @@ private:
                 fetch->cpu->d->setFloat(fetch->getIsFloat());
 
                 // create a fetch event after data is released
-                if(fetch->cpu->currAddrI < fetch->cpu->endAddrI)
+                if(fetch->cpu->currAddrI < fetch->cpu->endAddrI){
+                    fetch->cpu->d->e->decodeEvent();
                     fetch->e->fetchEvent(); // Scheduling fetch
+                }
 
                 fetch->setBusy(0);
             }
             virtual const char* description() override {return "Fetch Release Event";}
-            void relaseEvent() {
+            void releaseEvent() {
                 std::cout << "Scheduling Fetch Release Event on Tick: " << fetch->cpu->currTick() << std::endl;
                 size_t n = fetch->cpu->currTick();
                 size_t eventTime = (n >= 0 ? (n / 10) * 10 : ((n - 10 + 1) / 10) * 10) + 6;
@@ -160,14 +165,15 @@ private:
                 d->cpu->ex->setRead(d->isRead());
                 d->cpu->ex->setMemAccess(d->isMemAccess());
                 d->cpu->ex->setFloat(d->getIsFloat());
+                d->cpu->ex->setLatency(d->getLatency());
 
                 // create a decode event after data is released
-                d->e->decodeEvent(); // Scheduling decode
+                // d->cpu->ex->e->exEvent(); // Scheduling execute
 
                 d->setBusy(0);
             }
             virtual const char* description() override {return "Decode Release Event";}
-            void relaseEvent() {
+            void releaseEvent() {
                 std::cout << "Scheduling Decode Release Event on Tick: " << d->cpu->currTick() << std::endl;
                 size_t n = d->cpu->currTick();
                 size_t eventTime = (n >= 0 ? (n / 10) * 10 : ((n - 10 + 1) / 10) * 10) + 6;
@@ -236,10 +242,10 @@ private:
                 ex->setBusy(0);
             }
             virtual const char* description() override {return "Execute Release Event";}
-            void relaseEvent() {
+            void releaseEvent() {
                 std::cout << "Scheduling Execute Release Event on Tick: " << ex->cpu->currTick() << std::endl;
                 size_t n = ex->cpu->currTick();
-                size_t eventTime = (n >= 0 ? (n / 10) * 10 : ((n - 10 + 1) / 10) * 10) + 6;
+                size_t eventTime = (n >= 0 ? (n / 10) * 10 : ((n - 10 + 1) / 10) * 10) + ex->cpu->memLatency + ex->getLatency() + 6; // Schedule a release event after the memory has finished it's events and after the alu latency
                 ex->cpu->schedule(this, eventTime); // Scheduling new event
             }
 
@@ -502,3 +508,13 @@ public:
 };
 
 #endif
+
+/*
+create f event
+run f
+create f relese event. Schedule a decode and fetch events
+run d f
+create decode and fetch release event. Schedule execute, decode, and fetch events
+run e d f
+create an execute, decode, fetch release event. Schedule a store, execute, decode, and fetch events
+ */

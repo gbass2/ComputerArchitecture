@@ -111,6 +111,7 @@ void CPU::ALU::aluOperations() {
     if(!cpu->ex->isMemAccess()){
         // // std::cout << "# Set Busy to False" << std::endl;
         // cpu->ex->setBusy(0); // Setting execute stage to not busy if the operation does not access the memory
+        cpu->ex->release->releaseEvent();
     }
 }
 

@@ -1,4 +1,4 @@
-.latency#include "cpu.hh"
+#include "cpu.hh"
 
 using namespace std;
 
@@ -168,11 +168,7 @@ void CPU::Decode::decodeInstruction() {
             }
     }
 
-        // hazards check goes here
-        // If so then stall, come back and access registers values
-        // See hazard table for how long to stall
-        // ---------------------------
-        cpu->d->setBusy(0);
+    release->releaseEvent();
 }
 
 // Prints the execute stage
@@ -257,68 +253,68 @@ void CPU::Decode::findInstructionType(){
      // base 10 multiply 20 float 50
     if(intInst.opcode.to_string() == "1110110"){ // LUI
         intInst.type = "U";
-        intInst.latency= 10; // 10 sim ticks
+        setLatency(10); // 10 sim ticks
         setRead(1);
         setFloat(0);
    } else if(intInst.opcode.to_string() == "1110100") {  // AUIPC
          intInst.type = "U";
-         intInst.latency= 10; // 10 sim ticks
+         setLatency(10); // 10 sim ticks
          setFloat(0);
     } else if(intInst.opcode.to_string() == "1111011"){  // JAL
          intInst.type = "J";
-         intInst.latency= 10; // 10 sim ticks
+         setLatency(10); // 10 sim ticks
          setFloat(0);
     } else if(intInst.opcode.to_string() == "1110011"){  // JALR
          intInst.type = "I";
-         intInst.latency= 10; // 10 sim ticks
+         setLatency(10); // 10 sim ticks
          setFloat(0);
     } else if(intInst.opcode.to_string() == "1100011"){  // BEQ
          intInst.type = "B";
-         intInst.latency= 10; // 10 sim ticks
+         setLatency(10); // 10 sim ticks
          setFloat(0);
     } else if(intInst.opcode.to_string() == "1100000"){  // LB
          intInst.type = "I";
-         intInst.latency= 10; // 10 sim ticks
+         setLatency(10); // 10 sim ticks
          setRead(1);
          setMemAccess(1);
          setFloat(0);
     } else if(intInst.opcode.to_string() == "1100010"){  // SB
          intInst.type = "S";
-         intInst.latency= 10; // 10 sim ticks
+         setLatency(10); // 10 sim ticks
          setRead(0);
          setMemAccess(1);
          setFloat(0);
     } else if(intInst.opcode.to_string() == "1100100"){  // ADDI
          intInst.type = "I";
-         intInst.latency= 10; // 10 sim ticks
+         setLatency(10); // 10 sim ticks
          setFloat(0);
     } else if(intInst.opcode.to_string() == "1100110" && intInst.funct3.to_string() == "111"){  // ADD
          intInst.type = "R";
-         intInst.latency= 10; // 10 sim ticks
+         setLatency(10); // 10 sim ticks
          setFloat(0);
     } else if(intInst.opcode.to_string() == "1100110"){  // MUL
          intInst.type = "R";
-         intInst.latency= 20; // 20 sim ticks
+         setLatency(10); // 20 sim ticks
          setFloat(0);
     } else if(intInst.opcode.to_string() == "1110000"){  // FLW
          fInst.type = "I";
-         fInst.latency= 50; // 50 sim ticks
+         setLatency(50); // 50 sim ticks
          setRead(1);
          setMemAccess(1);
          setFloat(1);
     } else if(intInst.opcode.to_string() == "1110010"){  // FSW
          fInst.type = "S";
-         fInst.latency= 50; // 50 sim ticks
+         setLatency(50); // 50 sim ticks
          setMemAccess(1);
          setRead(0);
          setFloat(1);
     } else if(intInst.opcode.to_string() == "1100001"){  // FMADD.S
          fInst.type = "R4";
-         fInst.latency= 50; // 50 sim ticks
+         setLatency(50); // 50 sim ticks
          setFloat(1);
     } else if(intInst.opcode.to_string() == "1100101"){  // FADD.S
          fInst.type = "R";
-         fInst.latency = 50; // 50 sim ticks
+         setLatency(50); // 50 sim ticks
          setFloat(1);
     }
 }
@@ -333,8 +329,7 @@ void CPU::recvResp(PacketPtr pkt){
             cout << getName() << " read in binary: " << instruction << endl;
             f->intInst.currentInstruction = instruction;
 
-            d->release->relaseEvent();
-            f->release->relaseEvent();
+            f->release->releaseEvent();
 
             // send->sendEvent();   // Scheduling send data
             // if(currAddrI < endAddrI){
@@ -357,11 +352,13 @@ void CPU::recvResp(PacketPtr pkt){
                     val = val << 24;
                 }
                 ex->intInst.rd.setData(val);
+                ex->release->releaseEvent();
             }
             // Reading float from memory
             else{
                 cout << "Loaded value: " << *(float *)(pkt->getBuffer()) << endl;
                 ex->fInst.rd.setData(*(float *)(pkt->getBuffer()));
+                ex->release->releaseEvent();
             }
 
             // ex->setBusy(0); // Setting execute stage to not busy
