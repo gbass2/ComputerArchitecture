@@ -34,8 +34,6 @@ void System::schedule(Event *e, Tick t){ // Schedules an event into MEQ
             MEQ.push_back(e);
         }
     } else {
-        std::cout << e->description() << std::endl;
-        std::cout << MEQ.front()->description() << std::endl;
         assert(0);
     }
 }

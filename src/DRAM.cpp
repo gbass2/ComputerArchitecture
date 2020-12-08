@@ -26,10 +26,14 @@ void DRAM::recvReq(PacketPtr pkt) {
      if (pkt->isRead())
           // get data and load it into the packet
           getDataAtAddr(pkt->getAddr(), pkt->getBuffer(), pkt->getSize());
-     else
+     else{
           // get data from packet and store it in memory
           setDataAddr(pkt->getAddr(), pkt->getBuffer(), pkt->getSize());
+      }
      request = pkt; // store active request so we can retrieve it later
+     // std::cout << "request-----" << std::endl;
+     // request->printHeader();
+     // std::cout << "addrs: " << request->getAddr() << std::endl;
      schedule(e, currTick() + responceLatency);   // schedule response event
 }
 
@@ -40,7 +44,8 @@ void DRAM::setDataAddr(Addr ad, uint8_t * buff, size_t len){
      Addr offset = ad - addrs.first;    // Calcs offest in memory that the
                                         // packet is reading
      std::memcpy((memory + offset), buff, len);   // pointer in our memory for DRAM
-     std::cout << "data being stored: " << *(int *)(buff) << std::endl;
+     std::memcpy(buff, (memory + offset), len);
+     // std::cout << "Store data at addrs " << ad << " data: " << *(int *)(buff)<< std::endl;
 }
 // Helper Functions
 template<typename T>     // allows the function to use multiple different types
@@ -68,7 +73,9 @@ void DRAM::getDataAtAddr(Addr ad, uint8_t * buff, size_t len) {
     assert((ad >= addrs.first) && ((ad+len) <= addrs.second + 1));
     Addr offset = ad - addrs.first;
 
-    std::memcpy(buff, (memory + offset), len);;
+    std::memcpy(buff, (memory + offset), len);
+    // std::cout << "load instruction at addrs " << ad << " len: " << len << " instruction: " << std::bitset<32>(*(uint32_t *)(buff))<< std::endl;
+    // std::cout << "Iram begin: " << addrs.first << " offset: " << offset << std::endl;
 }
 
 template<typename T>

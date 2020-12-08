@@ -82,9 +82,7 @@ void CPU::Decode::decodeInstruction() {
             intInst.immJU = reverse(intInst.immJU);  // reversing the because the instruction reads left to right and the risc v doc reads right to left
         } else if(intInst.type == "B"){
             intInst.opcode = bitset<7>(instruction.substr(0,7));
-            string tempImm = instruction.substr(8,4) + instruction.substr(25,6) + instruction.substr(7,1) + instruction.substr(31,1);
-            reverse(tempImm.begin(), tempImm.end());
-            intInst.immISB =  bitset<12>(tempImm);
+            intInst.immISB =  bitset<12>(instruction.substr(8,4) + instruction.substr(25,6) + instruction.substr(7,1) + instruction.substr(31,1));
             intInst.immISB = reverse(intInst.immISB); // reversing the because the instruction reads left to right and the risc v doc reads right to left
             intInst.funct3 = bitset<3>(instruction.substr(12,3));
             intInst.rs1.setName(bitset<5>(instruction.substr(15,5)));
@@ -93,31 +91,37 @@ void CPU::Decode::decodeInstruction() {
             intInst.rs2.setName(reverse(intInst.rs2.getName())); // reversing the because the instruction reads left to right and the risc v doc reads right to left
         } else if(intInst.type == "J"){
             intInst.opcode = bitset<7>(instruction.substr(0,7));
-            intInst.rd.setName(bitset<5>(instruction.substr(15,5)));
+            intInst.rd.setName(bitset<5>(instruction.substr(7,5)));
             intInst.immJU = bitset<20>(instruction.substr(21,10) + instruction.substr(20,1) + instruction.substr(12,8) + instruction.substr(31,1));
             intInst.immJU = reverse(intInst.immJU);  // reversing the because the instruction reads left to right and the risc v doc reads right to left
+        } else {
+            // cout << "ERROR Code 1234: No Integer Instruction Type." << endl;
+            // assert(0);
+            cout << "NOP in decode" << endl;
         }
     } else {
             if(fInst.type == "R"){
                 fInst.opcode = bitset<7>(instruction.substr(0,7));
                 fInst.rd.setName(bitset<5>(instruction.substr(7,5)));
-                fInst.rd.setName(reverse(fInst.rd.getName())); // reversing the because the instruction reads left to right and the risc v doc reads right to left
+                fInst.rd.setName(reverse(fInst.rd.getName()));    // reversing the because the instruction reads left to right and the risc v doc reads right to left
                 fInst.funct3 = bitset<3>(instruction.substr(12,3));
                 fInst.rs1.setName(bitset<5>(instruction.substr(15,5)));
                 fInst.rs2.setName(bitset<5>(instruction.substr(20,5)));
-                fInst.rs1.setName(reverse(fInst.rs1.getName())); // reversing the because the instruction reads left to right and the risc v doc reads right to left
-                fInst.rs2.setName(reverse(fInst.rs2.getName())); // reversing the because the instruction reads left to right and the risc v doc reads right to left
+                fInst.rs1.setName(reverse(fInst.rs1.getName()));  // reversing the because the instruction reads left to right and the risc v doc reads right to left
+                fInst.rs2.setName(reverse(fInst.rs2.getName()));  // reversing the because the instruction reads left to right and the risc v doc reads right to left
+                fInst.funct7 = bitset<7>(instruction.substr(25,7));
             } else if(fInst.type == "I"){
                 fInst.opcode =  bitset<7>(instruction.substr(0,7));
                 fInst.rd.setName(bitset<5>(instruction.substr(7,5)));
                 fInst.rd.setName(reverse(fInst.rd.getName())); // reversing the because the instruction reads left to right and the risc v doc reads right to left
+                cout << "rd: " << fInst.rd.getName() << endl;
                 fInst.funct3 = bitset<3>(instruction.substr(12,3));
                 fInst.rs1.setName(bitset<5>(instruction.substr(15,5)));
                 fInst.rs1.setName(reverse(fInst.rs1.getName())); // reversing the because the instruction reads left to right and the risc v doc reads right to left
                 fInst.immISB = bitset<12>(instruction.substr(20,12)); // reversing the because the instruction reads left to right and the risc v doc reads right to left
                 fInst.immISB = reverse(fInst.immISB); // reversing the because the instruction reads left to right and the risc v doc reads right to left
             } else if(fInst.type == "S"){
-                intInst.opcode =  bitset<7>(instruction.substr(0,7));
+                fInst.opcode =  bitset<7>(instruction.substr(0,7));
                 fInst.immISB = bitset<12>(instruction.substr(7,5) + instruction.substr(25,7));
                 fInst.immISB = reverse(fInst.immISB); // reversing the because the instruction reads left to right and the risc v doc reads right to left
                 fInst.funct3 = bitset<3>(instruction.substr(12,3));
@@ -126,35 +130,45 @@ void CPU::Decode::decodeInstruction() {
                 fInst.rs1.setName(reverse(fInst.rs1.getName())); // reversing the because the instruction reads left to right and the risc v doc reads right to left
                 fInst.rs2.setName(reverse(fInst.rs2.getName())); // reversing the because the instruction reads left to right and the risc v doc reads right to left
             } else if(fInst.type == "U"){
-                intInst.opcode = bitset<7>(instruction.substr(0,7));
+                fInst.opcode = bitset<7>(instruction.substr(0,7));
                 fInst.rd.setName(bitset<5>(instruction.substr(7,5)));
                 fInst.rd.setName(reverse(fInst.rd.getName())); // reversing the because the instruction reads left to right and the risc v doc reads right to left
                 fInst.immJU =  bitset<20>(instruction.substr(12,20));
                 fInst.immJU = reverse(fInst.immJU);  // reversing the because the instruction reads left to right and the risc v doc reads right to left
             } else if(fInst.type == "B"){
                 fInst.opcode = bitset<7>(instruction.substr(0,7));
-                string tempImm = instruction.substr(8,4) + instruction.substr(25,6) + instruction.substr(7,1) + instruction.substr(31,1);
-                reverse(tempImm.begin(), tempImm.end());
-                fInst.immISB =  bitset<12>(tempImm);
+                fInst.immISB =  bitset<12>(instruction.substr(8,4) + instruction.substr(25,6) + instruction.substr(7,1) + instruction.substr(31,1));
                 fInst.immISB = reverse(fInst.immISB); // reversing the because the instruction reads left to right and the risc v doc reads right to left
                 fInst.funct3 = bitset<3>(instruction.substr(12,3));
                 fInst.rs1.setName(bitset<5>(instruction.substr(15,5)));
                 fInst.rs2.setName(bitset<5>(instruction.substr(20,5)));
                 fInst.rs1.setName(reverse(fInst.rs1.getName())); // reversing the because the instruction reads left to right and the risc v doc reads right to left
-                fInst.rs2.setName(reverse(fInst.rs2.getName())); // reversing the because the instruction reads left to right and the risc v doc reads right to left
+                fInst.rs2.setName(reverse(fInst.rs2.getName())); // reversing the because the instruction reads left tion reads left to right and the risc v doc reads right to left
             } else if(fInst.type == "J"){
                 fInst.opcode = bitset<7>(instruction.substr(0,7));
-                fInst.rd.setName(bitset<5>(instruction.substr(15,5)));
+                fInst.rd.setName(bitset<5>(instruction.substr(7,5)));
                 fInst.immJU = bitset<20>(instruction.substr(21,10) + instruction.substr(20,1) + instruction.substr(12,8) + instruction.substr(31,1));
-                fInst.immJU = reverse(fInst.immJU);  // reversing the because the instruction reads left to right and the risc v doc reads right to left
-        }
+            } else if(fInst.type == "R4"){
+                fInst.opcode = bitset<7>(instruction.substr(0,7));
+                fInst.rd.setName(bitset<5>(instruction.substr(7,5)));
+                fInst.rd.setName(reverse(fInst.rd.getName())); // reversing the because the instruction reads left to right and the risc v doc reads right to left
+                fInst.funct3 = bitset<3>(instruction.substr(12,3));
+                fInst.rs1.setName(bitset<5>(instruction.substr(15,5)));
+                fInst.rs2.setName(bitset<5>(instruction.substr(20,5)));
+                fInst.rs1.setName(reverse(fInst.rs1.getName())); // reversing the because the instruction reads left to right and the risc v doc reads right to left
+                fInst.rs2.setName(reverse(fInst.rs2.getName())); // reversing the because the instruction reads left to right and the risc v doc reads right to left
+                fInst.funct2 = bitset<2>(instruction.substr(25,2));
+                fInst.rs3.setName(bitset<5>(instruction.substr(27,5)));
+                fInst.rs3.setName(reverse(fInst.rs1.getName())); // reversing the because the instruction reads left to right and the risc v doc reads right to left
+            } else {
+                // cout << "ERROR Code 1234: No Floating Point Instruction Type." << endl;
+                // assert(0);
+                cout << "NOP in decode" << endl;
+            }
     }
 
-        // hazards check goes here
-        // If so then stall, come back and access registers values
-        // See hazard table for how long to stall
-        // ---------------------------
-        cpu->d->setBusy(0);
+    if(cpu->currAddrI < cpu->endAddrI)
+        release->releaseEvent();
 }
 
 // Prints the execute stage
@@ -173,8 +187,10 @@ void CPU::Execute::executeInstruction() {
 // Stores the data from execute into destination register
 void CPU::Store::storeInstruction() {
     cout << endl << "Processing Store Stage for " << cpu->getName() << endl;
+
     cpu->reg->setRead(0);
     cpu->reg->process();
+
     cpu->s->setBusy(0); // Setting store stage to not busy
 }
 
@@ -222,6 +238,8 @@ void CPU::Send::sendData() {
         cpu->d->setRead(cpu->f->isRead());
         cpu->d->setMemAccess(cpu->f->isMemAccess());
         cpu->d->setFloat(cpu->f->getIsFloat());
+
+        cout << "rs2: " << cpu->ex->intInst.rs2.getName() << endl;
     }
 
     // If pipeline stages are busy reschedule release event
@@ -235,66 +253,68 @@ void CPU::Decode::findInstructionType(){
      // base 10 multiply 20 float 50
     if(intInst.opcode.to_string() == "1110110"){ // LUI
         intInst.type = "U";
-        intInst.set = 10; // 10 sim ticks
+        setLatency(10); // 10 sim ticks
         setRead(1);
-        setMemAccess(1);
         setFloat(0);
    } else if(intInst.opcode.to_string() == "1110100") {  // AUIPC
          intInst.type = "U";
-         intInst.set = 10; // 10 sim ticks
+         setLatency(10); // 10 sim ticks
          setFloat(0);
     } else if(intInst.opcode.to_string() == "1111011"){  // JAL
-        cout << "JAL" << endl;
          intInst.type = "J";
-         intInst.set = 10; // 10 sim ticks
+         setLatency(10); // 10 sim ticks
          setFloat(0);
     } else if(intInst.opcode.to_string() == "1110011"){  // JALR
          intInst.type = "I";
-         intInst.set = 10; // 10 sim ticks
+         setLatency(10); // 10 sim ticks
          setFloat(0);
     } else if(intInst.opcode.to_string() == "1100011"){  // BEQ
-        cout << "BEQ" << endl;
          intInst.type = "B";
-         intInst.set = 10; // 10 sim ticks
+         setLatency(10); // 10 sim ticks
          setFloat(0);
     } else if(intInst.opcode.to_string() == "1100000"){  // LB
          intInst.type = "I";
-         intInst.set = 10; // 10 sim ticks
+         setLatency(10); // 10 sim ticks
          setRead(1);
          setMemAccess(1);
          setFloat(0);
     } else if(intInst.opcode.to_string() == "1100010"){  // SB
          intInst.type = "S";
-         intInst.set = 10; // 10 sim ticks
+         setLatency(10); // 10 sim ticks
          setRead(0);
          setMemAccess(1);
          setFloat(0);
     } else if(intInst.opcode.to_string() == "1100100"){  // ADDI
          intInst.type = "I";
-         intInst.set = 10; // 10 sim ticks
+         setLatency(10); // 10 sim ticks
          setFloat(0);
     } else if(intInst.opcode.to_string() == "1100110" && intInst.funct3.to_string() == "111"){  // ADD
          intInst.type = "R";
-         intInst.set = 10; // 10 sim ticks
+         setLatency(10); // 10 sim ticks
          setFloat(0);
     } else if(intInst.opcode.to_string() == "1100110"){  // MUL
          intInst.type = "R";
-         intInst.set = 20; // 20 sim ticks
+         setLatency(10); // 20 sim ticks
          setFloat(0);
     } else if(intInst.opcode.to_string() == "1110000"){  // FLW
-         intInst.type = "I";
-         intInst.set = 50; // 50 sim ticks
+         fInst.type = "I";
+         setLatency(50); // 50 sim ticks
          setRead(1);
          setMemAccess(1);
          setFloat(1);
     } else if(intInst.opcode.to_string() == "1110010"){  // FSW
-         intInst.type = "S";
-         intInst.set = 50; // 50 sim ticks
+         fInst.type = "S";
+         setLatency(50); // 50 sim ticks
          setMemAccess(1);
+         setRead(0);
          setFloat(1);
     } else if(intInst.opcode.to_string() == "1100001"){  // FMADD.S
-         intInst.type = "R4";
-         intInst.set = 50; // 50 sim ticks
+         fInst.type = "R4";
+         setLatency(50); // 50 sim ticks
+         setFloat(1);
+    } else if(intInst.opcode.to_string() == "1100101"){  // FADD.S
+         fInst.type = "R";
+         setLatency(50); // 50 sim ticks
          setFloat(1);
     }
 }
@@ -302,29 +322,55 @@ void CPU::Decode::findInstructionType(){
 void CPU::recvResp(PacketPtr pkt){
         std::cout << getName() << " received packet response from memory on Tick: " << currTick() << std::endl;
 
-        if(f->isBusy() && f->isRead()){      // only true for fetch stage
+        cout << "f isBusy: " << f->isBusy() << endl;
+        cout << "f isRead: " << f->isRead() << endl;
+        cout << "ex isRead: " << ex->isRead() << endl;
+        if((f->isBusy() && f->isRead())){      // only true for fetch stage
             // Reading from memory in binary
-            cout << "inst in decimal: "  <<  *(uint32_t *)(pkt->getBuffer()) << endl;
             bitset<32> instruction = *(uint32_t *)(pkt->getBuffer());
-            cout << getName() << " read in binary: " << instruction << endl;
+            cout << getName() << " read in binary: " << instruction << endl;        // cpu0 read in binary: 01010101010
             f->intInst.currentInstruction = instruction;
 
-            if(currAddrI < endAddrI){
-                send->sendEvent();   // Scheduling send data
-                d->e->decodeEvent(); // Scheduling decode
-                f->e->fetchEvent();  // Scheduling fetch
-            }
-        } else if(ex->isBusy() && ex->isRead()){
-            // Reading int from data memory
-            if(!ex->getIsFloat())
-                ex->intInst.rd.setData(*(int *)(pkt->getBuffer())); // Loading into rd. The store stage will get the data and store it in the rpoper location
+            f->release->releaseEvent();
 
+            // send->sendEvent();   // Scheduling send data
+            // if(currAddrI < endAddrI){
+            //     d->e->decodeEvent(); // Scheduling decode
+            //     f->e->fetchEvent();  // Scheduling fetch
+            // } else
+            //     d->e->decodeEvent(); // Scheduling decode
+
+            // f->setBusy(0);  // Setting fetch stage to not busy
+        } else if(ex->isBusy() && ex->isRead()){        // only true for execute
+            // Reading int from data memory
+            if(!ex->getIsFloat()){
+                int val = (*(int *)(pkt->getBuffer())); // Loading into rd. The store stage will get the data and store it in the proper location
+                cout << "Loaded value: " << val << endl;
+
+                if(ex->intInst.funct3.to_string() == "101"){ // LBH Zero Extend
+                    val = val << 16;
+                }
+                else if(ex->intInst.funct3.to_string() == "100"){ // LBU Zero extend
+                    val = val << 24;
+                }
+
+                ex->intInst.rd.setData(val);
+                // ex->release->releaseEvent();
+
+            }
             // Reading float from memory
-            else
+            else{
+                cout << "Loaded value: " << *(float *)(pkt->getBuffer()) << endl;
                 ex->fInst.rd.setData(*(float *)(pkt->getBuffer()));
-        }
-            f->setBusy(0);  // Setting fetch stage to not busy
+                // ex->release->releaseEvent();
+            }
+
             ex->setBusy(0); // Setting execute stage to not busy
+        } else {
+            cout << "Successfully Stored " << (*(int *)(pkt->getBuffer())) << " to Memory" << std::endl;
+            ex->setBusy(0); // Setting execute stage to not busy
+        }
+        delete pkt;
     }
 
 template<size_t N>

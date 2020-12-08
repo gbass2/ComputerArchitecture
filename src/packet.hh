@@ -5,6 +5,7 @@
 #include <utility>
 #include <cinttypes>
 #include <iostream>
+#include<cstring>
 
 typedef size_t Addr;
 typedef std::pair<Addr, Addr> AddrRange;
@@ -26,9 +27,9 @@ public:
         size(_size) {}
     Packet(bool read, Addr _dst, uint8_t* _buffer,  size_t _size):
         _isRead(read),
-        buffer(_buffer),
+        buffer(new uint8_t[_size]),
         dst(_dst),
-        size(_size) {}
+        size(_size) { std::memcpy(buffer, _buffer, size); }
 
     ~Packet() {
         header.clear();
