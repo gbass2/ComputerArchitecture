@@ -151,7 +151,7 @@ private:
             void exEvent(){
                 std::cout << "Scheduling Execute Event on Tick " << ex->cpu->currTick() << std::endl;
                 size_t n = ex->cpu->currTick();
-                size_t eventTime = (n >= 0 ? ((n + 10 - 1) / 10) * 10 : (n / 10) * 10) + 21;
+                size_t eventTime = (n >= 0 ? ((n + 10 - 1) / 10) * 10 : (n / 10) * 10) + ex->cpu->memLatency + 1;
                 ex->cpu->schedule(ex->e, eventTime); // Scheduling new event
             }
         };
@@ -180,7 +180,7 @@ private:
         void storeEvent(){
             std::cout << "Scheduling Store on Tick " << s->cpu->currTick() << std::endl;
             size_t n = s->cpu->currTick();
-            size_t eventTime = (n >= 0 ? ((n + 10 - 1) / 10) * 10 : (n / 10) * 10) + 21;
+            size_t eventTime = (n >= 0 ? ((n + 10 - 1) / 10) * 10 : (n / 10) * 10) + s->cpu->memLatency + 1;
             s->cpu->schedule(s->e, eventTime); // Scheduling new event
         }
     };
@@ -350,6 +350,7 @@ public:
 
     size_t cycles = 1;
     Tick clkTick; // How far in advance that the event is going to be scheduled
+    size_t memLatency;
     size_t currAddrI; // Current address for the instruction Memory
     size_t currAddrD; // Current address for the data Memory
     size_t endAddrI; // End address for the Instruction Memory
@@ -358,7 +359,7 @@ public:
     friend RegisterBank;
 
 public:
-    CPU(std::shared_ptr<System> s1, const char* name, size_t start1, size_t end1, size_t start2, size_t end2);
+    CPU(std::shared_ptr<System> s1, const char* name, size_t start1, size_t end1, size_t start2, size_t end2, size_t _memLatency);
     ~CPU();
     void processInst() {
         if(!(port1->isBusy())){

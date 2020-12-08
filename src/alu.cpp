@@ -350,6 +350,7 @@ void CPU::ALU::SW() { // Storing Word
     std::cout << "imm: " << imm << std::endl;
     std::cout << "Current address: " << addrs << std::endl;
     std::cout << "rs1 name: " << cpu->ex->intInst.rs1.getName() << std::endl;
+    std::cout << "rs2 name: " << cpu->ex->intInst.rs2.getName() << std::endl;
     std::cout << "rd name: " << cpu->ex->intInst.rd.getName() << std::endl;
 
     cpu->processData(); // Storing word to memory

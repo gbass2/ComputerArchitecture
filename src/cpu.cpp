@@ -5,7 +5,7 @@ using namespace std;
 template<size_t N>
 bitset<N> reverse(const bitset<N> &bit_set);
 
-CPU::CPU(std::shared_ptr<System> s1, const char* name, size_t start1, size_t end1, size_t start2, size_t end2) :
+CPU::CPU(std::shared_ptr<System> s1, const char* name, size_t start1, size_t end1, size_t start2, size_t end2, size_t _memLatency) :
     SimObject(s1, name),
     f(new Fetch(this)),
     d(new Decode(this)),
@@ -20,6 +20,7 @@ CPU::CPU(std::shared_ptr<System> s1, const char* name, size_t start1, size_t end
     port1(new RequestInstPort(this)),
     port2(new RequestDataPort(this)),
     clkTick(10),
+    memLatency(_memLatency),
     currAddrI(start1),
     currAddrD(start2),
     endAddrI(end1),
@@ -71,7 +72,6 @@ void CPU::Decode::decodeInstruction() {
             intInst.immISB = reverse(intInst.immISB); // reversing the because the instruction reads left to right and the risc v doc reads right to left
             intInst.funct3 = bitset<3>(instruction.substr(12,3));
             intInst.rs1.setName(bitset<5>(instruction.substr(15,5)));
-
             intInst.rs2.setName(bitset<5>(instruction.substr(20,5)));
             intInst.rs1.setName(reverse(intInst.rs1.getName())); // reversing the because the instruction reads left to right and the risc v doc reads right to left
             intInst.rs2.setName(reverse(intInst.rs2.getName())); // reversing the because the instruction reads left to right and the risc v doc reads right to left
@@ -242,6 +242,8 @@ void CPU::Send::sendData() {
         cpu->d->setRead(cpu->f->isRead());
         cpu->d->setMemAccess(cpu->f->isMemAccess());
         cpu->d->setFloat(cpu->f->getIsFloat());
+
+        cout << "rs2: " << cpu->ex->intInst.rs2.getName() << endl;
     }
 
     // If pipeline stages are busy reschedule release event
@@ -361,7 +363,7 @@ void CPU::recvResp(PacketPtr pkt){
 
             ex->setBusy(0); // Setting execute stage to not busy
         } else {
-            cout << "Successfully Stored Data to Memory" << std::endl;
+            cout << "Successfully Stored " << (*(int *)(pkt->getBuffer())) << " to Memory" << std::endl;
             ex->setBusy(0); // Setting execute stage to not busy
         }
         delete pkt;

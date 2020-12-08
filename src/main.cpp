@@ -16,15 +16,16 @@ int main(){
     size_t stackEnd1 = 0x3FF;
     size_t stackBegin1 = 0x300;
     size_t dramEnd = 0x13FF;
+    size_t memLatency = 20;
 
-    CPU *cpu0 = new CPU(sys, "cpu0", 0, 0x093, stackBegin0, dramEnd); // Passes in the device name, the starting and end addrs for instruction memory, andd the stating and end addrs for data memory
-    CPU *cpu1 = new CPU(sys, "cpu1", 0x100, 0x193, stackBegin0, dramEnd); // Passes in the device name, the starting and end addrs for instruction memory, andd the stating and end addrs for data memory
+    CPU *cpu0 = new CPU(sys, "cpu0", 0, 0x093, stackBegin0, dramEnd, memLatency); // Passes in the device name, the starting and end addrs for instruction memory, andd the stating and end addrs for data memory
+    CPU *cpu1 = new CPU(sys, "cpu1", 0x100, 0x193, stackBegin0, dramEnd, memLatency); // Passes in the device name, the starting and end addrs for instruction memory, andd the stating and end addrs for data memory
 
     RunSim *sim = new RunSim(sys);
 
-    DRAM * ram = new DRAM(sys, AddrRange(0x200, 0x13FF), 20);    // Data memory. 20 = response time
-    DRAM * Iram1 = new DRAM(sys, AddrRange(0, 0x093), 20);         // Instruction memory for cpu0. 20 = response time
-    DRAM * Iram2 = new DRAM(sys, AddrRange(0x100, 0x193), 20);         // Instruction memory for cpu1. 20 = response time
+    DRAM * ram = new DRAM(sys, AddrRange(0x200, 0x13FF), memLatency);    // Data memory. 20 = response time
+    DRAM * Iram1 = new DRAM(sys, AddrRange(0, 0x093), memLatency);         // Instruction memory for cpu0. 20 = response time
+    DRAM * Iram2 = new DRAM(sys, AddrRange(0x100, 0x193), memLatency);         // Instruction memory for cpu1. 20 = response time
     Membus * bus = new Membus(sys, 5);                           //  5 = forwarding time
 
     // Binding the device's ports to the bus
@@ -50,7 +51,7 @@ int main(){
     cpu1->setRegister(stackBegin1, stackEnd1);
 
     setupSimulator(Iram1, Iram2);
-    // cpu0->initialize();       // Sets up the first event. Which is a fetch event
+    cpu0->initialize();       // Sets up the first event. Which is a fetch event
     cpu1->initialize();       // Sets up the first event. Which is a fetch event
     sim->runSimulation();     // Runs the instructions
 
@@ -126,15 +127,15 @@ void setupSimulator(DRAM *ram1, DRAM *ram2){ // Sets up the instruction memory w
     ram2->writeWordAtAddr(348, 0b11101100101010000000000000000000); // 27
     ram2->writeWordAtAddr(352, 0b11001000101000001010000000000000); // 28
     ram2->writeWordAtAddr(356, 0b11001100101000001010110100000000); // 29
-    ram2->writeWordAtAddr(340, 0b11100100000001001010000000000000); // 30
-    ram2->writeWordAtAddr(344, 0b11110110000000000000000001110100); // 31
-    ram2->writeWordAtAddr(348, 0b11000000101001000010000011111111); // 33
-    ram2->writeWordAtAddr(352, 0b11001000101000001010100000000000); // 34
-    ram2->writeWordAtAddr(356, 0b11000100000101000010010101111111); // 35
-    ram2->writeWordAtAddr(360, 0b11110110000000000000000000001100); // 36
-    ram2->writeWordAtAddr(364, 0b11000000101001000010001011111111); // 38
-    ram2->writeWordAtAddr(368, 0b11000000001001001000000100000000); // 39
-    ram2->writeWordAtAddr(372, 0b11000001000001001000001100000000); // 40
-    ram2->writeWordAtAddr(376, 0b11001000100000001000000010000000); // 41
-    ram2->writeWordAtAddr(380, 0b11100110000000010000000000000000); // 42
+    ram2->writeWordAtAddr(360, 0b11100100000001001010000000000000); // 30
+    ram2->writeWordAtAddr(364, 0b11110110000000000000000001110100); // 31
+    ram2->writeWordAtAddr(368, 0b11000000101001000010000011111111); // 33
+    ram2->writeWordAtAddr(372, 0b11001000101000001010100000000000); // 34
+    ram2->writeWordAtAddr(376, 0b11000100000101000010010101111111); // 35
+    ram2->writeWordAtAddr(380, 0b11110110000000000000000000100100); // 36
+    ram2->writeWordAtAddr(384, 0b11000000101001000010001011111111); // 38
+    ram2->writeWordAtAddr(388, 0b11000000001001001000000100000000); // 39
+    ram2->writeWordAtAddr(392, 0b11000001000001001000001100000000); // 40
+    ram2->writeWordAtAddr(396, 0b11001000100000001000000010000000); // 41
+    ram2->writeWordAtAddr(400, 0b11100110000000010000000000000000); // 42
 }

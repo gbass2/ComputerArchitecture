@@ -6,12 +6,11 @@ main:                                   # Addr 0x0
 	mv	a0, zero						# 000000000000   rs1	000 rd 	 0010011	# 000000000000 00000 000 01010  0010011		# Adds x0 + 0 to a0							# a0 = 0
 	sw	a0, -12(s0)						# imm[11:5] rs2 rs1 010 imm[4:0] 0100011	# 1111111 01010 01000 010 10100 0100011		# Stores word from a0 into memory address(s0 - 12)
 	sw	a0, -16(s0)						# imm[11:5] rs2 rs1 010 imm[4:0] 0100011	# 1111111 01010 01000 010 10000 0100011		# Stores word from a0 into memory address(s0 - 16)
-	j	.LBB0_1							# imm[20|10:1|11|19:12] rd       1101111	# 0 0000100000 000000000 00000 1101111		# Return from subroutine (return to normal code)
+	j	.LBB0_1							# imm[20|10:1|11|19:12] rd       1101111	# 00000100000000000000 00000 1101111		# Return from subroutine (return to normal code)
 .LBB0_1:                                # Addr 0x20=32=0000010000 0									# For loop statement
 	lw	a0, -16(s0)						# imm[11:0]		rs1 010 rd       0000011	# 111111110000 01000 010 01010 0000011		# Load old value from STACK. Load double word from memory address (s0 - 16) into a0		# for(i = 0; rs1 < rs2; i++)
 	addi	a1, zero, 255				# imm[11:0]     rs1	000 rd 		 0010011	# 000011111111 00000 000 01011 0010011		# a1 = x0 + 255
-	blt	a1, a0, .LBB0_4			 		# imm[12|10:5]  rs2 rs1 100 imm[4:1|11] 1100011		#000001000 01010 01011 100 00000 1100011		# Branch if rs1 < rs2 Exit: exits the loop if condition is met
-																							10000000
+	blt	a1, a0, .LBB0_4			 		# imm[12|10:5]  rs2 rs1 100 imm[4:1|11] 1100011		#000001000 01010 01011 100 00000 1100011		# Branch if rs1 < rs2 Exit: exits the loop if condition is met																							10000000
 	j	.LBB0_2							# imm[20|10:1|11|19:12] rd       1101111	# 00000011000 000000000 00000 1101111	      Location 4
 .LBB0_2:                                # Addr 0x30									  Loop body
 	lui	a0, %hi(1024)					# imm[31:12]			rd		 0110111	# 00000000000000000000 01010 0110111		Location 48
@@ -34,7 +33,7 @@ main:                                   # Addr 0x0
 	lw	a0, -16(s0)						# imm[11:0]		rs1 010 rd       0000011	# 111111110000 01000 010 01010 0000011
 	addi	a0, a0, 1					# imm[11:0]     rs1	000 rd 		 0010011	# 000000000001 01010 000 01010 0010011
 	sw	a0, -16(s0)						# imm[11:5] rs2 rs1 010 imm[4:0] 0100011	# 11111111 01010 01000 010 0000 0100011
-	j	.LBB0_1							# imm[20|10:1|11|19:12] rd       1101111	# 00000001000 000000000 00000 1101111		# iterate the for loop
+	j	.LBB0_1							# imm[20|10:1|11|19:12] rd       1101111	# 00000001000 000000000 00000 1101111
 .LBB0_4:								# Addr 0x80							        # After the loop
 	lw	a0, -12(s0)						# imm[11:0]		rs1 010 rd       0000011	# 111111110100 01000 010 01010 0000011
 	lw	s0, 8(sp)						# imm[11:0]		rs1 010 rd       0000011	# 000000001000 00010 010 01000 0000011
