@@ -31,8 +31,8 @@ public:
 // Runs the simulation
 class RunSim : SimObject{
 private:
-    size_t cycles = 0; // Cpu cycle count
 public:
+    double cycles = 0; // Cpu cycle count
     RunSim(std::shared_ptr<System> s) : SimObject(s) {} // Calls the CPU constructor so that it will have the same values as the one in main
     void runSimulation(); // Runs the simulation
 

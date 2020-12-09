@@ -16,7 +16,7 @@ int main(){
     size_t stackEnd1 = 0x3FF;
     size_t stackBegin1 = 0x300;
     size_t dramEnd = 0x13FF;
-    size_t memLatency = 100;
+    size_t memLatency = 20;
 
     CPU *cpu0 = new CPU(sys, "cpu0", 0, 0x093, stackBegin0, dramEnd); // Passes in the device name, the starting and end addrs for instruction memory, andd the stating and end addrs for data memory
     CPU *cpu1 = new CPU(sys, "cpu1", 0x100, 0x193, stackBegin0, dramEnd); // Passes in the device name, the starting and end addrs for instruction memory, andd the stating and end addrs for data memory
@@ -64,6 +64,10 @@ int main(){
     std::cout << std::endl << std::endl << "Output cpu1: " << std::endl;
     for(auto x: cpu1->output)
         std::cout << x << std::endl;
+
+    std::cout << std::endl << "CPI for CPU0: " << (sim->cycles+1)/cpu0->numInstructions << std::endl;
+    std::cout << "CPI for CPU1: " << (sim->cycles +1)/cpu1->numInstructions << std::endl;
+
     return 0;
 }
 

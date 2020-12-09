@@ -446,6 +446,7 @@ public:
     RequestDataPort *port2; // Used to access the request port for data memory
 
     size_t cycles = 1;
+    size_t numInstructions = 0;
     Tick clkTick;       // How far in advance that the event is going to be scheduled
     size_t currAddrI;   // Current address for the instruction Memory
     size_t currAddrD;   // Current address for the data Memory
