@@ -254,10 +254,9 @@ private:
                     if((ex->isMemAccess() && ex->isRead()) || !ex->isMemAccess())
                         ex->cpu->s->e->storeEvent();
 
-                ex->setBusy(0);
-            } else{
+                    ex->setBusy(0);
+                } else
                     ex->cpu->schedule(this, ex->cpu->currTick() + 10); // Reschedule if busy for current tick + 10
-                }
             }
             virtual const char* description() override {return "Execute Release Event";}
             void releaseEvent() {

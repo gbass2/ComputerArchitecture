@@ -328,8 +328,10 @@ void CPU::recvResp(PacketPtr pkt){
             bitset<32> instruction = *(uint32_t *)(pkt->getBuffer());
             cout << getName() << " read in binary: " << instruction << endl;    // example: cpu0 read in binary: 01010101010
 
-            if(f->isFlushed())
+            if(f->isFlushed()){
                 f->intInst.currentInstruction.reset(); // Flushing the pipleine
+                f->setFlushed(0);
+            }
             else
                 f->intInst.currentInstruction = instruction;
 
