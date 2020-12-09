@@ -351,7 +351,7 @@ void CPU::recvResp(PacketPtr pkt){
             }
             // Reading float from memory
             else{
-                cout << "Loaded value: " << *(float *)(pkt->getBuffer()) << endl;
+                cout << "Loaded fp value: " << *(float *)(pkt->getBuffer()) << endl;
                 ex->fInst.rd.setData(*(float *)(pkt->getBuffer()));
             }
 

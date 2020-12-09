@@ -177,7 +177,7 @@ private:
                     d->cpu->ex->intInst = d->intInst;                   // Passing the instruction of decode to execute for int instruction
 
                     d->cpu->ex->fInst = d->fInst;                       // Passing the instruction of decode to execute for float instruction
-
+                    // std::cout << "rs1 name: " << d->cpu->ex->intInst.rs1.getName() << std::endl;
                     d->cpu->ex->setRead(d->isRead());
                     d->cpu->ex->setMemAccess(d->isMemAccess());
                     d->cpu->ex->setFloat(d->getIsFloat());
@@ -447,6 +447,7 @@ public:
         }
     };
 
+public:
     // Instances of the pipeline stages
     Fetch *f;
     Decode *d;
