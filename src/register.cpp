@@ -119,7 +119,7 @@ void RegisterBank::process(){
             name = cpu->ex->fInst.rs3.getName();
             nameInInt = stoi(name.to_string());
             cpu->ex->fInst.rs3.setData(fpRegisters[nameInInt].getData());
-            std::cout << "rs3 data: " << fpRegisters[nameInInt].getData() << std::endl;
+            // std::cout << "rs3 data: " << fpRegisters[nameInInt].getData() << std::endl;
         }
     } else { // Write to register
         if(!(cpu->s->getIsFloat())){ // For a int write

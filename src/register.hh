@@ -34,8 +34,8 @@ private:
     CPU *cpu;
     bool read = true; // Set false for write and true for read
 public:
-    std::unordered_map<uint16_t, Register<int>> intRegisters; // Example: <0101,"Temporary/alternate link register">
-    std::unordered_map<uint16_t, Register<float>> fpRegisters; // Example: <0101,"Temporary/alternate link register">
+    std::unordered_map<uint16_t, Register<int>> intRegisters; // Integer Register Bank
+    std::unordered_map<uint16_t, Register<float>> fpRegisters; // Floating Point Register Bank
 
     RegisterBank(std::shared_ptr<System> s2, CPU *cpu);
     bool isRead() { return read; } // Used to determine if register read or write

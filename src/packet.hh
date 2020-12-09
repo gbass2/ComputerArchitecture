@@ -42,7 +42,7 @@ public:
     uint8_t *getBuffer() { return buffer; }
     bool isRead() { return _isRead; }
     size_t getSize() { return size; }
-    Addr getAddr() { return dst; } // Getting address
+    Addr getAddr() { return dst; }
     std::string getName() { return name; }
 
     // Modifying header. When pass from one device to another we are going to append to the header where we came from
