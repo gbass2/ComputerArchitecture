@@ -317,7 +317,7 @@ public:
         bool isStalled = false;
         friend class CPU; // Allows CPU class to access these private variables
     public:
-        Stall(CPU *c) : Event(1), cpu(c) {}
+        Stall(CPU *c) : Event(), cpu(c) {}
         virtual void process() override {
             // Stall the processor
             cpu->stall->stallCPU();
@@ -343,7 +343,7 @@ public:
         // friend class CPU; // Allows CPU class to access these private variables
 
     public:
-        ALU(CPU *c) : Event(0), cpu(c) {}
+        ALU(CPU *c) : Event(), cpu(c) {}
         virtual void process() override {
             cpu->a->aluOperations();
         }
@@ -370,25 +370,6 @@ public:
         void FSW();
         void FADDS();
         void FSUBS();
-    };
-
-    // For creating a send data event to pass data through the pipeline
-    class Send : public Event{
-    private:
-        CPU *cpu;
-    public:
-        Send(CPU *c) : Event(), cpu(c) {}
-        virtual void process() override {
-            cpu->send->sendData();
-        }
-        virtual const char* description() override { return "Send Data"; }
-        void sendEvent(){
-            std::cout << "Scheduling Send Data on Tick: " << cpu->currTick() << std::endl;
-            size_t n = cpu->currTick();
-            size_t eventTime = (n >= 0 ? (n / 10) * 10 : ((n - 10 + 1) / 10) * 10) + 6;
-            cpu->schedule(cpu->send, eventTime); // Scheduling new event
-        }
-        void sendData();
     };
 
     // RequestEvent for the data port of the memory
@@ -455,7 +436,6 @@ public:
     Store *s;
     Stall *stall;
     ALU *a;
-    Send *send;
 
     RegisterBank *reg; // Variable to access RegisterBank
 
@@ -466,6 +446,7 @@ public:
     RequestDataPort *port2; // Used to access the request port for data memory
 
     size_t cycles = 1;
+    size_t numInstructions = 0;
     Tick clkTick;       // How far in advance that the event is going to be scheduled
     size_t currAddrI;   // Current address for the instruction Memory
     size_t currAddrD;   // Current address for the data Memory

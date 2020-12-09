@@ -13,6 +13,7 @@ std::string GetBinary32( float value );
 
 // Determines what alu operation needs to be done based on the opcode and the width of the instruction
 void CPU::ALU::aluOperations() {
+    cpu->numInstructions++;
     // Integer Operations
     if(!cpu->ex->getIsFloat()){
         if(cpu->ex->intInst.opcode.to_string() == "1100100") {      // addi/mv + slli
@@ -458,8 +459,6 @@ void CPU::ALU::BLT() {  // Branch Rs1 Less Than Rs2
         cpu->currAddrI = val3;
 
         // The PC changes so the pipeline stages need to be flushed
-        // cpu->f->intInst.flush();
-        // cpu->d->intInst.flush();
         cpu->f->setFlushed(1);
     }
 }
@@ -477,8 +476,6 @@ void CPU::ALU::BLTU() {  // Branch Rs1 Less Than Rs2 Unsigned
         cpu->currAddrI += val3;
 
         // The PC changes so the pipeline stages need to be flushed
-        // cpu->f->intInst.flush();
-        // cpu->d->intInst.flush();
         cpu->f->setFlushed(1);
     }
 }
@@ -496,8 +493,6 @@ void CPU::ALU::BGE() {  // Branch Rs1 greater than Rs2
         cpu->currAddrI += val3;
 
         // The PC changes so the pipeline stages need to be flushed
-        // cpu->f->intInst.flush();
-        // cpu->d->intInst.flush();
         cpu->f->setFlushed(1);
     }
 }
@@ -515,8 +510,6 @@ void CPU::ALU::BGEU() {  // Branch Rs1 greater than Rs2 Unsigned
         cpu->currAddrI += val3;
 
         // The PC changes so the pipeline stages need to be flushed
-        // cpu->f->intInst.flush();
-        // cpu->d->intInst.flush();
         cpu->f->setFlushed(1);
     }
 }
@@ -536,8 +529,6 @@ void CPU::ALU::JAL() {
      cpu->ex->intInst.rd.setData(val);
 
      // The PC changes so the pipeline stages need to be flushed
-     // cpu->f->intInst.flush();
-     // cpu->d->intInst.flush();
      cpu->f->setFlushed(1);
 }
 
@@ -558,9 +549,6 @@ void CPU::ALU::JALR() {
     cpu->ex->intInst.rd.setData(val2);
 
     // The PC changes so the pipeline stages need to be flushed
-    // cpu->f->intInst.flush();
-    // cpu->d->intInst.flush();
-
     cpu->f->setFlushed(1);
 }
 

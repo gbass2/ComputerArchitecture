@@ -6,14 +6,13 @@ using namespace std;
 
 // Main function for running the simulation
 void RunSim::runSimulation(){
-    double numInstructions = 37;
 
     while(!(sysMain->getMEQ().empty())){
         // Counting the cycles
         if(currTick() % 10 == 0 && currTick() > 1)
             cycles++;
 
-        printMEQ();
+        // printMEQ();
 
         cout << "Current Cycle: " << cycles  << endl;
         cout << "Current Tick: " << currTick() << endl;
@@ -28,7 +27,4 @@ void RunSim::runSimulation(){
         }
         incTick(1); // Increments currentTick by amount (t)
     }
-
-    // if(!(currTick() == 1))
-        // cout << "CPI: " << (cycles+1)/numInstructions << endl;
 }

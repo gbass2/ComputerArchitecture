@@ -15,36 +15,26 @@ std::deque<Event *>::iterator System::findEvent(Event *e){ // Finds an event in 
 }
 
 void System::schedule(Event *e, Tick t){ // Schedules an event into MEQ
-    // assert(t <= currTick());
-
     // Adding the event to MEQ
     if(!(e->isScheduled())){
         e->schedule(t);
 
-        if(e->getPriority()) {
-            MEQ.push_front(e);
-            return;
-        } else{
-            for(auto it = MEQ.begin(); it != MEQ.end(); it++){
-                if(e->getTime() < (*it)->getTime()){
-                    MEQ.insert(it, e);
-                    return;
+        for(auto it = MEQ.begin(); it != MEQ.end(); it++){
+            if(e->getTime() < (*it)->getTime()){
+                MEQ.insert(it, e);
+                return;
                 }
             }
             MEQ.push_back(e);
-        }
     } else {
         assert(0);
     }
 }
 
 void System::reschedule(Event *e, Tick t){ // Reschedules an event in MEQ
-    assert(t >= currentTick);
     if(e->isScheduled()){
 
         MEQ.erase(findEvent(e));
-
-        // std::cout << MEQ.front()->description();
 
         e->schedule(t);
 

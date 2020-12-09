@@ -19,8 +19,6 @@ fwd_event(new MembusForwardEvent(this)) {
 
 void Membus::tryToSend() {    // function to try to send to memory
      auto it = packetsWaitingForMemPorts.begin();
-     // std::cout << "packetsWaitingForMemPorts size: " << packetsWaitingForMemPorts.size() << std::endl;
-     // int i = 0;
      while (it != packetsWaitingForMemPorts.end()) {
           PacketPtr pkt = *it;
           MemSidePort * mem_port = getRequestPort(pkt);
@@ -28,14 +26,11 @@ void Membus::tryToSend() {    // function to try to send to memory
                std::cout << "Membus sending packet on Tick: " << currTick() << std::endl;
                mem_port->sendReq(pkt);
                it = packetsWaitingForMemPorts.erase(it);
-               // i++;
           }
           else{
                it++;
-               // std::cout << std::endl << "it: " << i << std::endl << std::endl;
            }
      }
-     // std::cout << "packetsWaitingForMemPorts size: " << packetsWaitingForMemPorts.size() << std::endl;
 }
 
 void Membus::forwardPackets() {    // a delay in the membus for processing
@@ -46,8 +41,6 @@ void Membus::forwardPackets() {    // a delay in the membus for processing
           fwdQType tmp = packetsWaitingForForward.front();
           packetsWaitingForForward.pop_front();
           packetsWaitingForMemPorts.push_back(tmp.second);
-          // std::cout << "forwardPackets-------" << std::endl;
-          // std::cout << "fwd pkt: " << tmp.second << std::endl;
      }
 
      if (!(packetsWaitingForForward.empty())) {
@@ -61,8 +54,6 @@ void Membus::recvReq(PacketPtr pkt) {
      Tick forwardTick = currTick() + fwd_time;
      // queue waiting to be forwarded through the device
      packetsWaitingForForward.push_back(fwdQType(forwardTick, pkt));
-     // std::cout << "recvReq-------" << std::endl;
-     // std::cout << "fwd pkt: " << pkt << std::endl;
 
      // schedule when eligable to be forwarded to memory
      if (!fwd_event->isScheduled())
@@ -104,7 +95,6 @@ Membus::getResponsePort(PacketPtr pkt) {
 }
 
 // Helper functions below for connecting devices onto the Membus
-
 Membus::MemSidePort *
 Membus::getMemSidePort(size_t index) {
      if (index < memSidePorts.size())

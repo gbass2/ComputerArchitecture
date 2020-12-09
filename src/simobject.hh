@@ -29,19 +29,14 @@ public:
 };
 
 // Runs the simulation
-class RunSim : public Event, SimObject{
+class RunSim : SimObject{
 private:
-    size_t cycles = 0; // Cpu cycle count
 public:
-    RunSim(std::shared_ptr<System> s) :  Event(), SimObject(s) {} // Calls the CPU constructor so that it will have the same values as the one in main
+    double cycles = 0; // Cpu cycle count
+    RunSim(std::shared_ptr<System> s) : SimObject(s) {} // Calls the CPU constructor so that it will have the same values as the one in main
     void runSimulation(); // Runs the simulation
 
-    virtual void process() override {}
-    virtual const char* description() override {return "Setup Simulation";}
-    virtual void initialize() override { // Initialzes MEQ with a fetch event
-        std::cout << "scheduling Setup Simulation on Tick " << currTick() << std::endl;
-        sysMain->schedule(this, 0); // Scheduling new event
-    }
+    virtual void initialize() override {}
 };
 
 #endif //SIMOBJECT_H

@@ -13,7 +13,6 @@ CPU::CPU(std::shared_ptr<System> s1, const char* name, size_t start1, size_t end
     s(new Store(this)),
     stall(new Stall(this)),
     a(new ALU(this)),
-    send(new Send(this)),
     reg(new RegisterBank(s1, this)),
     e1(new RequestInstEvent(this)),
     e2(new RequestDataEvent(this)),
@@ -96,8 +95,6 @@ void CPU::Decode::decodeInstruction() {
             intInst.immJU = bitset<20>(instruction.substr(21,10) + instruction.substr(20,1) + instruction.substr(12,8) + instruction.substr(31,1));
             intInst.immJU = reverse(intInst.immJU);  // reversing the because the instruction reads left to right and the risc v doc reads right to left
         } else {
-            // cout << "ERROR Code 1234: No Integer Instruction Type." << endl;
-            // assert(0);
             cout << "NOP in decode" << endl;
         }
     } else {
@@ -162,8 +159,6 @@ void CPU::Decode::decodeInstruction() {
                 fInst.rs3.setName(bitset<5>(instruction.substr(27,5)));
                 fInst.rs3.setName(reverse(fInst.rs1.getName())); // reversing the because the instruction reads left to right and the risc v doc reads right to left
             } else {
-                // cout << "ERROR Code 1234: No Floating Point Instruction Type." << endl;
-                // assert(0);
                 cout << "NOP in decode" << endl;
             }
     }
@@ -179,7 +174,7 @@ void CPU::Execute::executeInstruction() {
     // Accessing the registers to get the Values
     cpu->reg->setRead(1);
     cpu->reg->process();
-    cpu->a->process();
+    cpu->a->process();  // calls ALU
     // Add the latencies in for the instructions. RV32I is 10 ticks, RV32M is 20 ticks, RV32F si 50 ticks
 }
 
@@ -200,52 +195,6 @@ void CPU::Stall::stallCPU() {
         cpu->reschedule((cpu->sysMain->getMEQ()).at(i), (cpu->sysMain->getMEQ()).at(i)->getTime() + stallAmount);
     }
     cout << endl;
-}
-
-void CPU::Send::sendData() {
-    cout << endl << "Sending data between stages for " << cpu->getName() << endl << endl;
-    //If pipeline stages are not busy then pass between stages
-    if(!(cpu->f->isBusy() && cpu->d->isBusy() && cpu->ex->isBusy() &&cpu->s->isBusy())){
-
-        // Passing the instruction of execute to store for int instruction
-        cpu->s->intInst = cpu->ex->intInst;
-
-        // Passing the instruction of decode to execute for int instruction
-        cpu->ex->intInst = cpu->d->intInst;
-
-        // Passing the instruction of fetch to decode for int instruction
-        cpu->d->intInst = cpu->f->intInst;
-
-        // Passing the instruction of execute to store for float instruction
-        cpu->s->fInst = cpu->ex->fInst;
-
-        // Passing the instruction of decode to execute for float instruction
-        cpu->ex->fInst = cpu->d->fInst;
-
-        // Passing the instruction of fetch to decode for float instruction
-        cpu->d->fInst = cpu->f->fInst;
-
-        // Passing the rest of the pipeline parameters to next stages
-        cpu->s->setRead(cpu->ex->isRead());
-        cpu->s->setMemAccess(cpu->ex->isMemAccess());
-        cpu->s->setFloat(cpu->ex->getIsFloat());
-
-        cpu->ex->setRead(cpu->d->isRead());
-        cpu->ex->setMemAccess(cpu->d->isMemAccess());
-        cpu->ex->setFloat(cpu->d->getIsFloat());
-
-        cpu->d->setRead(cpu->f->isRead());
-        cpu->d->setMemAccess(cpu->f->isMemAccess());
-        cpu->d->setFloat(cpu->f->getIsFloat());
-
-        cout << "rs2: " << cpu->ex->intInst.rs2.getName() << endl;
-    }
-
-    // If pipeline stages are busy reschedule release event
-    else{
-        cout << "Stage is busy. Rescheduling send data" << endl;
-        cpu->schedule(this, cpu->currTick() + 1);
-    }
 }
 
 void CPU::Decode::findInstructionType(){
@@ -325,7 +274,7 @@ void CPU::recvResp(PacketPtr pkt){
         if((pkt->getName() == "fetch" && pkt->isRead())){         // only true for fetch stage
             // Reading from memory in binary
             bitset<32> instruction = *(uint32_t *)(pkt->getBuffer());
-            cout << getName() << " read in binary: " << instruction << endl;    // example: cpu0 read in binary: 01010101010
+            cout << getName() << " read in binary: " << instruction << endl << endl;    // example: cpu0 read in binary: 01010101010
 
             if(f->isFlushed()){
                 f->intInst.currentInstruction.reset(); // Flushing the pipleine
@@ -340,7 +289,7 @@ void CPU::recvResp(PacketPtr pkt){
             // Reading int from data memory
             if(!ex->getIsFloat()){
                 int val = (*(int *)(pkt->getBuffer())); // Loading into rd. The store stage will get the data and store it in the proper location
-                cout << "Loaded value: " << val << endl;
+                cout << "Loaded value: " << val << endl << endl;
 
                 if(ex->intInst.funct3.to_string() == "101")        // LBH Zero Extend
                     val = val << 16;
@@ -351,16 +300,16 @@ void CPU::recvResp(PacketPtr pkt){
             }
             // Reading float from memory
             else{
-                cout << "Loaded fp value: " << *(float *)(pkt->getBuffer()) << endl;
+                cout << "Loaded fp value: " << *(float *)(pkt->getBuffer()) << endl << endl;
                 ex->fInst.rd.setData(*(float *)(pkt->getBuffer()));
             }
 
             ex->setMemAccessFinished(1); // Setting execute stage to not busy
         } else {
             if(!ex->getIsFloat())
-                cout << "Successfully Stored " << *(int *)(pkt->getBuffer()) << " to Memory" << std::endl;
+                cout << "Successfully Stored " << *(int *)(pkt->getBuffer()) << " to Memory" << endl << endl;
             else{
-                cout << "Successfully Stored " << *(float *)(pkt->getBuffer()) << " to Memory" << std::endl;
+                cout << "Successfully Stored " << *(float *)(pkt->getBuffer()) << " to Memory" << endl << endl;
                 output.push_back(*(float *)(pkt->getBuffer()));
             }
 
