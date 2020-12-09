@@ -174,7 +174,7 @@ void CPU::Execute::executeInstruction() {
     // Accessing the registers to get the Values
     cpu->reg->setRead(1);
     cpu->reg->process();
-    cpu->a->process();
+    cpu->a->process();  // calls ALU
     // Add the latencies in for the instructions. RV32I is 10 ticks, RV32M is 20 ticks, RV32F si 50 ticks
 }
 
