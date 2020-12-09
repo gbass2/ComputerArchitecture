@@ -115,8 +115,7 @@ void CPU::ALU::aluOperations() {
     }
 
     // Scheduling execute release unless the program is done
-    if(cpu->currAddrI < cpu->endAddrI)
-        cpu->ex->release->releaseEvent();
+    cpu->ex->release->releaseEvent();
 }
 
 void CPU::ALU::ADDI() {

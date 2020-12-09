@@ -10,6 +10,7 @@
 #include <cstring>
 #include <cassert>
 #include <algorithm>
+#include <vector>
 
 // Holds the data between the pipeline stages
 template<typename T>
@@ -112,6 +113,8 @@ private:
                     fetch->cpu->d->setMemAccess(fetch->isMemAccess());
                     fetch->cpu->d->setFloat(fetch->getIsFloat());
 
+                    if(fetch->cpu->currAddrI >= fetch->cpu->endAddrI)
+                        fetch->cpu->d->e->decodeEvent();
                     // create a fetch event after data is released
                     if(fetch->cpu->currAddrI < fetch->cpu->endAddrI){
                         fetch->cpu->d->e->decodeEvent();
@@ -471,6 +474,7 @@ public:
     friend RegisterBank;
 
 public:
+    std::vector<float> output;
     CPU(std::shared_ptr<System> s1, const char* name, size_t start1, size_t end1, size_t start2, size_t end2);
     ~CPU();
     void processInst() {
@@ -524,13 +528,3 @@ public:
 };
 
 #endif
-
-/*
-create f event
-run f
-create f relese event. Schedule a decode and fetch events
-run d f
-create decode and fetch release event. Schedule execute, decode, and fetch events
-run e d f
-create an execute, decode, fetch release event. Schedule a store, execute, decode, and fetch events
- */

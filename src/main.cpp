@@ -42,6 +42,7 @@ int main(){
     // Fill DRAM with random floating point values. 0x400 - 0xFFF
     for (auto i = ram->getAddrRange().first + 0x200; i < ram->getAddrRange().second; i+=4){
          float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+         std::cout << r << std::endl;
          uint32_t val = *(uint32_t *)(&r);
          ram->writeWordAtAddr(i, val);
     }
@@ -55,6 +56,14 @@ int main(){
     cpu1->initialize();       // Sets up the first event. Which is a fetch event
     sim->runSimulation();     // Runs the instructions
 
+    // Outputing the results
+    std::cout << std::endl << std::endl << "Output cpu0: " << std::endl;
+    for(auto x: cpu0->output)
+        std::cout << x << std::endl;
+
+    std::cout << std::endl << std::endl << "Output cpu1: " << std::endl;
+    for(auto x: cpu1->output)
+        std::cout << x << std::endl;
     return 0;
 }
 
