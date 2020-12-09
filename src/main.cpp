@@ -52,7 +52,7 @@ int main(){
 
     setupSimulator(Iram1, Iram2);
     cpu0->initialize();       // Sets up the first event. Which is a fetch event
-    // cpu1->initialize();       // Sets up the first event. Which is a fetch event
+    cpu1->initialize();       // Sets up the first event. Which is a fetch event
     sim->runSimulation();     // Runs the instructions
 
     return 0;
