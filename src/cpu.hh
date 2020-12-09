@@ -372,25 +372,6 @@ public:
         void FSUBS();
     };
 
-    // For creating a send data event to pass data through the pipeline
-    class Send : public Event{
-    private:
-        CPU *cpu;
-    public:
-        Send(CPU *c) : Event(), cpu(c) {}
-        virtual void process() override {
-            cpu->send->sendData();
-        }
-        virtual const char* description() override { return "Send Data"; }
-        void sendEvent(){
-            std::cout << "Scheduling Send Data on Tick: " << cpu->currTick() << std::endl;
-            size_t n = cpu->currTick();
-            size_t eventTime = (n >= 0 ? (n / 10) * 10 : ((n - 10 + 1) / 10) * 10) + 6;
-            cpu->schedule(cpu->send, eventTime); // Scheduling new event
-        }
-        void sendData();
-    };
-
     // RequestEvent for the data port of the memory
     class RequestDataEvent : public Event{
     private:
@@ -455,7 +436,6 @@ public:
     Store *s;
     Stall *stall;
     ALU *a;
-    Send *send;
 
     RegisterBank *reg; // Variable to access RegisterBank
 
