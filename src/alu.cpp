@@ -108,9 +108,9 @@ void CPU::ALU::aluOperations() {
             FLW();
         }
     }
-    if(!cpu->ex->isMemAccess()){
-        // // std::cout << "# Set Busy to False" << std::endl;
-        cpu->ex->setBusy(0); // Setting execute stage to not busy if the operation does not access the memory
+    if(!cpu->ex->isMemAccess() && !cpu->ex->getIsFloat()){
+
+        cpu->ex->setBusy(0); // Setting execute stage to not busy if the operation does not access the memory or is not a floating point instruction
 
     }
 
