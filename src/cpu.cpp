@@ -325,7 +325,7 @@ void CPU::recvResp(PacketPtr pkt){
         if((pkt->getName() == "fetch" && pkt->isRead())){         // only true for fetch stage
             // Reading from memory in binary
             bitset<32> instruction = *(uint32_t *)(pkt->getBuffer());
-            cout << getName() << " read in binary: " << instruction << endl;    // example: cpu0 read in binary: 01010101010
+            cout << getName() << " read in binary: " << instruction << endl << endl;    // example: cpu0 read in binary: 01010101010
 
             if(f->isFlushed()){
                 f->intInst.currentInstruction.reset(); // Flushing the pipleine

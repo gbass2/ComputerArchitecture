@@ -317,7 +317,7 @@ public:
         bool isStalled = false;
         friend class CPU; // Allows CPU class to access these private variables
     public:
-        Stall(CPU *c) : Event(1), cpu(c) {}
+        Stall(CPU *c) : Event(), cpu(c) {}
         virtual void process() override {
             // Stall the processor
             cpu->stall->stallCPU();
@@ -343,7 +343,7 @@ public:
         // friend class CPU; // Allows CPU class to access these private variables
 
     public:
-        ALU(CPU *c) : Event(0), cpu(c) {}
+        ALU(CPU *c) : Event(), cpu(c) {}
         virtual void process() override {
             cpu->a->aluOperations();
         }

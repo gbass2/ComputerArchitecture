@@ -13,10 +13,10 @@ void RunSim::runSimulation(){
         if(currTick() % 10 == 0 && currTick() > 1)
             cycles++;
 
-        printMEQ();
+        // printMEQ();
 
-        cout << "Current Cycle: " << cycles  << endl;
-        cout << "Current Tick: " << currTick() << endl;
+        // cout << "Current Cycle: " << cycles  << endl;
+        // cout << "Current Tick: " << currTick() << endl;
 
         if ((sysMain->getMEQ().front()->getTime()) < currTick()){
             cout << "Error: Event was scheduled prior to the current time" << endl;
