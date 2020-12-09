@@ -340,7 +340,7 @@ void CPU::recvResp(PacketPtr pkt){
             // Reading int from data memory
             if(!ex->getIsFloat()){
                 int val = (*(int *)(pkt->getBuffer())); // Loading into rd. The store stage will get the data and store it in the proper location
-                cout << "Loaded value: " << val << endl;
+                cout << "Loaded value: " << val << endl << endl;
 
                 if(ex->intInst.funct3.to_string() == "101")        // LBH Zero Extend
                     val = val << 16;
@@ -351,16 +351,16 @@ void CPU::recvResp(PacketPtr pkt){
             }
             // Reading float from memory
             else{
-                cout << "Loaded fp value: " << *(float *)(pkt->getBuffer()) << endl;
+                cout << "Loaded fp value: " << *(float *)(pkt->getBuffer()) << endl << endl;
                 ex->fInst.rd.setData(*(float *)(pkt->getBuffer()));
             }
 
             ex->setMemAccessFinished(1); // Setting execute stage to not busy
         } else {
             if(!ex->getIsFloat())
-                cout << "Successfully Stored " << *(int *)(pkt->getBuffer()) << " to Memory" << std::endl;
+                cout << "Successfully Stored " << *(int *)(pkt->getBuffer()) << " to Memory" << endl << endl;
             else{
-                cout << "Successfully Stored " << *(float *)(pkt->getBuffer()) << " to Memory" << std::endl;
+                cout << "Successfully Stored " << *(float *)(pkt->getBuffer()) << " to Memory" << endl << endl;
                 output.push_back(*(float *)(pkt->getBuffer()));
             }
 
