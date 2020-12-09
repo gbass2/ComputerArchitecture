@@ -55,6 +55,14 @@ int main(){
     cpu1->initialize();       // Sets up the first event. Which is a fetch event
     sim->runSimulation();     // Runs the instructions
 
+    // Outputing the results
+    std::cout << std::endl << std::endl << "Output cpu0: " << std::endl;
+    for(auto x: cpu0->output)
+        std::cout << x << std::endl;
+
+    std::cout << std::endl << std::endl << "Output cpu1: " << std::endl;
+    for(auto x: cpu1->output)
+        std::cout << x << std::endl;
     return 0;
 }
 

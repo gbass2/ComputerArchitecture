@@ -168,8 +168,7 @@ void CPU::Decode::decodeInstruction() {
             }
     }
 
-    if(cpu->currAddrI < cpu->endAddrI)
-        release->releaseEvent();
+    release->releaseEvent();
 }
 
 // Prints the execute stage
@@ -358,7 +357,13 @@ void CPU::recvResp(PacketPtr pkt){
 
             ex->setMemAccessFinished(1); // Setting execute stage to not busy
         } else {
-            cout << "Successfully Stored " << (*(int *)(pkt->getBuffer())) << " to Memory" << std::endl;
+            if(!ex->getIsFloat())
+                cout << "Successfully Stored " << *(int *)(pkt->getBuffer()) << " to Memory" << std::endl;
+            else{
+                cout << "Successfully Stored " << *(float *)(pkt->getBuffer()) << " to Memory" << std::endl;
+                output.push_back(*(float *)(pkt->getBuffer()));
+            }
+
             ex->setMemAccessFinished(1); // Setting execute stage to not busy
         }
         delete pkt;
