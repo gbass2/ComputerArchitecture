@@ -192,6 +192,7 @@ void CPU::ALU::LB() { // Load Byte
     std::cout << "rd name: " << cpu->ex->intInst.rd.getName() << std::endl;
     std::cout << "Current address: " << addrs << std::endl;
 
+    cpu->ex->setMemAccessFinished(0);
     cpu->processData(); // Loading byte from memory
 }
 
@@ -212,6 +213,7 @@ void CPU::ALU::LH() { // Load Half Word
     std::cout << "rd name: " << cpu->ex->intInst.rd.getName() << std::endl;
     std::cout << "Current address: " << addrs << std::endl;
 
+    cpu->ex->setMemAccessFinished(0);
     cpu->processData(); // Loading half word from memory
 }
 
@@ -233,6 +235,7 @@ void CPU::ALU::LW() { // Load Word
     std::cout << "rd name: " << cpu->ex->intInst.rd.getName() << std::endl;
     std::cout << "Current address: " << addrs << std::endl;
 
+    cpu->ex->setMemAccessFinished(0);
     cpu->processData(); // Loading word from memory
 }
 
@@ -253,6 +256,7 @@ void CPU::ALU::LBU() { // Load Byte and zero extend it
     std::cout << "rd name: " << cpu->ex->intInst.rd.getName() << std::endl;
     std::cout << "Current address: " << addrs << std::endl;
 
+    cpu->ex->setMemAccessFinished(0);
     cpu->processData(); // Loading byte from memory
 }
 //
@@ -273,6 +277,7 @@ void CPU::ALU::LBH() { // Load Half Word and zero extend it
     std::cout << "rd name: " << cpu->ex->intInst.rd.getName() << std::endl;
     std::cout << "Current address: " << addrs << std::endl;
 
+    cpu->ex->setMemAccessFinished(0);
     cpu->processData(); // Loading half word from memory and zero extend
 }
 
@@ -301,6 +306,7 @@ void CPU::ALU::SB() { // Storing byte
     std::cout << "rs1 name: " << cpu->ex->intInst.rs1.getName() << std::endl;
     std::cout << "rd name: " << cpu->ex->intInst.rd.getName() << std::endl;
 
+    cpu->ex->setMemAccessFinished(0);
     cpu->processData(); // Storing word to memory
 }
 
@@ -329,6 +335,7 @@ void CPU::ALU::SH() { // Storing half word
     std::cout << "rs1 name: " << cpu->ex->intInst.rs1.getName() << std::endl;
     std::cout << "rd name: " << cpu->ex->intInst.rd.getName() << std::endl;
 
+    cpu->ex->setMemAccessFinished(0);
     cpu->processData(); // Storing word to memory
 }
 
@@ -359,6 +366,7 @@ void CPU::ALU::SW() { // Storing Word
     std::cout << "rs2 name: " << cpu->ex->intInst.rs2.getName() << std::endl;
     std::cout << "rd name: " << cpu->ex->intInst.rd.getName() << std::endl;
 
+    cpu->ex->setMemAccessFinished(0);
     cpu->processData(); // Storing word to memory
 }
 
@@ -411,6 +419,7 @@ void CPU::ALU::BEQ(){ // Branch Equal
         // The PC changes so the pipeline stages need to be flushed
         cpu->f->intInst.flush();
         cpu->d->intInst.flush();
+        cpu->f->setFlushed(1);
     }
 }
 
@@ -429,6 +438,7 @@ void CPU::ALU::BNE(){ // Branch Not Equal
         // The PC changes so the pipeline stages need to be flushed
         cpu->f->intInst.flush();
         cpu->d->intInst.flush();
+        cpu->f->setFlushed(1);
     }
 }
 
@@ -449,8 +459,9 @@ void CPU::ALU::BLT() {  // Branch Rs1 Less Than Rs2
         cpu->currAddrI = val3;
 
         // The PC changes so the pipeline stages need to be flushed
-        cpu->f->intInst.flush();
-        cpu->d->intInst.flush();
+        // cpu->f->intInst.flush();
+        // cpu->d->intInst.flush();
+        cpu->f->setFlushed(1);
     }
 }
 
@@ -467,8 +478,9 @@ void CPU::ALU::BLTU() {  // Branch Rs1 Less Than Rs2 Unsigned
         cpu->currAddrI += val3;
 
         // The PC changes so the pipeline stages need to be flushed
-        cpu->f->intInst.flush();
-        cpu->d->intInst.flush();
+        // cpu->f->intInst.flush();
+        // cpu->d->intInst.flush();
+        cpu->f->setFlushed(1);
     }
 }
 
@@ -485,8 +497,9 @@ void CPU::ALU::BGE() {  // Branch Rs1 greater than Rs2
         cpu->currAddrI += val3;
 
         // The PC changes so the pipeline stages need to be flushed
-        cpu->f->intInst.flush();
-        cpu->d->intInst.flush();
+        // cpu->f->intInst.flush();
+        // cpu->d->intInst.flush();
+        cpu->f->setFlushed(1);
     }
 }
 
@@ -503,8 +516,9 @@ void CPU::ALU::BGEU() {  // Branch Rs1 greater than Rs2 Unsigned
         cpu->currAddrI += val3;
 
         // The PC changes so the pipeline stages need to be flushed
-        cpu->f->intInst.flush();
-        cpu->d->intInst.flush();
+        // cpu->f->intInst.flush();
+        // cpu->d->intInst.flush();
+        cpu->f->setFlushed(1);
     }
 }
 
@@ -523,8 +537,9 @@ void CPU::ALU::JAL() {
      cpu->ex->intInst.rd.setData(val);
 
      // The PC changes so the pipeline stages need to be flushed
-     cpu->f->intInst.flush();
-     cpu->d->intInst.flush();
+     // cpu->f->intInst.flush();
+     // cpu->d->intInst.flush();
+     cpu->f->setFlushed(1);
 }
 
 void CPU::ALU::JALR() {
@@ -544,10 +559,10 @@ void CPU::ALU::JALR() {
     cpu->ex->intInst.rd.setData(val2);
 
     // The PC changes so the pipeline stages need to be flushed
-    cpu->f->intInst.flush();
-    cpu->d->intInst.flush();
+    // cpu->f->intInst.flush();
+    // cpu->d->intInst.flush();
 
-    cpu->send->sendEvent();
+    cpu->f->setFlushed(1);
 }
 
 void CPU::ALU::FADDS() {

@@ -30,6 +30,7 @@ void CPU::Fetch::fetchInstruction() {
     cout << endl << "Processing Fetch Stage for " << cpu->getName() << endl;
     setBusy(1);
     setRead(1);
+    setMemAccessFinished(0);
     cpu->processInst();
 }
 
@@ -179,7 +180,6 @@ void CPU::Execute::executeInstruction() {
     // Accessing the registers to get the Values
     cpu->reg->setRead(1);
     cpu->reg->process();
-
     cpu->a->process();
     // Add the latencies in for the instructions. RV32I is 10 ticks, RV32M is 20 ticks, RV32F si 50 ticks
 }
@@ -327,8 +327,13 @@ void CPU::recvResp(PacketPtr pkt){
             // Reading from memory in binary
             bitset<32> instruction = *(uint32_t *)(pkt->getBuffer());
             cout << getName() << " read in binary: " << instruction << endl;    // example: cpu0 read in binary: 01010101010
-            f->intInst.currentInstruction = instruction;
 
+            if(f->isFlushed())
+                f->intInst.currentInstruction.reset(); // Flushing the pipleine
+            else
+                f->intInst.currentInstruction = instruction;
+
+            f->setMemAccessFinished(1);
             f->release->releaseEvent();
         } else if(pkt->getName() == "execute" && pkt->isRead()){        // only true for execute
             // Reading int from data memory
@@ -349,10 +354,10 @@ void CPU::recvResp(PacketPtr pkt){
                 ex->fInst.rd.setData(*(float *)(pkt->getBuffer()));
             }
 
-            ex->setBusy(0); // Setting execute stage to not busy
+            ex->setMemAccessFinished(1); // Setting execute stage to not busy
         } else {
             cout << "Successfully Stored " << (*(int *)(pkt->getBuffer())) << " to Memory" << std::endl;
-            ex->setBusy(0); // Setting execute stage to not busy
+            ex->setMemAccessFinished(1); // Setting execute stage to not busy
         }
         delete pkt;
 }

@@ -46,24 +46,30 @@ protected:
     bool busy; // Pipleine busy or not
     bool read; // Memory read or write
     bool memAccess; // Memory access or not for the execute stage
+    bool memAccessFinished;
     bool isFloat;
+    bool flushed; // After Jump/branch and if we take it then we have to get rid of the instruction that is in fetch
     size_t latency; // the latency involved based on what instruction set is being processed
 
 public:
     Instruction<int> intInst;
     Instruction<float> fInst;
 
-    Pipeline(): busy(0), read(1), memAccess(0), isFloat(0), latency(0) {}
+    Pipeline(): busy(0), read(1), memAccess(0), memAccessFinished(1), isFloat(0), flushed(0), latency(0) {}
     void setBusy(bool _busy) { busy = _busy; }
     void setRead(bool _read) { read = _read; }
     void setMemAccess(bool _memAccess) { memAccess = _memAccess; }
     void setFloat(bool _isFloat) { isFloat = _isFloat; }
     void setLatency(size_t _latency) { latency = _latency; }
+    void setMemAccessFinished(bool _memAccessFinished) { memAccessFinished = _memAccessFinished; }
+    void setFlushed(bool _flushed) {flushed = _flushed; }
     bool isBusy() { return busy; }
     bool isRead() { return read; }
     bool isMemAccess() { return memAccess; }
     bool getIsFloat() { return isFloat; }
+    bool isMemAccessFinished() { return memAccessFinished; }
     size_t getLatency() { return latency; }
+    bool isFlushed() { return flushed; }
 };
 
 class CPU : public SimObject{
@@ -95,7 +101,8 @@ private:
             virtual void process() override {
                 if(fetch->cpu->ex->isBusy())                                // If execute is busy then Reschedule
                     fetch->cpu->schedule(this, fetch->cpu->currTick() + 10);
-                else {                                                      // If not then send data to decode and schedule and schedule decode and fetch
+                else {
+                    std::cout << "Fetch has released it's data" << std::endl;                                            // If not then send data to decode and schedule and schedule decode and fetch
                     // Passing the instruction of fetch to decode for int instruction
                     fetch->cpu->d->intInst = fetch->intInst;
                     // Passing the instruction of fetch to decode for float instruction
@@ -160,10 +167,10 @@ private:
         public:
             ReleaseEvent(Decode *_d) : Event(), d(_d) {}
             virtual void process() override {
-
                 if(d->cpu->ex->isBusy())                                // If execute is busy then Reschedule
                     d->cpu->schedule(this, d->cpu->currTick() + 10);
-                else {                                                  // If not then send data to execute and schedule an execute
+                else {
+                    std::cout << "Decode has released it's data" << std::endl;                                            // If not then send data to execute and schedule an execute
                     d->cpu->ex->intInst = d->intInst;                   // Passing the instruction of decode to execute for int instruction
 
                     d->cpu->ex->fInst = d->fInst;                       // Passing the instruction of decode to execute for float instruction
@@ -227,13 +234,13 @@ private:
         public:
             ReleaseEvent(Execute *_ex) : Event(), ex(_ex) {}
             virtual void process() override {
-
                 if(!ex->isMemAccess()) // If we dont need to access memory then we can go ahead and send data
-                    ex->setBusy(0);
+                    ex->setMemAccessFinished(1);
 
 
                 // If not busy pass data to store and create a store event
-                if(!ex->isBusy()){
+                if(ex->isMemAccessFinished()){
+                    std::cout << "Execute has released it's data" << std::endl;
                     // Passing the instruction of execute to store for int instruction
                     ex->cpu->s->intInst = ex->intInst;
                     // Passing the instruction of execute to store for float instruction
@@ -244,11 +251,13 @@ private:
                     ex->cpu->s->setFloat(ex->cpu->ex->getIsFloat());
 
                     // create a store after data is released
-                    if((ex->isMemAccess() && ex->isRead()) || !ex->isMemAccess()){
+                    if((ex->isMemAccess() && ex->isRead()) || !ex->isMemAccess())
                         ex->cpu->s->e->storeEvent();
-                    }
-                } else
+
+                ex->setBusy(0);
+            } else{
                     ex->cpu->schedule(this, ex->cpu->currTick() + 10); // Reschedule if busy for current tick + 10
+                }
             }
             virtual const char* description() override {return "Execute Release Event";}
             void releaseEvent() {
