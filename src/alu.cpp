@@ -13,7 +13,6 @@ std::string GetBinary32( float value );
 
 // Determines what alu operation needs to be done based on the opcode and the width of the instruction
 void CPU::ALU::aluOperations() {
-    std::cout << "opcode: " << cpu->ex->intInst.opcode << " funct3: " << cpu->ex->intInst.funct3 << std::endl;
     // Integer Operations
     if(!cpu->ex->getIsFloat()){
         if(cpu->ex->intInst.opcode.to_string() == "1100100") {      // addi/mv + slli
@@ -94,7 +93,7 @@ void CPU::ALU::aluOperations() {
                 std::cout << "FADDS" << std::endl;
                 FADDS();
             }
-            else if(cpu->ex->fInst.funct7.to_string() == "0000100") {
+            else if(cpu->ex->fInst.funct7.to_string() == "0010000") {
                 std::cout << "FSUBS" << std::endl;
                 FSUBS();
             }
@@ -115,8 +114,7 @@ void CPU::ALU::aluOperations() {
     }
 
     // Scheduling execute release unless the program is done
-    if(cpu->currAddrI < cpu->endAddrI)
-        cpu->ex->release->releaseEvent();
+    cpu->ex->release->releaseEvent();
 }
 
 void CPU::ALU::ADDI() {
@@ -138,7 +136,8 @@ void CPU::ALU::ADDI() {
 }
 
 void CPU::ALU::SLLI() {   // Logical left shift (zeros are shifted into the lower bits) PAGE 14
-    int val = cpu->ex->intInst.immJU.to_ulong();  // Immidate value
+    std::cout << "SLLI" << std::endl;
+    int val = cpu->ex->intInst.immISB.to_ulong();  // Immidate value
     int val2 = cpu->ex->intInst.rs1.getData();    // rs1
     int val3 = val2 << val;
 
@@ -588,7 +587,7 @@ void CPU::ALU::FSUBS() {
     std::cout << "rs2 name: " << cpu->ex->fInst.rs2.getName() << std::endl;
     std::cout << "rd name: " << cpu->ex->fInst.rd.getName() << std::endl;
 
-    cpu->ex->fInst.rd.setData(val2 - val1); // Subtracting 2 float values
+    cpu->ex->fInst.rd.setData(val1 - val2); // Subtracting 2 float values
 }
 
 void CPU::ALU::FLW() {
@@ -601,6 +600,7 @@ void CPU::ALU::FLW() {
     std::cout << "rd name: " << cpu->ex->fInst.rd.getName() << std::endl;
     std::cout << "Current address: " << addrs << std::endl;
 
+    cpu->ex->setMemAccessFinished(0);
     cpu->processData(); // Loading word from memory
 }
 
@@ -615,6 +615,7 @@ void CPU::ALU::FSW() {
     std::cout << "rs1 name: " << cpu->ex->fInst.rd.getName() << std::endl;
     std::cout << "rd name: " << cpu->ex->fInst.rd.getName() << std::endl;
 
+    cpu->ex->setMemAccessFinished(0);
     cpu->ex->fInst.data = cpu->ex->fInst.rs2.getData();
     cpu->processData(); // Storing word to memory
 }

@@ -29,6 +29,6 @@ void RunSim::runSimulation(){
         incTick(1); // Increments currentTick by amount (t)
     }
 
-    if(!(currTick() == 1))
-        cout << "CPI: " << (cycles+1)/numInstructions << endl;
+    // if(!(currTick() == 1))
+        // cout << "CPI: " << (cycles+1)/numInstructions << endl;
 }
