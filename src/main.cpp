@@ -42,6 +42,7 @@ int main(){
     // Fill DRAM with random floating point values. 0x400 - 0xFFF
     for (auto i = ram->getAddrRange().first + 0x200; i < ram->getAddrRange().second; i+=4){
          float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+         std::cout << r << std::endl;
          uint32_t val = *(uint32_t *)(&r);
          ram->writeWordAtAddr(i, val);
     }
