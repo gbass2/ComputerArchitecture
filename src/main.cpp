@@ -65,8 +65,9 @@ int main(){
     for(auto x: cpu1->output)
         std::cout << x << std::endl;
 
-    std::cout << std::endl << "CPI for CPU0: " << (sim->cycles+1)/cpu0->numInstructions << std::endl;
-    std::cout << "CPI for CPU1: " << (sim->cycles +1)/cpu1->numInstructions << std::endl;
+    // Outputing CPI
+    std::cout << std::endl << "CPI for CPU0: " << (sys->cycles0+1)/cpu0->numInstructions << std::endl;
+    std::cout << "CPI for CPU1: " << (sys->cycles1 +1)/cpu1->numInstructions << std::endl;
 
     return 0;
 }

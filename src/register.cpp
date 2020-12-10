@@ -132,6 +132,15 @@ void RegisterBank::process(){
 
             if(!cpu->s->intInst.rd.getName().none()) // Store rd if the register is not the zeros register
                 intRegisters[nameInInt] = cpu->s->intInst.rd;
+
+            // If the instruction is a return then set isFinished to 1
+            if(cpu->s->intInst.opcode.to_string() == "1110011"){
+                if((!(cpu->getName(), "CPU0")))
+                    cpu->sysMain->isFinished0 = true;
+                else
+                    cpu->sysMain->isFinished1 = true;
+            }
+
         } else { // For a floating point write
             // Storing Rd
             name = cpu->s->fInst.rd.getName();

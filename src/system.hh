@@ -13,7 +13,12 @@ private:
     std::deque<Event *> MEQ; // Master Event Queue
     std::deque<Event *>::iterator findEvent(Event *e); // Finds an event in the MEQ
 public:
-    System() : currentTick(0) {}
+    double cycles0; // cycles count for cpu0
+    double cycles1; // cycles count for CPU1
+    bool isFinished0; // True if the cpu0 is finished with its last instruction
+    bool isFinished1; // True if the cpu0 is finished with its last instruction
+
+    System() : currentTick(0), cycles0(0), cycles1(0), isFinished0(0), isFinished1(0) {}
     Tick currTick(){ return currentTick; }
     void incTick(Tick t) { currentTick += t; }
     void schedule(Event *e, Tick t); // Schedule and event in the MEQ. Throw and error if event already scheduled

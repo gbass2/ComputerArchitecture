@@ -370,6 +370,7 @@ public:
         void FSW();
         void FADDS();
         void FSUBS();
+        void MUL();
     };
 
     // RequestEvent for the data port of the memory
