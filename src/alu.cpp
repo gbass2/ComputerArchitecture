@@ -85,26 +85,25 @@ void CPU::ALU::aluOperations() {
             if(cpu->ex->fInst.funct7.to_string() == "0000000")
                 ADD();
         }
+        else if(cpu->ex->intInst.opcode.to_string() == "1100110"){
+            MUL();
+        }
         else
             std::cout << "NOP in execute" << std::endl;
 
     } else { // Floating Point Operations
         if(cpu->ex->fInst.opcode.to_string() == "1100101") {  // fadd.s
             if(cpu->ex->fInst.funct7.to_string() == "0000000"){
-                std::cout << "FADDS" << std::endl;
                 FADDS();
             }
             else if(cpu->ex->fInst.funct7.to_string() == "0010000") {
-                std::cout << "FSUBS" << std::endl;
                 FSUBS();
             }
         }
         else if(cpu->ex->fInst.opcode.to_string() == "1110010") { // fsw
-            std::cout << "FSW" << std::endl;
             FSW();
         }
         else if(cpu->ex->fInst.opcode.to_string() == "1110000") { // flw
-            std::cout << "FLW" << std::endl;
             FLW();
         }
     }
@@ -120,6 +119,7 @@ void CPU::ALU::aluOperations() {
 
 void CPU::ALU::ADDI() {
     // rd = rs1 + imm
+    std::cout << "ADDI" << std::endl;
     int val, val2;
     std::cout << "imm: " << cpu->ex->intInst.immISB << std::endl; //  110000000000 = 3072
     val = cpu->ex->intInst.rs1.getData();    // rs1
@@ -150,6 +150,7 @@ void CPU::ALU::SLLI() {   // Logical left shift (zeros are shifted into the lowe
 }
 
 void CPU::ALU::SRLI() {   // Logical right shift (zeros are shifted into the upper bits)
+    std::cout << "SRLI" << std::endl;
     int val = cpu->ex->intInst.immJU.to_ulong();  // Immidate value
     int val2 = cpu->ex->intInst.rs1.getData();    // rs1
     int val3 = val2 >> val;
@@ -162,6 +163,7 @@ void CPU::ALU::SRLI() {   // Logical right shift (zeros are shifted into the upp
 }
 
 void CPU::ALU::SRAI() {   // Logical right shift (zeros are shifted into the upper bits)
+    std::cout << "SRAI" << std::endl;
     std::string imm = cpu->ex->intInst.immJU.to_string().substr(0, 5); // immediate value
     reverse(imm.begin(), imm.end());
     int val = Binary2Decimal(imm, 5);
@@ -176,6 +178,7 @@ void CPU::ALU::SRAI() {   // Logical right shift (zeros are shifted into the upp
 }
 
 void CPU::ALU::LB() { // Load Byte
+    std::cout << "LB" << std::endl;
     cpu->byteAmount = 1; // 8 bits for loading a byte
     int imm;
 
@@ -197,6 +200,7 @@ void CPU::ALU::LB() { // Load Byte
 }
 
 void CPU::ALU::LH() { // Load Half Word
+    std::cout << "LH" << std::endl;
     cpu->byteAmount = 2; //  16 bits for half word
     int imm;
 
@@ -240,6 +244,7 @@ void CPU::ALU::LW() { // Load Word
 }
 
 void CPU::ALU::LBU() { // Load Byte and zero extend it
+    std::cout << "LBU" << std::endl;
     cpu->byteAmount = 1; // 8 bits for loading a byte
     int imm;
 
@@ -261,6 +266,7 @@ void CPU::ALU::LBU() { // Load Byte and zero extend it
 }
 //
 void CPU::ALU::LBH() { // Load Half Word and zero extend it
+    std::cout << "LBH" << std::endl;
     cpu->byteAmount = 2; // 16 bits for half word
     int imm;
 
@@ -282,6 +288,7 @@ void CPU::ALU::LBH() { // Load Half Word and zero extend it
 }
 
 void CPU::ALU::SB() { // Storing byte
+    std::cout << "SB" << std::endl;
     cpu->byteAmount = 1; // Specify an 8 bit value to be stored
     int imm;
 
@@ -311,6 +318,7 @@ void CPU::ALU::SB() { // Storing byte
 }
 
 void CPU::ALU::SH() { // Storing half word
+    std::cout << "SH" << std::endl;
     cpu->byteAmount = 2; // Specify 16 bit value to be stored
     int imm;
 
@@ -371,6 +379,7 @@ void CPU::ALU::SW() { // Storing Word
 }
 
 void CPU::ALU::LUI() {
+    std::cout << "LUI" << std::endl;
     int val = cpu->ex->intInst.immJU.to_ulong() << 12;
     val = abs(val);
 
@@ -379,6 +388,7 @@ void CPU::ALU::LUI() {
 }
 
 void CPU::ALU::AUIPC() {
+    std::cout << "AUIPC" << std::endl;
     int offset = cpu->ex->intInst.immJU.to_ulong() << 12; // Immidate value
     std::cout << "offset: " << offset << std::endl;
 
@@ -395,6 +405,7 @@ void CPU::ALU::AUIPC() {
 }
 
 void CPU::ALU::ADD() {
+    std::cout << "ADD" << std::endl;
     int val1 = cpu->ex->intInst.rs1.getData();    // rs1
     int val2 = cpu->ex->intInst.rs2.getData();    // rs2
     std::cout << "rs1 name: " << cpu->ex->intInst.rs1.getName() << std::endl;
@@ -405,6 +416,7 @@ void CPU::ALU::ADD() {
 }
 
 void CPU::ALU::BEQ(){ // Branch Equal
+    std::cout << "BEQ" << std::endl;
     int val, val2;
 
     val = cpu->ex->intInst.rs1.getData();     // rs1
@@ -424,6 +436,7 @@ void CPU::ALU::BEQ(){ // Branch Equal
 }
 
 void CPU::ALU::BNE(){ // Branch Not Equal
+    std::cout << "BNE" << std::endl;
     int val, val2;
 
     val = cpu->ex->intInst.rs1.getData();     // rs1
@@ -464,6 +477,7 @@ void CPU::ALU::BLT() {  // Branch Rs1 Less Than Rs2
 }
 
 void CPU::ALU::BLTU() {  // Branch Rs1 Less Than Rs2 Unsigned
+    std::cout << "BLTU" << std::endl;
     int val, val2;
 
     val = cpu->ex->intInst.rs1.getData();    // rs1
@@ -481,6 +495,7 @@ void CPU::ALU::BLTU() {  // Branch Rs1 Less Than Rs2 Unsigned
 }
 
 void CPU::ALU::BGE() {  // Branch Rs1 greater than Rs2
+    std::cout << "BGE" << std::endl;
     int val, val2;
 
     val = cpu->ex->intInst.rs1.getData();    // rs1
@@ -498,6 +513,7 @@ void CPU::ALU::BGE() {  // Branch Rs1 greater than Rs2
 }
 
 void CPU::ALU::BGEU() {  // Branch Rs1 greater than Rs2 Unsigned
+    std::cout << "BGEU" << std::endl;
     int val, val2;
 
     val = cpu->ex->intInst.rs1.getData();    // rs1
@@ -533,6 +549,7 @@ void CPU::ALU::JAL() {
 }
 
 void CPU::ALU::JALR() {
+    std::cout << "JALR" << std::endl;
     std::cout << "rs1 name:" << cpu->ex->intInst.rs1.getName() << std::endl;
 
     int val = cpu->ex->intInst.rs1.getData();    // rs1
@@ -552,8 +569,20 @@ void CPU::ALU::JALR() {
     cpu->f->setFlushed(1);
 }
 
+void CPU::ALU::MUL() {
+    std::cout << "MUL" << std::endl;
+    int val1 = cpu->ex->intInst.rs1.getData();    // rs1
+    int val2 = cpu->ex->intInst.rs2.getData();    // rs2
+    std::cout << "rs1 name: " << cpu->ex->intInst.rs1.getName() << std::endl;
+    std::cout << "rs2 name: " << cpu->ex->intInst.rs2.getName() << std::endl;
+    std::cout << "rd name: " << cpu->ex->intInst.rd.getName() << std::endl;
+
+    cpu->ex->intInst.rd.setData(val1 * val2); // Adding 2 int values
+}
+
 void CPU::ALU::FADDS() {
     // rd = rs1 + rs2
+    std::cout << "FADDS" << std::endl;
     float val1, val2;
 
     val1 = cpu->ex->fInst.rs1.getData();    // rs1
@@ -566,6 +595,7 @@ void CPU::ALU::FADDS() {
 }
 
 void CPU::ALU::FSUBS() {
+    std::cout << "FSUBS" << std::endl;
     // rd = rs1 + rs2
     float val1, val2;
 
@@ -579,6 +609,7 @@ void CPU::ALU::FSUBS() {
 }
 
 void CPU::ALU::FLW() {
+    std::cout << "FLW" << std::endl;
     cpu->byteAmount = 4; // 32 bits for a word
     int imm = Binary2Decimal(cpu->ex->fInst.immISB.to_string(), 12); // Immidate value
     size_t addrs =  +  cpu->ex->fInst.rs1.getData() + imm;
@@ -593,6 +624,7 @@ void CPU::ALU::FLW() {
 }
 
 void CPU::ALU::FSW() {
+    std::cout << "FSW" << std::endl;
     cpu->byteAmount = 4; // 32 bits for a word
     int imm = Binary2Decimal(cpu->ex->fInst.immISB.to_string(), 12); // Immidate value
     size_t addrs =  +  cpu->ex->fInst.rs1.getData() + imm;

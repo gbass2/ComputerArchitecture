@@ -9,8 +9,14 @@ void RunSim::runSimulation(){
 
     while(!(sysMain->getMEQ().empty())){
         // Counting the cycles
-        if(currTick() % 10 == 0 && currTick() > 1)
+        if(currTick() % 10 == 0 && currTick() > 1){
             cycles++;
+
+            if(!sysMain->isFinished0)
+                sysMain->cycles0++;
+            if(!sysMain->isFinished0)
+                sysMain->cycles1++;
+        }
 
         // printMEQ();
 
