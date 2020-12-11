@@ -16,19 +16,19 @@ void CPU::ALU::aluOperations() {
     cpu->numInstructions++;
     // Integer Operations
     if(!cpu->ex->getIsFloat()){
-        if(cpu->ex->intInst.opcode.to_string() == "1100100") {      // addi/mv + slli
-            if(cpu->ex->intInst.funct3.to_string() == "000")      // Add immediate
+        if(cpu->ex->intInst.opcode.to_string() == "1100100") {
+            if(cpu->ex->intInst.funct3.to_string() == "000")
                 ADDI();
-            //else if(cpu->ex->intInst.funct3.to_string() == "010")
-            //     SLTI();
-            // else if(cpu->ex->intInst.funct3.to_string() == "110")
-            //     SLTIU();
-            // else if(cpu->ex->intInst.funct3.to_string() == "001")
-            //     XORI();
-            // else if(cpu->ex->intInst.funct3.to_string() == "011")
-            //     ORI();
-            // else if(cpu->ex->intInst.funct3.to_string() == "111")
-            //     ANDI();
+            else if(cpu->ex->intInst.funct3.to_string() == "010")
+                SLTI();
+            else if(cpu->ex->intInst.funct3.to_string() == "110")
+                SLTIU();
+            else if(cpu->ex->intInst.funct3.to_string() == "001")
+                XORI();
+            else if(cpu->ex->intInst.funct3.to_string() == "011")
+                ORI();
+            else if(cpu->ex->intInst.funct3.to_string() == "111")
+                ANDI();
             else if(cpu->ex->intInst.funct3.to_string() == "100") // Locgial Shift Left
                 SLLI();
             else if(cpu->ex->intInst.funct3.to_string() == "101") // Logical Right Shift
@@ -121,19 +121,102 @@ void CPU::ALU::ADDI() {
     // rd = rs1 + imm
     std::cout << "ADDI" << std::endl;
     int val, val2;
-    std::cout << "imm: " << cpu->ex->intInst.immISB << std::endl; //  110000000000 = 3072
     val = cpu->ex->intInst.rs1.getData();    // rs1
 
     // If previous instruction is lui then abs the imm
     if(cpu->s->intInst.opcode.to_string() == "1110110")
         val2 = cpu->ex->intInst.immISB.to_ulong();
     else
-        val2 =  Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12); // Immidate value = 10000000000 = 1024
+        val2 =  Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12);
 
 
     std::cout << "imm: " << val2 << std::endl;
 
     cpu->ex->intInst.rd.setData(val + val2); // Adding an int to an immediate value
+}
+
+void CPU::ALU::SLTI() {
+    std::cout << "SLTI" << std::endl;
+    int val, val2;
+    val = cpu->ex->intInst.rs1.getData();    // rs1
+
+    val2 =  Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12);
+
+    std::cout << "imm: " << val2 << std::endl;
+
+    if(val < val2)
+        cpu->ex->intInst.rd.setData(1); // Storing 1 to rd if rs1 < imm
+    else
+        cpu->ex->intInst.rd.setName(0); // Setting rd name to 0 so it will not store to register
+}
+
+void CPU::ALU::SLTIU() {
+    std::cout << "SLTIU" << std::endl;
+    int val, val2;
+    val = cpu->ex->intInst.rs1.getData();    // rs1
+
+    val2 =  cpu->ex->intInst.immISB.to_ulong();
+
+    std::cout << "imm: " << val2 << std::endl;
+
+    if(val < val2)
+        cpu->ex->intInst.rd.setData(1); // Storing 1 to rd if rs1 < imm
+    else
+        cpu->ex->intInst.rd.setName(0); // Setting rd name to 0 so it will not store to register
+}
+
+void CPU::ALU::XORI() {
+    // rd = rs1 + imm
+    std::cout << "XORI" << std::endl;
+    int val, val2;
+    val = cpu->ex->intInst.rs1.getData();    // rs1
+
+    // If previous instruction is lui then abs the imm
+    if(cpu->s->intInst.opcode.to_string() == "1110110")
+        val2 = cpu->ex->intInst.immISB.to_ulong();
+    else
+        val2 =  Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12);
+
+
+    std::cout << "imm: " << val2 << std::endl;
+
+    cpu->ex->intInst.rd.setData(val ^ val2); // Xoring rs1 and imm
+}
+
+void CPU::ALU::ORI() {
+    // rd = rs1 + imm
+    std::cout << "ORI" << std::endl;
+    int val, val2;
+    val = cpu->ex->intInst.rs1.getData();    // rs1
+
+    // If previous instruction is lui then abs the imm
+    if(cpu->s->intInst.opcode.to_string() == "1110110")
+        val2 = cpu->ex->intInst.immISB.to_ulong();
+    else
+        val2 =  Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12);
+
+
+    std::cout << "imm: " << val2 << std::endl;
+
+    cpu->ex->intInst.rd.setData(val | val2); // Oring rs1 and imm
+}
+
+void CPU::ALU::ANDI() {
+    // rd = rs1 + imm
+    std::cout << "ANDI" << std::endl;
+    int val, val2;
+    val = cpu->ex->intInst.rs1.getData();    // rs1
+
+    // If previous instruction is lui then abs the imm
+    if(cpu->s->intInst.opcode.to_string() == "1110110")
+        val2 = cpu->ex->intInst.immISB.to_ulong();
+    else
+        val2 =  Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12);
+
+
+    std::cout << "imm: " << val2 << std::endl;
+
+    cpu->ex->intInst.rd.setData(val & val2); // Anding rs1 and imm
 }
 
 void CPU::ALU::SLLI() {   // Logical left shift (zeros are shifted into the lower bits) PAGE 14
