@@ -18,7 +18,7 @@ void RunSim::runSimulation(){
                 sysMain->cycles1++;
         }
 
-        // printMEQ();
+        printMEQ();
 
         cout << "Current Cycle: " << cycles  << endl;
         cout << "Current Tick: " << currTick() << endl;

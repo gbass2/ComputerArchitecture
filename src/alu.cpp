@@ -171,11 +171,7 @@ void CPU::ALU::XORI() {
     int val, val2;
     val = cpu->ex->intInst.rs1.getData();    // rs1
 
-    // If previous instruction is lui then abs the imm
-    if(cpu->s->intInst.opcode.to_string() == "1110110")
-        val2 = cpu->ex->intInst.immISB.to_ulong();
-    else
-        val2 =  Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12);
+    val2 =  Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12);
 
 
     std::cout << "imm: " << val2 << std::endl;
@@ -189,11 +185,7 @@ void CPU::ALU::ORI() {
     int val, val2;
     val = cpu->ex->intInst.rs1.getData();    // rs1
 
-    // If previous instruction is lui then abs the imm
-    if(cpu->s->intInst.opcode.to_string() == "1110110")
-        val2 = cpu->ex->intInst.immISB.to_ulong();
-    else
-        val2 =  Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12);
+    val2 =  Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12);
 
 
     std::cout << "imm: " << val2 << std::endl;
@@ -207,11 +199,7 @@ void CPU::ALU::ANDI() {
     int val, val2;
     val = cpu->ex->intInst.rs1.getData();    // rs1
 
-    // If previous instruction is lui then abs the imm
-    if(cpu->s->intInst.opcode.to_string() == "1110110")
-        val2 = cpu->ex->intInst.immISB.to_ulong();
-    else
-        val2 =  Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12);
+    val2 =  Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12);
 
 
     std::cout << "imm: " << val2 << std::endl;
@@ -265,13 +253,9 @@ void CPU::ALU::LB() { // Load Byte
     cpu->byteAmount = 1; // 8 bits for loading a byte
     int imm;
 
-    // If previous instruction is lui then abs the imm
-    if(cpu->s->intInst.opcode.to_string() == "1110110")
-        imm = cpu->ex->intInst.immISB.to_ulong();
-    else
-        imm =  Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12); // Immidate value = 10000000000 = 1024
+    imm =  Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12); // Immidate value = 10000000000 = 1024
 
-    size_t addrs =  +  cpu->ex->intInst.rs1.getData() + imm;
+    size_t addrs = cpu->ex->intInst.rs1.getData() + imm;
     cpu->currAddrD = addrs;
 
     std::cout << "rs1 name: " << cpu->ex->intInst.rs1.getName() << std::endl;
@@ -287,13 +271,9 @@ void CPU::ALU::LH() { // Load Half Word
     cpu->byteAmount = 2; //  16 bits for half word
     int imm;
 
-    // If previous instruction is lui then abs the imm
-    if(cpu->s->intInst.opcode.to_string() == "1110110")
-        imm = cpu->ex->intInst.immISB.to_ulong();
-    else
-        imm =  Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12); // Immidate value = 10000000000 = 1024
+    imm =  Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12); // Immidate value = 10000000000 = 1024
 
-    size_t addrs =  +  cpu->ex->intInst.rs1.getData() + imm;
+    size_t addrs = cpu->ex->intInst.rs1.getData() + imm;
     cpu->currAddrD = addrs;
 
     std::cout << "rs1 name: " << cpu->ex->intInst.rs1.getName() << std::endl;
@@ -309,13 +289,9 @@ void CPU::ALU::LW() { // Load Word
     cpu->byteAmount = 4; // 32 bits for a word
     int imm;
 
-    // If previous instruction is lui then abs the imm
-    if(cpu->s->intInst.opcode.to_string() == "1110110")
-        imm = cpu->ex->intInst.immISB.to_ulong();
-    else
-        imm =  Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12); // Immidate value = 10000000000 = 1024
+    imm =  Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12); // Immidate value = 10000000000 = 1024
 
-    size_t addrs =  +  cpu->ex->intInst.rs1.getData() + imm;
+    size_t addrs = cpu->ex->intInst.rs1.getData() + imm;
     cpu->currAddrD = addrs;
 
     std::cout << "rs1 name: " << cpu->ex->intInst.rs1.getName() << std::endl;
@@ -331,13 +307,9 @@ void CPU::ALU::LBU() { // Load Byte and zero extend it
     cpu->byteAmount = 1; // 8 bits for loading a byte
     int imm;
 
-    // If previous instruction is lui then abs the imm
-    if(cpu->s->intInst.opcode.to_string() == "1110110")
-        imm = cpu->ex->intInst.immISB.to_ulong();
-    else
-        imm =  Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12); // Immidate value = 10000000000 = 1024
+    imm =  Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12); // Immidate value = 10000000000 = 1024
 
-    size_t addrs =  +  cpu->ex->intInst.rs1.getData() + imm;
+    size_t addrs = cpu->ex->intInst.rs1.getData() + imm;
     cpu->currAddrD = addrs;
 
     std::cout << "rs1 name: " << cpu->ex->intInst.rd.getName() << std::endl;
@@ -353,13 +325,9 @@ void CPU::ALU::LBH() { // Load Half Word and zero extend it
     cpu->byteAmount = 2; // 16 bits for half word
     int imm;
 
-    // If previous instruction is lui then abs the imm
-    if(cpu->s->intInst.opcode.to_string() == "1110110")
-        imm = cpu->ex->intInst.immISB.to_ulong();
-    else
-        imm =  Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12); // Immidate value = 10000000000 = 1024
+    imm =  Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12); // Immidate value = 10000000000 = 1024
 
-    size_t addrs =  +  cpu->ex->intInst.rs1.getData() + imm;
+    size_t addrs = cpu->ex->intInst.rs1.getData() + imm;
     cpu->currAddrD = addrs;
 
     std::cout << "rs1 name: " << cpu->ex->intInst.rd.getName() << std::endl;
@@ -375,13 +343,9 @@ void CPU::ALU::SB() { // Storing byte
     cpu->byteAmount = 1; // Specify an 8 bit value to be stored
     int imm;
 
-    // If previous instruction is lui then abs the imm
-    if(cpu->s->intInst.opcode.to_string() == "1110110")
-        imm = cpu->ex->intInst.immISB.to_ulong();
-    else
-        imm =  Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12); // Immidate value = 10000000000 = 1024
+    imm =  Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12); // Immidate value = 10000000000 = 1024
 
-    size_t addrs =  +  cpu->ex->intInst.rs1.getData() + imm;
+    size_t addrs = cpu->ex->intInst.rs1.getData() + imm;
     cpu->currAddrD = addrs;
 
     if(cpu->ex->intInst.rs2.getName().to_string() == "00001"){
@@ -405,13 +369,9 @@ void CPU::ALU::SH() { // Storing half word
     cpu->byteAmount = 2; // Specify 16 bit value to be stored
     int imm;
 
-    // If previous instruction is lui then abs the imm
-    if(cpu->s->intInst.opcode.to_string() == "1110110")
-        imm = cpu->ex->intInst.immISB.to_ulong();
-    else
-        imm =  Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12); // Immidate value = 10000000000 = 1024
+    imm =  Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12); // Immidate value = 10000000000 = 1024
 
-    size_t addrs =  +  cpu->ex->intInst.rs1.getData() + imm;
+    size_t addrs = cpu->ex->intInst.rs1.getData() + imm;
     cpu->currAddrD = addrs;
 
     if(cpu->ex->intInst.rs2.getName().to_string() == "00001"){
@@ -435,13 +395,9 @@ void CPU::ALU::SW() { // Storing Word
     cpu->byteAmount = 4; // Specify 32 bit value to be stored
     int imm;
 
-    // If previous instruction is lui then abs the imm
-    if(cpu->s->intInst.opcode.to_string() == "1110110")
-        imm = cpu->ex->intInst.immISB.to_ulong();
-    else
-        imm =  Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12); // Immidate value = 10000000000 = 1024
+    imm =  Binary2Decimal(cpu->ex->intInst.immISB.to_string(), 12); // Immidate value = 10000000000 = 1024
 
-    size_t addrs =  +  cpu->ex->intInst.rs1.getData() + imm;
+    size_t addrs = cpu->ex->intInst.rs1.getData() + imm;
     cpu->currAddrD = addrs;
 
     if(cpu->ex->intInst.rs2.getName().to_string() == "00001"){
@@ -695,7 +651,7 @@ void CPU::ALU::FLW() {
     std::cout << "FLW" << std::endl;
     cpu->byteAmount = 4; // 32 bits for a word
     int imm = Binary2Decimal(cpu->ex->fInst.immISB.to_string(), 12); // Immidate value
-    size_t addrs =  +  cpu->ex->fInst.rs1.getData() + imm;
+    size_t addrs = cpu->ex->fInst.rs1.getData() + imm;
     cpu->currAddrD = addrs;
 
     std::cout << "rs1 name: " << cpu->ex->fInst.rs1.getName() << std::endl;
@@ -710,7 +666,7 @@ void CPU::ALU::FSW() {
     std::cout << "FSW" << std::endl;
     cpu->byteAmount = 4; // 32 bits for a word
     int imm = Binary2Decimal(cpu->ex->fInst.immISB.to_string(), 12); // Immidate value
-    size_t addrs =  +  cpu->ex->fInst.rs1.getData() + imm;
+    size_t addrs = cpu->ex->fInst.rs1.getData() + imm;
     cpu->currAddrD = addrs;
 
     std::cout << "imm: " << imm << std::endl;

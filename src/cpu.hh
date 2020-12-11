@@ -481,7 +481,10 @@ public:
                         int8_t val = ex->intInst.data;
                         port2->sendReq(new Packet(false, currAddrD, (uint8_t *)(&val), byteAmount, "execute"));
                     } else if(byteAmount == 2){ // Storing half word
+                        std::cout << "Half Word" << std::endl;
                         int16_t val = ex->intInst.data;
+                        std::cout << "Data: " << ex->intInst.data << std::endl;
+                        std::cout << "Stored Value: " << val << std::endl;
                         port2->sendReq(new Packet(false, currAddrD, (uint8_t *)(&val), byteAmount, "execute"));
                     } else if(byteAmount == 4){ // Storing word
                         int32_t val = ex->intInst.data;
