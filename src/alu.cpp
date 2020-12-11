@@ -349,7 +349,7 @@ void CPU::ALU::SB() { // Storing byte
     cpu->currAddrD = addrs;
 
     if(cpu->ex->intInst.rs2.getName().to_string() == "00001"){
-        int tmp = cpu->currAddrI;
+        int tmp = cpu->currAddrI - 8;
         cpu->ex->intInst.rs2.setData(tmp);
     }
 
@@ -375,7 +375,7 @@ void CPU::ALU::SH() { // Storing half word
     cpu->currAddrD = addrs;
 
     if(cpu->ex->intInst.rs2.getName().to_string() == "00001"){
-        int tmp = cpu->currAddrI;
+        int tmp = cpu->currAddrI - 8;
         cpu->ex->intInst.rs2.setData(tmp);
     }
 
