@@ -470,7 +470,7 @@ public:
     }
     void processData() {
         if(!(port2->isBusy())){
-            std::cout << "Creating memory request to Addr: " << currAddrD << " for 4 bytes on Tick: " << currTick() << std:: endl;
+            std::cout << "Creating memory request to Addr: " << currAddrD << " for " << byteAmount << " bytes on Tick: " << currTick() << std:: endl;
             if(ex->isRead()){
                 port2->sendReq(new Packet(true, currAddrD, byteAmount, "execute"));
             }
@@ -495,8 +495,8 @@ public:
     }
 
     void recvResp(PacketPtr pkt);
-    MasterPort *getPort1() { return port1; } // Returns the
-    MasterPort *getPort2() { return port2; }
+    MasterPort *getPort1() { return port1; } // Returns the instruction port
+    MasterPort *getPort2() { return port2; } // Returns the data port
 
     virtual void initialize() override { // Initialzes MEQ with a fetch event
         std::cout << "Initializing first fetch for " << getName() << std::endl << std::endl;
