@@ -5,7 +5,7 @@
 #include "DRAM.hh"
 #include "membus.hh"
 #include <memory>
-#include <sstream>
+#include <fstream>
 
 void setupSimulator(DRAM *ram1, DRAM *ram2);
 
@@ -41,23 +41,33 @@ int main(){
     cpu1->getPort2()->bind(bus->getUnboundCPUSidePort());   // Binding cpu1 data port (port1) to membus
 
     // Filling in Mat A
-    for (auto i = 0x400; i <= 0x2CA3; i+=4){
-         float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-         uint32_t val = *(uint32_t *)(&r);
-         ram->writeWordAtAddr(i, val);
+    std::ifstream MAT_A;
+    MAT_A.open("MAT_A_DATA.txt");
+    std::string line;
+    int i = 0x400;
+    while(getline(MAT_A, line)) {
+        int r = stoi(line);
+        uint8_t val = *(uint8_t *)(&r);
+        ram->writeWordAtAddr(i, val);
+        i++;
     }
 
+    std::ifstream MAT_B;
+    MAT_B.open("MAT_B_DATA.txt");
     // Filling in Mat B
-    for (auto i = 0x2CA4; i <= 0x2CAC; i+=4){
-         float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-         uint32_t val = *(uint32_t *)(&r);
-         ram->writeWordAtAddr(i, val);
+    i = 0x2CA4;
+    while(getline(MAT_B, line)) {
+        int r = stoi(line);
+        uint8_t val = *(uint8_t *)(&r);
+        ram->writeWordAtAddr(i, val);
+        i++;
     }
 
     // Filling in Mat C
-    for (auto i = 0x2CAD; i <= 0x7ACC; i+=4){
-         int16_t val-1;
-         ram->writeWordAtAddr(i, val);
+    for (auto i = 0x2CAD; i <= 0x7ACC; i+=2){
+         int16_t r = -1;
+         uint16_t val = *(uint16_t *)(&r);
+         ram->writeHalfwordAtAddr(i, val);
     }
 
     // Setting the frame ptr to the starting value of the stack and the stack ptr to the ending point of the stack
