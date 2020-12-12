@@ -363,7 +363,7 @@ public:
         void XORI(); void ORI(); void ANDI();
         void SB(); void SH(); void SW();
         void JAL();   void JALR();
-        void LB();  void LH(); void LW(); void LBU(); void LBH();
+        void LB();  void LH(); void LW(); void LBU(); void LHU();
         void BEQ(); void BNE(); void BGE(); void BLT(); void BLTU(); void BGEU();
         void LUI(); void AUIPC();
         void FLW();

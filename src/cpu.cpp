@@ -291,7 +291,7 @@ void CPU::recvResp(PacketPtr pkt){
                 int val = (*(int *)(pkt->getBuffer())); // Loading into rd. The store stage will get the data and store it in the proper location
                 cout << "Loaded value: " << val << endl << endl;
 
-                if(ex->intInst.funct3.to_string() == "101")        // LBH Zero Extend
+                if(ex->intInst.funct3.to_string() == "101")        // LHU Zero Extend
                     val = val << 16;
                 else if(ex->intInst.funct3.to_string() == "100")   // LBU Zero extend
                     val = val << 24;

@@ -41,13 +41,12 @@ using namespace std;
 // }
 
 int main(){
-    // bitset<12> test("010000000010");
-    //
-    // string val = test.to_string().substr(0,5);
-    // reverse(val.begin(), val.end());
-    // int val2 = Binary2Decimal(val, 5);
+    bitset<20> test = 16;
 
-    // cout << "shift ammount: " << val2 << endl;x
+    cout << "shift before: " << test.to_ulong() << endl;
+    test = test << 1;
+
+    cout << "shift after: " << test.to_ulong() << endl;
 
     return 0;
 }

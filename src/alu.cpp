@@ -52,7 +52,7 @@ void CPU::ALU::aluOperations() {
             else if(cpu->ex->intInst.funct3.to_string() == "001")
                 LBU();
             else if(cpu->ex->intInst.funct3.to_string() == "101")
-                LBH();
+                LHU();
         }
         else if(cpu->ex->intInst.opcode.to_string() == "1111011") { // Jump and Link
             JAL();
@@ -573,7 +573,10 @@ void CPU::ALU::JAL() {
      // Jumping back to an address
      std::cout << "JAL" << std::endl;
      std::cout << "imm in bits: " << cpu->ex->intInst.immJU << std::endl;
+
      int imm = cpu->ex->intInst.immJU.to_ulong();
+     imm = imm << 1;
+
      std::cout << "imm: " << imm << std::endl;
      std::cout << "Current Address (Before): " << cpu->currAddrI << std::endl;
      cpu->currAddrI = imm;
@@ -593,6 +596,8 @@ void CPU::ALU::JALR() {
 
     int val = cpu->ex->intInst.rs1.getData();    // rs1
     int imm = cpu->ex->intInst.immJU.to_ulong();
+    imm = imm << 1;
+
     std::cout << "imm: " << imm << std::endl;
     std::bitset<32> addrs = val + imm;
     addrs[0] = 0;
